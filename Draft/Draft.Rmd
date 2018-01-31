@@ -174,11 +174,16 @@ Give definitions here..
 We repeat the study from before, we first test in Figure ADDREF the behaviour of the index values over 100 interpolated projections that are randomly selected via the grand tour algorithm.
 Note that here the measures are calculated on non-binned data.
 The observed behaviour is smooth (much in contrast to the behaviour of the scagnostics measures) and we next test the behaviour in a guided tour, comparing again also the first and final projection. (which index to select, will try both below...)
+It seems they both maximise correlation, this might not be too useful here...
 ```{r mbgraphics-indices, fig.height=3, fig.cap="(ref:mbgraphics-indices)"}
 ```
 ```{r guided-spline2d, include=FALSE}
 ```
 ```{r guided-spline2d-plot, fig.height=3, fig.cap="(ref:guided-spline2d-plot)"}
+```
+```{r guided-dcor2d, include=FALSE}
+```
+```{r guided-dcor2d-plot, fig.height=3, fig.cap="(ref:guided-dcor2d-plot)"}
 ```
 maybe move timing to the end, add also these indices in the same plot (instead of testing several samples, behaviour anyway similar)
 

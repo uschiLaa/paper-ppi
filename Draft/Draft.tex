@@ -303,7 +303,9 @@ grand tour algorithm. Note that here the measures are calculated on
 non-binned data. The observed behaviour is smooth (much in contrast to
 the behaviour of the scagnostics measures) and we next test the
 behaviour in a guided tour, comparing again also the first and final
-projection. (which index to select, will try both below\ldots{})
+projection. (which index to select, will try both below\ldots{}) It
+seems they both maximise correlation, this might not be too useful
+here\ldots{}
 
 \begin{CodeChunk}
 \begin{figure}
@@ -324,6 +326,28 @@ projection. (which index to select, will try both below\ldots{})
 }
 
 \caption[(ref:guided-spline2d-plot)]{(ref:guided-spline2d-plot)}\label{fig:guided-spline2d-plot}
+\end{figure}
+\end{CodeChunk}
+
+\begin{CodeChunk}
+
+\begin{CodeOutput}
+            [,1]        [,2]
+[1,]  0.47851413 -0.54459454
+[2,]  0.01632788 -0.00642453
+[3,]  0.20956852 -0.15615632
+[4,] -0.21613392  0.22043552
+[5,] -0.26952654  0.31203441
+[6,] -0.27310129  0.26333539
+[7,] -0.72999721 -0.68094632
+\end{CodeOutput}
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-1} \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-2} \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-3} 
+
+}
+
+\caption[(ref:guided-dcor2d-plot)]{(ref:guided-dcor2d-plot)}\label{fig:guided-dcor2d-plot}
 \end{figure}
 \end{CodeChunk}
 
