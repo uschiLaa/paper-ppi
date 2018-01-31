@@ -84,6 +84,7 @@ The observables describe predictions for decay branching ratios and other precis
 We use the log transformed values for the variables XYZ but not the finetuning, and we rescale all variables to a [0,1] interval
 to obtain comparable scales.
 Contributions to the variable gminus2 can be negative or positive, we therefore add a small shift before the log transformation of this variable.
+Maybe include GGally pairs plot here?
 
 
 ## Software setup
@@ -167,14 +168,14 @@ Figure (ref:guided-tour-scatter) compares the scatter plots (left unbinned, righ
 show computing time? for each index as function of sample size? (long to prepare such a plot..)
 
 ## Additional indices to consider
-FIXME load Katrins package and try the index functions she implemented
 
 Additions to the standard scagnostics measures have been implemented in the package mbgraphics, based on splines (spline2d) and distance correlation (dcor2d).
 Give definitions here..
-We repeat the study from before, we first test in Figure ADDREF the behaviour of the index values over 100 interpolated projections that are randomly selected via the grand tour algorithm.
+We repeat the study from before, we first test in Figure ADDREF the behaviour of the index values over 100 interpolated projections that are randomly selected via the grand tour algorithm (the same projections as considered above).
 Note that here the measures are calculated on non-binned data.
+The general behaviour seems similar to the scagnostics monotonic index.
 The observed behaviour is smooth (much in contrast to the behaviour of the scagnostics measures) and we next test the behaviour in a guided tour, comparing again also the first and final projection. (which index to select, will try both below...)
-It seems they both maximise correlation, this might not be too useful here...
+It seems they both maximise correlation, this might not be too useful?
 ```{r mbgraphics-indices, fig.height=3, fig.cap="(ref:mbgraphics-indices)"}
 ```
 ```{r guided-spline2d, include=FALSE}
@@ -185,5 +186,8 @@ It seems they both maximise correlation, this might not be too useful here...
 ```
 ```{r guided-dcor2d-plot, fig.height=3, fig.cap="(ref:guided-dcor2d-plot)"}
 ```
+
+Physics: what is final projection, what is special about outlying points?
+
 maybe move timing to the end, add also these indices in the same plot (instead of testing several samples, behaviour anyway similar)
 
