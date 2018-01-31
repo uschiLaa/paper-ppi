@@ -250,8 +250,44 @@ binning?}\label{outlier-removal-before-binning}
 
 \subsection{Test with guided tour}\label{test-with-guided-tour}
 
-try out scagnostics measures as guided tour index FIXME still need to
-write script for this
+try out scagnostics measures as guided tour index
+
+Example below uses Convex as index function. We show the evolution of
+the index on the interpolated guided tour (top) and on the selected
+planes without interpolation (bottom). Note that the interpolated
+projections do not smoothly increase the index value from one selected
+plane to the next, but shows the unstable nature of the index
+computation.
+
+\begin{CodeChunk}
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{figure/guided-tour-plot-1} \includegraphics[width=\textwidth]{figure/guided-tour-plot-2} 
+
+}
+
+\caption[(ref:guided-tour-plot)]{(ref:guided-tour-plot)}\label{fig:guided-tour-plot}
+\end{figure}
+\end{CodeChunk}
+
+Figure (ref:guided-tour-scatter) compares the scatter plots (left
+unbinned, right binned) of the start projection, the projection with the
+lowest index value (t=19 of the interpolated projections) and the final
+projection (t=28).
+
+\begin{CodeChunk}
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{figure/guided-tour-scatter-1} \includegraphics[width=\textwidth]{figure/guided-tour-scatter-2} \includegraphics[width=\textwidth]{figure/guided-tour-scatter-3} 
+
+}
+
+\caption[(ref:guided-tour-scatter)]{(ref:guided-tour-scatter)}\label{fig:guided-tour-scatter}
+\end{figure}
+\end{CodeChunk}
+
+show computing time? for each index as function of sample size? (long to
+prepare such a plot..)
 
 \subsection{Additional indices to
 consider}\label{additional-indices-to-consider}

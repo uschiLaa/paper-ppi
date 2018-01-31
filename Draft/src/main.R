@@ -38,6 +38,13 @@ plotProj <- function(nProj, fullPath, dMatrix){
     return(s$s)
 }
 
+scagIndex <- function(scagType){
+  function(mat){
+    sR <- scagnostics.default(mat[,1],mat[,2])$s
+    return(sR[scagType])
+  }
+}
+
 
 # get tour path
 load("data/fullPath_nObs7.RData")
@@ -155,3 +162,51 @@ dfSmoothing <- dfSummary %>%
 ggplot(dfSmoothing) + 
   geom_line(aes(x = t, y = Outlying, colour = "red")) +
   stat_smooth(aes(x = t, y = Outlying), method = lm, formula = y ~ poly(x, 10), se = FALSE)
+
+## ---- guided-tour
+
+#reload the 500 point sample
+set.seed(22012018)
+dt_sample <- asLog(sample_n(dt, 500))
+thisMatrix <- rescale(as.matrix(select(dt_sample, -modelName)))
+
+#record guided tour path based on convex measure
+gT <- guided_tour(scagIndex("Convex"))
+guidedPath <- save_history(thisMatrix, gT, max_bases = 100)
+guidedOriginalOnly <- as.list(guidedPath)
+guidedPath <- as.list(interpolate(guidedPath))
+
+## ---- guided-tour-plot
+
+n <- length(guidedPath)
+convexDf <- data.frame(Convex=rep(0, n), t=rep(0,n))
+i <- 1
+for(pMatrix in guidedPath){
+  dProj <- thisMatrix %*% pMatrix
+  convexDf[i,] <- c(scagnostics.default(dProj[,1],dProj[,2], bins= 50)$s["Convex"],i)
+  i = i+1
+}
+
+i <- 1
+n <- length(guidedOriginalOnly)
+convexOriginalOnly <- data.frame(Convex=rep(0, n), t=rep(0,n))
+for(pMatrix in guidedOriginalOnly){
+  dProj <- thisMatrix %*% pMatrix
+  convexOriginalOnly[i,] <- c(scagnostics.default(dProj[,1],dProj[,2], bins= 50)$s["Convex"],i)
+  i = i+1
+}
+
+ggplot(convexDf, mapping = aes(x=t, y=Convex)) +
+  geom_line()+
+  ggtitle("Interpolated path")
+
+ggplot(convexOriginalOnly, mapping = aes(x=t, y=Convex)) +
+  geom_line()+
+  ggtitle("Non-interpolated guided tour planes")
+
+## ---- guided-tour-scatter
+
+s1 <- plotProj(1, guidedPath, thisMatrix)
+s2 <- plotProj(13, guidedPath, thisMatrix)
+s3 <- plotProj(28, guidedPath, thisMatrix)
+

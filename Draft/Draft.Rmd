@@ -150,7 +150,21 @@ Maybe show how it compares to the sketch of smooth polynomial function? Select p
 
 ## Test with guided tour
 try out scagnostics measures as guided tour index
-FIXME still need to write script for this
+
+Example below uses Convex as index function.
+We show the evolution of the index on the interpolated guided tour (top) and on the selected planes without interpolation (bottom).
+Note that the interpolated projections do not smoothly increase the index value from one selected plane to the next, but shows the unstable nature of the index computation.
+
+```{r guided-tour, include=FALSE}
+```
+```{r guided-tour-plot, fig.height = 3, fig.cap = "(ref:guided-tour-plot)"}
+```
+
+Figure (ref:guided-tour-scatter) compares the scatter plots (left unbinned, right binned) of the start projection, the projection with the lowest index value (t=19 of the interpolated projections) and the final projection (t=28).
+```{r guided-tour-scatter, fig.height = 3, fig.cap = "(ref:guided-tour-scatter)"}
+```
+
+show computing time? for each index as function of sample size? (long to prepare such a plot..)
 
 ## Additional indices to consider
 FIXME load Katrins package and try the index functions she implemented
