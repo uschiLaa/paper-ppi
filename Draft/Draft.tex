@@ -294,6 +294,42 @@ consider}\label{additional-indices-to-consider}
 
 FIXME load Katrins package and try the index functions she implemented
 
+Additions to the standard scagnostics measures have been implemented in
+the package mbgraphics, based on splines (spline2d) and distance
+correlation (dcor2d). Give definitions here.. We repeat the study from
+before, we first test in Figure ADDREF the behaviour of the index values
+over 100 interpolated projections that are randomly selected via the
+grand tour algorithm. Note that here the measures are calculated on
+non-binned data. The observed behaviour is smooth (much in contrast to
+the behaviour of the scagnostics measures) and we next test the
+behaviour in a guided tour, comparing again also the first and final
+projection. (which index to select, will try both below\ldots{})
+
+\begin{CodeChunk}
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{figure/mbgraphics-indices-1} 
+
+}
+
+\caption[(ref:mbgraphics-indices)]{(ref:mbgraphics-indices)}\label{fig:mbgraphics-indices}
+\end{figure}
+\end{CodeChunk}
+
+\begin{CodeChunk}
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{figure/guided-spline2d-plot-1} \includegraphics[width=\textwidth]{figure/guided-spline2d-plot-2} \includegraphics[width=\textwidth]{figure/guided-spline2d-plot-3} 
+
+}
+
+\caption[(ref:guided-spline2d-plot)]{(ref:guided-spline2d-plot)}\label{fig:guided-spline2d-plot}
+\end{figure}
+\end{CodeChunk}
+
+maybe move timing to the end, add also these indices in the same plot
+(instead of testing several samples, behaviour anyway similar)
+
 
 
 \end{document}

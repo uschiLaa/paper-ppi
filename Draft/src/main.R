@@ -7,6 +7,7 @@ library(binostics)
 library(gridExtra)
 library(wesanderson) #color palette
 library(tictoc) #timer
+library(mbgraphic) #Katrins package
 
 # function to log transform part of data
 asLog <- function(dt){
@@ -42,6 +43,18 @@ scagIndex <- function(scagType){
   function(mat){
     sR <- scagnostics.default(mat[,1],mat[,2])$s
     return(sR[scagType])
+  }
+}
+
+splineIndex <- function(){
+  function(mat){
+    return(splines2d(mat[,1], mat[,2]))
+  }
+}
+
+dcorIndex <- function(){
+  function(mat){
+    return(dcor2d(mat[,1], mat[,2]))
   }
 }
 
@@ -210,3 +223,78 @@ s1 <- plotProj(1, guidedPath, thisMatrix)
 s2 <- plotProj(13, guidedPath, thisMatrix)
 s3 <- plotProj(28, guidedPath, thisMatrix)
 
+## ---- mbgraphics-indices
+
+n <- 200
+dfKatrin = data.frame( dcor2d=rep(0, n), splines2d=rep(0,n), t=rep(0,n), s=rep(0,n))
+i <- 1
+for(sampleSize in c(500,5000)){ #fix sample size here
+  t <- 1
+  set.seed(22012018) # all samples include same (smaller) dataset
+  dtSample <- asLog(sample_n(dt, sampleSize))
+  thisMatrix <- rescale(as.matrix(select(dtSample, -modelName)))
+  for(pMatrix in fullPath){
+    dProj <- thisMatrix %*% pMatrix
+    dcor2dV <- dcor2d(dProj[,1],dProj[,2])
+    splines2dV <- splines2d(dProj[,1],dProj[,2])
+    dfKatrin[i,] = c(dcor2dV, splines2dV, t, sampleSize)
+    i = i+1
+    t = t+1
+    if(t > 100) break # only consider first 100 projections
+  }
+}
+
+meltR = melt(dfKatrin, id = c("t", "s"))
+
+ggplot(data=meltR) + 
+  geom_line(aes(x=t,y=value, color=as.factor(s))) +
+  facet_wrap(~ variable,ncol=1,scales = "free") +
+  labs(x = "Projection", y = "Value", color = "Sample Size")
+
+## ---- guided-spline2d
+#reload the 500 point sample
+set.seed(22012018)
+dt_sample <- asLog(sample_n(dt, 500))
+thisMatrix <- rescale(as.matrix(select(dt_sample, -modelName)))
+
+#record guided tour path based on convex measure
+gT <- guided_tour(splineIndex())
+guidedPath <- save_history(thisMatrix, gT, max_bases = 100)
+guidedOriginalOnly <- as.list(guidedPath)
+guidedPath <- as.list(interpolate(guidedPath))
+
+## ---- guided-spline2d-plot
+n <- length(guidedPath)
+splineDf <- data.frame(spline=rep(0, n), t=rep(0,n))
+i <- 1
+for(pMatrix in guidedPath){
+  dProj <- thisMatrix %*% pMatrix
+  splineDf[i,] <- c(splines2d(dProj[,1],dProj[,2]),i)
+  i = i+1
+}
+
+i <- 1
+n <- length(guidedOriginalOnly)
+splineOriginalOnly <- data.frame(spline=rep(0, n), t=rep(0,n))
+for(pMatrix in guidedOriginalOnly){
+  dProj <- thisMatrix %*% pMatrix
+  if(i==1) firstProj <- dProj
+  splineOriginalOnly[i,] <- c(splines2d(dProj[,1],dProj[,2]),i)
+  i = i+1
+}
+
+ggplot(splineDf, mapping = aes(x=t, y=spline)) +
+  geom_line()+
+  ggtitle("Interpolated path")
+
+ggplot(splineOriginalOnly, mapping = aes(x=t, y=spline)) +
+  geom_line()+
+  ggtitle("Non-interpolated guided tour planes")
+
+p1 <- ggplot()+
+  geom_point(data = as.data.frame(firstProj), mapping=aes(x=V1, y=V2))
+
+p2 <- ggplot()+
+  geom_point(data = as.data.frame(dProj), mapping=aes(x=V1, y=V2))
+
+grid.arrange(arrangeGrob(p1),arrangeGrob(p2),nrow=1)
