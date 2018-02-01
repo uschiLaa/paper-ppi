@@ -68,8 +68,7 @@ Note that in practice the measures are calculated after binning the data to avoi
 
 To study the feasablility of using scagnostics measures as an index fuction for guided tours, we first consider the variation of each of the measures, as calculated from the projected scatter plot, when smoothly changing the projection via the tour algorithm.
 Moreover, we test the dependence on the sample size and on the outlier removal typically performed to make the scagnostics measures more robust.
-In addition the computing time is also important, as it might limit the dynamic viewing and require to first record a guided tour path which can
-later be viewed in a smooth display.
+In addition the computing time is also important, as it might limit the dynamic viewing and require to first record a guided tour path which can later be viewed in a smooth display.
 
 As we will see the scagnostics measures often exhibit a significant jump despite changing smoothly between projections, a consequence of the discreete nature of the definition, but possibly also due to the binning performed as a first step of calculation.
 We therefore explore options of ameliorating this situation using different smoothing methods, and by redefining the measures in a more robust fashion.
@@ -176,6 +175,10 @@ Note that here the measures are calculated on non-binned data.
 The general behaviour seems similar to the scagnostics monotonic index.
 The observed behaviour is smooth (much in contrast to the behaviour of the scagnostics measures) and we next test the behaviour in a guided tour, comparing again also the first and final projection. (which index to select, will try both below...)
 It seems they both maximise correlation, this might not be too useful?
+Seems like [,1] basically -[,2] in the final projection (except for [7,])?
+probably we see only structure of gminus2 variable, which has very narrow peak, only few outlying points
+is there a better way of transforming it to spread out the structure?
+
 ```{r mbgraphics-indices, fig.height=3, fig.cap="(ref:mbgraphics-indices)"}
 ```
 ```{r guided-spline2d, include=FALSE}
@@ -190,4 +193,12 @@ It seems they both maximise correlation, this might not be too useful?
 Physics: what is final projection, what is special about outlying points?
 
 maybe move timing to the end, add also these indices in the same plot (instead of testing several samples, behaviour anyway similar)
+
+```{r gminus2-box, fig.height=3}
+```
+
+```{r guided-dcor2d-no-gminus2, include=FALSE}
+```
+```{r guided-dcor2d-plot-no-gminus2, fig.height=3, fig.cap="(ref:guided-dcor2d-plot)"}
+```
 

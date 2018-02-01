@@ -349,3 +349,55 @@ grid.arrange(arrangeGrob(p1),arrangeGrob(p2),nrow=1)
 
 print(pMatrix)
 
+## ---- gminus2-box
+ggplot(dt_sample) + geom_boxplot(aes(x="", y=gminus2_shiftln))
+
+## ---- guided-dcor2d-no-gminus2
+#reload the 500 point sample
+set.seed(22012018)
+dt_sample <- asLog(sample_n(dt, 500))
+thisMatrix <- rescale(as.matrix(select(dt_sample, -modelName, -gminus2_shiftln)))
+
+#record guided tour path based on spline measure
+gT <- guided_tour(dcorIndex())
+guidedPath <- save_history(thisMatrix, gT, max_bases = 100)
+guidedOriginalOnly <- as.list(guidedPath)
+guidedPath <- as.list(interpolate(guidedPath))
+
+## ---- guided-dcor2d-plot-no-gminus2
+n <- length(guidedPath)
+dcorDf <- data.frame(dcor=rep(0, n), t=rep(0,n))
+i <- 1
+for(pMatrix in guidedPath){
+  dProj <- thisMatrix %*% pMatrix
+  dcorDf[i,] <- c(dcor2d(dProj[,1],dProj[,2]),i)
+  i = i+1
+}
+
+i <- 1
+n <- length(guidedOriginalOnly)
+dcorOriginalOnly <- data.frame(dcor=rep(0, n), t=rep(0,n))
+for(pMatrix in guidedOriginalOnly){
+  dProj <- thisMatrix %*% pMatrix
+  if(i==1) firstProj <- dProj
+  dcorOriginalOnly[i,] <- c(dcor2d(dProj[,1],dProj[,2]),i)
+  i = i+1
+}
+
+ggplot(dcorDf, mapping = aes(x=t, y=dcor)) +
+  geom_line()+
+  ggtitle("Interpolated path")
+
+ggplot(dcorOriginalOnly, mapping = aes(x=t, y=dcor)) +
+  geom_line()+
+  ggtitle("Non-interpolated guided tour planes")
+
+p1 <- ggplot()+
+  geom_point(data = as.data.frame(firstProj), mapping=aes(x=V1, y=V2))
+
+p2 <- ggplot()+
+  geom_point(data = as.data.frame(dProj), mapping=aes(x=V1, y=V2))
+
+grid.arrange(arrangeGrob(p1),arrangeGrob(p2),nrow=1)
+
+print(pMatrix)
