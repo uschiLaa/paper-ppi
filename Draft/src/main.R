@@ -3,7 +3,7 @@
 library(tourr)
 library(tidyverse)
 library(reshape2)
-library(binostics)
+library(binostics) #https://github.com/uschiLaa/binostics
 library(gridExtra)
 library(wesanderson) #color palette
 library(tictoc) #timer

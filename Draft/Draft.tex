@@ -7,7 +7,7 @@
 \author{
 Ursula Laa\\Monash University \And Second Author\\Affiliation
 }
-\title{Scagnostics and Projection Pursuit}
+\title{Using Scagnostics to find Interesting Projections of Multivariate Data}
 
 \Plainauthor{Ursula Laa, Second Author}
 
@@ -15,7 +15,7 @@ Ursula Laa\\Monash University \And Second Author\\Affiliation
 The abstract of the article.
 }
 
-\Keywords{scagnostics, tour, projection pursuit}
+\Keywords{scagnostics, tour, projection pursuit, multivariate data, statistical graphics, data visualisation}
 
 %% publication information
 %% \Volume{50}
@@ -116,19 +116,8 @@ variable. Maybe include GGally pairs plot here?
 
 Use tourr and scagnostics package (ADDREF)
 
-\subsection{Scagnositics of grand tour
-projections}\label{scagnositics-of-grand-tour-projections}
-
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/scagnostics-summary-1} 
-
-}
-
-\caption[(ref:scagnostics-summary)]{(ref:scagnostics-summary)}\label{fig:scagnostics-summary}
-\end{figure}
-\end{CodeChunk}
+\subsection{Scagnostics of grand tour
+projections}\label{scagnostics-of-grand-tour-projections}
 
 (ref:scagnostics-summary) Summary of evolution of scagnostics measures
 over 100 interpolated grand tour projections We see that three of the
@@ -164,33 +153,6 @@ FIXME need to arrange plots better! Fix common axes for all
 corresponding plots FIXME binned plot needs better formatting so we can
 see relevant features easily
 
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/scatter-binning-1} \includegraphics[width=\textwidth]{figure/scatter-binning-2} \includegraphics[width=\textwidth]{figure/scatter-binning-3} 
-
-}
-
-\caption[(ref:scatter-binning)]{(ref:scatter-binning)}\label{fig:scatter-binning}
-\end{figure}
-\end{CodeChunk}
-
-\begin{CodeChunk}
-
-\begin{CodeOutput}
-                   s1          s2          s3
-Outlying  0.275676305 0.163548110 0.270907044
-Skewed    0.549038842 0.575422054 0.583569727
-Clumpy    0.004123711 0.008163265 0.004175365
-Sparse    0.038765964 0.042779580 0.040551326
-Striated  0.059405941 0.060000000 0.037433155
-Convex    0.611714549 0.602591732 0.546399191
-Skinny    0.483884014 0.495557112 0.564627720
-Stringy   0.424567811 0.368764181 0.329434667
-Monotonic 0.077330543 0.094217913 0.103036354
-\end{CodeOutput}
-\end{CodeChunk}
-
 Another consideration relevant for the purpose of the guided tour is the
 computing time, as mentioned above it may limit the tour display to
 previously recorded tours. We study here the computing time depending on
@@ -208,34 +170,12 @@ hundred data points, and converge to lower run times for larger samples.
 This is because the binning of the input data is much faster than the
 computation of the measures which is increased for smaller samples.
 
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/scagnositcs-timing-1} 
-
-}
-
-\caption[(ref:scagnostics-timing)]{(ref:scagnostics-timing)}\label{fig:scagnositcs-timing}
-\end{figure}
-\end{CodeChunk}
-
 \subsection{Smooth transitions}\label{smooth-transitions}
 
 We next turn to the question of how we can obtain smooth transitions of
 the scagnostics measures. (Below just an example of using ggplot
 smoothing to display what kind of behaviour we want to find. It follows
 the general trend without capturing the spikes.)
-
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/smoothing-1} 
-
-}
-
-\caption[(ref:smooting)]{(ref:smooting)}\label{fig:smoothing}
-\end{figure}
-\end{CodeChunk}
 
 Want to explore jittering either the projection or the points, but this
 does not give the desired smooth behaviour (why?) Maybe show how it
@@ -259,32 +199,10 @@ projections do not smoothly increase the index value from one selected
 plane to the next, but shows the unstable nature of the index
 computation.
 
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/guided-tour-plot-1} \includegraphics[width=\textwidth]{figure/guided-tour-plot-2} 
-
-}
-
-\caption[(ref:guided-tour-plot)]{(ref:guided-tour-plot)}\label{fig:guided-tour-plot}
-\end{figure}
-\end{CodeChunk}
-
 Figure (ref:guided-tour-scatter) compares the scatter plots (left
 unbinned, right binned) of the start projection, the projection with the
 lowest index value (t=19 of the interpolated projections) and the final
 projection (t=28).
-
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/guided-tour-scatter-1} \includegraphics[width=\textwidth]{figure/guided-tour-scatter-2} \includegraphics[width=\textwidth]{figure/guided-tour-scatter-3} 
-
-}
-
-\caption[(ref:guided-tour-scatter)]{(ref:guided-tour-scatter)}\label{fig:guided-tour-scatter}
-\end{figure}
-\end{CodeChunk}
 
 show computing time? for each index as function of sample size? (long to
 prepare such a plot..)
@@ -310,83 +228,11 @@ only structure of gminus2 variable, which has very narrow peak, only few
 outlying points is there a better way of transforming it to spread out
 the structure?
 
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/mbgraphics-indices-1} 
-
-}
-
-\caption[(ref:mbgraphics-indices)]{(ref:mbgraphics-indices)}\label{fig:mbgraphics-indices}
-\end{figure}
-\end{CodeChunk}
-
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/guided-spline2d-plot-1} \includegraphics[width=\textwidth]{figure/guided-spline2d-plot-2} \includegraphics[width=\textwidth]{figure/guided-spline2d-plot-3} 
-
-}
-
-\caption[(ref:guided-spline2d-plot)]{(ref:guided-spline2d-plot)}\label{fig:guided-spline2d-plot}
-\end{figure}
-\end{CodeChunk}
-
-\begin{CodeChunk}
-
-\begin{CodeOutput}
-            [,1]        [,2]
-[1,]  0.47851413 -0.54459454
-[2,]  0.01632788 -0.00642453
-[3,]  0.20956852 -0.15615632
-[4,] -0.21613392  0.22043552
-[5,] -0.26952654  0.31203441
-[6,] -0.27310129  0.26333539
-[7,] -0.72999721 -0.68094632
-\end{CodeOutput}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-1} \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-2} \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-3} 
-
-}
-
-\caption[(ref:guided-dcor2d-plot)]{(ref:guided-dcor2d-plot)}\label{fig:guided-dcor2d-plot}
-\end{figure}
-\end{CodeChunk}
-
 Physics: what is final projection, what is special about outlying
 points?
 
 maybe move timing to the end, add also these indices in the same plot
 (instead of testing several samples, behaviour anyway similar)
-
-\begin{CodeChunk}
-
-
-\begin{center}\includegraphics[width=\textwidth]{figure/gminus2-box-1} \end{center}
-
-\end{CodeChunk}
-
-\begin{CodeChunk}
-
-\begin{CodeOutput}
-            [,1]        [,2]
-[1,]  0.48848925 -0.37880896
-[2,]  0.09066938  0.10280711
-[3,]  0.54333417  0.80184027
-[4,] -0.05279536  0.00809942
-[5,] -0.47070661  0.10044669
-[6,] -0.48331484  0.43912584
-\end{CodeOutput}
-\begin{figure}
-
-{\centering \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-no-gminus2-1} \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-no-gminus2-2} \includegraphics[width=\textwidth]{figure/guided-dcor2d-plot-no-gminus2-3} 
-
-}
-
-\caption[(ref:guided-dcor2d-plot)]{(ref:guided-dcor2d-plot)}\label{fig:guided-dcor2d-plot-no-gminus2}
-\end{figure}
-\end{CodeChunk}
 
 
 

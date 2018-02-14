@@ -10,7 +10,7 @@ author:
   - name: Second Author
     affiliation: Affiliation
 title:
-  formatted: "Scagnostics and Projection Pursuit"
+  formatted: "Using Scagnostics to find Interesting Projections of Multivariate Data"
   # If you use tex in the formatted title, also supply version without
   #plain:     "A Capitalized Title: Something about a Package foo"
   # For running headers, if needed
@@ -19,7 +19,7 @@ abstract: >
   The abstract of the article.
 keywords:
   # at least one keyword must be supplied
-  formatted: [scagnostics, tour, projection pursuit]
+  formatted: [scagnostics, tour, projection pursuit, multivariate data, statistical graphics, data visualisation]
   #plain:     [keywords, not capitalized, Java]
 preamble: >
   \usepackage{amsmath}
@@ -42,6 +42,43 @@ read_chunk('src/main.R')
 
 # Introduction
 
+*** Motivating example
+
+```{r motivation}
+library(mvtnorm)
+x1 <- rmvnorm(100, mean=c(0,0), 
+             sigma=matrix(c(1, 0.8, 0.8, 1), ncol=2, byrow=T))
+x2 <- rmvnorm(100, mean=c(3,0), 
+             sigma=matrix(c(1, 0.8, 0.8, 1), ncol=2, byrow=T))
+x3 <- rmvnorm(100, mean=c(0,3), 
+             sigma=matrix(c(1, 0.8, 0.8, 1), ncol=2, byrow=T))
+df <- data.frame(x1=rnorm(300),
+                 x2=rnorm(300),
+                 x3=rnorm(300),
+                 x4=rnorm(300), 
+                 x5=scale(c(x1[,1], x2[,1], x3[,1])), 
+                 x6=scale(c(x1[,2], x2[,2], x3[,2])), 
+                 cl=c(rep("A",100), rep("B", 100), rep("C",100)))
+ggplot(df, aes(x=x5, y=x6, colour=cl)) + geom_point() + theme(aspect.ratio=1)
+```
+
+```{r}
+library(tourr)
+quartz()
+col <- c(rep("#f0a800", 100), rep("#486030", 100), rep("#c03018", 100))
+animate(df[,1:6], guided_tour(lda_pp(df$cl)),
+        display_xy(axes="bottomleft", col=col))
+```
+
+```{r}
+library(geozoo)
+
+```
+
+*** Explanation of tour algorithm and projection pursuit and software
+
+*** Explanation of scagnostics and software
+
 A grand tour provides dynamic projections from the high dimensions into some low dimensional representation, in particular also as a
 two dimensional scatter plot ADDREF.
 The idea of projection persuit can be coupled to the tour algorithm, to guide the tour towards more interesting views of the projected data (the so-called guided tour), by maximising a given projection persuit index ADDREF (Cook, Buja, Cabrera, Hurley, 1995).
@@ -57,14 +94,38 @@ We first study the feasability of this approach and discuss potential pitfalls.
 We then aim to define more robust measures ... ???
 
 
-# Scagnostics measures
+# Investigation of scagnostics 
+
+## Scagnostic discreteness
+
+*** temporal trace of scagnostics showing discreteness, with projections illustrating little difference
+
+*** katrin's work
 
 Eight scagnostics measures have been defined, the definitions are based on the convex and alpha hull as well as the minimum spanning tree.
 Give definitions here...
 
 Note that in practice the measures are calculated after binning the data to avoid large computing times.
 
-# Analysis setup
+## Speed
+
+# Modification to scagnostics
+
+## Smoothing
+
+## Jittering
+
+## Tour optimisation
+
+# Scagnostics indices
+
+## Individual 
+
+## Two group differences
+
+## Multiple group differences
+
+# Application to particle physics data
 
 To study the feasablility of using scagnostics measures as an index fuction for guided tours, we first consider the variation of each of the measures, as calculated from the projected scatter plot, when smoothly changing the projection via the tour algorithm.
 Moreover, we test the dependence on the sample size and on the outlier removal typically performed to make the scagnostics measures more robust.
@@ -91,9 +152,9 @@ Maybe include GGally pairs plot here?
 Use tourr and scagnostics package (ADDREF)
 
 
-## Scagnositics of grand tour projections
+## Scagnostics of grand tour projections
 
-```{r scagnostics-summary, fig.height= 14, fig.width=9, fig.cap = "(ref:scagnostics-summary)"}
+```{r scagnostics-summary, fig.height= 14, fig.width=9, fig.cap = "(ref:scagnostics-summary)", eval=FALSE}
 ```
 
 (ref:scagnostics-summary) Summary of evolution of scagnostics measures over 100 interpolated grand tour projections
@@ -116,10 +177,10 @@ Differences can however be observed in the binned data (right column of Figure A
 FIXME need to arrange plots better! Fix common axes for all corresponding plots
 FIXME binned plot needs better formatting so we can see relevant features easily
 
-```{r scatter-binning, fig.height=2, fig.cap = "(ref:scatter-binning)"}
+```{r scatter-binning, eval=FALSE, fig.height=2, fig.cap = "(ref:scatter-binning)"}
 ```
 
-```{r scatter-table}
+```{r scatter-table, eval=FALSE}
 ```
 
 Another consideration relevant for the purpose of the guided tour is the computing time, as mentioned above it may limit the tour display to previously recorded tours.
@@ -132,14 +193,14 @@ Interestingly the computing times are longest for intermediate sample sizes of a
 This is because the binning of the input data is much faster than the computation of the measures which is increased for smaller samples.
 
 
-```{r scagnositcs-timing, fig.cap = "(ref:scagnostics-timing)"}
+```{r scagnositcs-timing, eval=FALSE, fig.cap = "(ref:scagnostics-timing)"}
 ```
 
 ## Smooth transitions
 
 We next turn to the question of how we can obtain smooth transitions of the scagnostics measures.
 (Below just an example of using ggplot smoothing to display what kind of behaviour we want to find. It follows the general trend without capturing the spikes.)
-```{r smoothing, fig.cap = "(ref:smooting)"}
+```{r smoothing, eval=FALSE, fig.cap = "(ref:smooting)"}
 ```
 
 Want to explore jittering either the projection or the points, but this does not give the desired smooth behaviour (why?)
@@ -155,13 +216,13 @@ Example below uses Convex as index function.
 We show the evolution of the index on the interpolated guided tour (top) and on the selected planes without interpolation (bottom).
 Note that the interpolated projections do not smoothly increase the index value from one selected plane to the next, but shows the unstable nature of the index computation.
 
-```{r guided-tour, include=FALSE}
+```{r guided-tour, eval=FALSE, include=FALSE}
 ```
-```{r guided-tour-plot, fig.height = 3, fig.cap = "(ref:guided-tour-plot)"}
+```{r guided-tour-plot, eval=FALSE, fig.height = 3, fig.cap = "(ref:guided-tour-plot)"}
 ```
 
 Figure (ref:guided-tour-scatter) compares the scatter plots (left unbinned, right binned) of the start projection, the projection with the lowest index value (t=19 of the interpolated projections) and the final projection (t=28).
-```{r guided-tour-scatter, fig.height = 3, fig.cap = "(ref:guided-tour-scatter)"}
+```{r guided-tour-scatter, eval=FALSE, fig.height = 3, fig.cap = "(ref:guided-tour-scatter)"}
 ```
 
 show computing time? for each index as function of sample size? (long to prepare such a plot..)
@@ -179,26 +240,26 @@ Seems like [,1] basically -[,2] in the final projection (except for [7,])?
 probably we see only structure of gminus2 variable, which has very narrow peak, only few outlying points
 is there a better way of transforming it to spread out the structure?
 
-```{r mbgraphics-indices, fig.height=3, fig.cap="(ref:mbgraphics-indices)"}
+```{r mbgraphics-indices, eval=FALSE, fig.height=3, fig.cap="(ref:mbgraphics-indices)"}
 ```
-```{r guided-spline2d, include=FALSE}
+```{r guided-spline2d, eval=FALSE, include=FALSE}
 ```
-```{r guided-spline2d-plot, fig.height=3, fig.cap="(ref:guided-spline2d-plot)"}
+```{r guided-spline2d-plot, eval=FALSE, fig.height=3, fig.cap="(ref:guided-spline2d-plot)"}
 ```
-```{r guided-dcor2d, include=FALSE}
+```{r guided-dcor2d, eval=FALSE, include=FALSE}
 ```
-```{r guided-dcor2d-plot, fig.height=3, fig.cap="(ref:guided-dcor2d-plot)"}
+```{r guided-dcor2d-plot, eval=FALSE, fig.height=3, fig.cap="(ref:guided-dcor2d-plot)"}
 ```
 
 Physics: what is final projection, what is special about outlying points?
 
 maybe move timing to the end, add also these indices in the same plot (instead of testing several samples, behaviour anyway similar)
 
-```{r gminus2-box, fig.height=3}
+```{r gminus2-box, eval=FALSE, fig.height=3}
 ```
 
-```{r guided-dcor2d-no-gminus2, include=FALSE}
+```{r guided-dcor2d-no-gminus2, eval=FALSE, include=FALSE}
 ```
-```{r guided-dcor2d-plot-no-gminus2, fig.height=3, fig.cap="(ref:guided-dcor2d-plot)"}
+```{r guided-dcor2d-plot-no-gminus2, eval=FALSE, fig.height=3, fig.cap="(ref:guided-dcor2d-plot)"}
 ```
 
