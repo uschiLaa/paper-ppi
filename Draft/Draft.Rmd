@@ -62,7 +62,7 @@ df <- data.frame(x1=rnorm(300),
 ggplot(df, aes(x=x5, y=x6, colour=cl)) + geom_point() + theme(aspect.ratio=1)
 ```
 
-```{r}
+```{r eval=FALSE}
 library(tourr)
 quartz()
 col <- c(rep("#f0a800", 100), rep("#486030", 100), rep("#c03018", 100))
@@ -70,9 +70,34 @@ animate(df[,1:6], guided_tour(lda_pp(df$cl)),
         display_xy(axes="bottomleft", col=col))
 ```
 
-```{r}
+```{r eval=FALSE}
+numbat <- read_csv("data/numbat.csv") %>% filter(group=="A")
 library(geozoo)
+x <- sphere.hollow(p=2, n=2000)$points
+colnames(x) <- c("x4", "x7")
+x <- data.frame(x1=scale(rnorm(2000)), 
+                x2=scale(rnorm(2000)), 
+                x3=scale(rnorm(2000)),
+                x4=scale(x[,1]), 
+                x5=scale(rnorm(2000)), 
+                x6=scale(rnorm(2000)),
+                x7=scale(x[,2]), 
+                x8=scale(rnorm(2000)), 
+                x9=scale(rnorm(2000)),
+                x10=scale(rnorm(2000)), group="B")
+numbat <- bind_rows(numbat, x)
+ggplot(numbat, aes(x=x4, y=x7, col=group)) + 
+  geom_point() + facet_wrap(~group) + scale_colour_manual(values=c("#609048", "#c03018"))
+write_csv(numbat, path="data/numbat_circle.csv")
+```
 
+```{r eval=FALSE}
+library(tourr)
+quartz()
+col <- c(rep("#f0a800", 100), rep("#609048", 2100), rep("#c03018", 2000))
+animate(numbat[,1:10], 
+        guided_tour(lda_pp(numbat$group), search_f = search_better_random),
+        display_xy(axes="bottomleft", col=col))
 ```
 
 *** Explanation of tour algorithm and projection pursuit and software

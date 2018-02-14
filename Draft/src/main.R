@@ -46,6 +46,23 @@ scagIndex <- function(scagType){
   }
 }
 
+data <- as.matrix(numbat_only[,c(4,6,7)])
+scagIndex2 <- function(proj) {
+  proj <- matrix(proj, ncol=2, byrow=FALSE)
+  tourr:::orthonormalise(proj)
+  mat <- as.matrix(numbat_only[,c(4,6,7)]) %*% proj
+  scagType <- "Clumpy"
+  sR <- scagnostics.default(mat[,1],mat[,2])$s
+  return(sR[scagType])
+}
+
+par0 <- c(1,0,0,0,1,0)
+lower <- rep(-1,6)
+upper <- rep(1, 6)
+hjkb(par0, scagIndex2, lower=lower, upper=upper,
+     control = list(maximize=TRUE, tol=0.001, 
+                    target=0.08, info=TRUE))
+  
 splineIndex <- function(){
   function(mat){
     return(splines2d(mat[,1], mat[,2]))
@@ -184,10 +201,53 @@ dt_sample <- asLog(sample_n(dt, 500))
 thisMatrix <- rescale(as.matrix(select(dt_sample, -modelName)))
 
 #record guided tour path based on convex measure
-gT <- guided_tour(scagIndex("Convex"))
+gT <- guided_tour(scagIndex("Convex"), search_f = tourr:::search_better, method="geodesic")
 guidedPath <- save_history(thisMatrix, gT, max_bases = 100)
 guidedOriginalOnly <- as.list(guidedPath)
 guidedPath <- as.list(interpolate(guidedPath))
+
+quartz()
+animate(thisMatrix, guided_tour(scagIndex("Convex"), search_f = tourr:::search_better, method="geodesic"),
+        display_xy(axes="bottomleft"))
+
+numbat_circle <- read_csv("data/numbat.csv")
+numbat_only <- numbat %>% filter(group=="A") %>% select(-group)
+circle_only <- numbat %>% filter(group=="B") %>% select(-group)
+animate(numbat_only[,c(4,6,7)], guided_tour(scagIndex("Clumpy"), search_f = tourr:::search_better, method="geodesic", alpha=2, cooling=0.8),
+        display_xy(axes="bottomleft"))
+animate(circle_only[,c(4,6,7)], guided_tour(scagIndex("Striated"), search_f = tourr:::search_better, method="geodesic", alpha=2, cooling=0.8),
+        display_xy(axes="bottomleft"))
+
+ggplot(numbat_only, aes(x=x4, y=x7)) + geom_point()
+
+sc <- scagnostics(as.matrix(numbat_only))
+sc <- data.frame(as.matrix(sc[1:45,1:9]))
+sc[which.max(sc$Outlying),]
+sc[which.max(sc$Skewed),]
+sc[which.max(sc$Clumpy),]
+ggplot(sc, aes(x=Clumpy)) + geom_density()
+sc[which.max(sc$Sparse),]
+sc[which.max(sc$Striated),]
+sc[which.max(sc$Convex),]
+sc[which.max(sc$Skinny),]
+ggplot(sc, aes(x=Skinny)) + geom_density()
+sc[which.max(sc$Monotonic),]
+ggplot(sc, aes(x=Monotonic)) + geom_density()
+
+sc2 <- scagnostics(as.matrix(circle_only))
+sc2 <- data.frame(as.matrix(sc2[1:45,1:9]))
+sc2[which.max(sc2$Outlying),]
+sc2[which.max(sc2$Skewed),]
+sc2[which.max(sc2$Clumpy),]
+sc2[which.max(sc2$Sparse),]
+sc2[which.max(sc2$Striated),]
+sc2[which.max(sc2$Convex),]
+sc2[which.max(sc2$Skinny),]
+sc2[which.max(sc2$Monotonic),]
+# Skinny, striated
+
+library(dfoptim)
+hjk(basis, index)
 
 ## ---- guided-tour-plot
 
