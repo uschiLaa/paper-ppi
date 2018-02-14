@@ -49,7 +49,8 @@ scagIndex <- function(scagType){
 data <- as.matrix(numbat_only[,c(4,6,7)])
 scagIndex2 <- function(proj) {
   proj <- matrix(proj, ncol=2, byrow=FALSE)
-  tourr:::orthonormalise(proj)
+  proj <- tourr:::orthonormalise(proj)
+  if(any(is.nan(proj))) return(0)
   mat <- as.matrix(numbat_only[,c(4,6,7)]) %*% proj
   scagType <- "Clumpy"
   sR <- scagnostics.default(mat[,1],mat[,2])$s
