@@ -12,6 +12,18 @@ authors:
   
 - name: Dianne Cook
   affiliation: Department of Econometrics and Business Statistics, Monash University
+  
+- name: Heike Hofmann
+  affiliation: Department of Statistics, Iowa State University
+  
+- name: Hadley Wickham
+  affiliation: RStudio
+  
+- name: Antony Unwin
+  affiliation: Department of Mathematics, Augsburg University
+  
+- name: Katrin Grimm
+  affiliation: ???
 
 keywords:
 - tour
@@ -32,9 +44,11 @@ output: rticles::asa_article
 
 The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high-(say $p$)dimensional data for "interesting" low- dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not necessarily found by methods such as principal component analysis.
 
-A large number of projection pursuit indices have been developed [@f87] [@CBC92] [@Lee05] [@AHC02] [@CEM:CEM2568] [@JS87] [@5508437]. 
+A large number of projection pursuit indices have been developed [@f87] [@CBC92] [@Lee05] [@AHC02] [@CEM:CEM2568] [@JS87] [@5508437]. Many of these are developed to detect departure from multivariate normal, which includes clusters or outliers, or nonlinearity. Some have been developed to detect separations between known groups. However, if one wants to find unusual shapes, or shape differences between groups there are no options. One reason, is that it is hard, because defining what is meant by shape is not straightforward. An approach that seems plausible begins with scagnostics, developed by @scag, and explored in @WW08. 
 
-*** Motivating example
+*** Motivating example ??
+
+Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection. XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia)
 
 *** Explanation of tour algorithm and projection pursuit and software
 
