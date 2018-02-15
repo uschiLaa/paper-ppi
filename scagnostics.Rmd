@@ -48,20 +48,14 @@ A large number of projection pursuit indices have been developed [@f87] [@CBC92]
 
 *** Motivating example ??
 
-Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection. XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia). Scagnostics are available in two R packages [@LWscagR] and [@HWscagR]. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms. 
+Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection. XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia). Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms. 
 
-Projection pursuit is typically 
-*** Explanation of tour algorithm and projection pursuit and software
+A projection pursuit index, a function of all possible projections of the data, invariably has many "hills and valleys" and "knife-edge ridges" because of the varying shapes in the underlying density of observations from one projection to the next. From an exploratory data analysis perpective it is interesting to combine numerical optimisation with visualisation to watch the structure of the data moving into a maximum, to jump away from this projection and follow the optimisation again, invariably moving from local maxima to local maxima, and perhaps even a global maximum. Each of these maxima can reveal different information about the data. Projection pursuit optimisation combined with geodesic interpolations between projections provided by a tour [@As85], is called a projection pursuit guided tour [@CBCH94]. Software to run a projection pursuit guided tour is available in the R package, "tourr" [@tourr].
 
-*** Explanation of scagnostics and software
+The paper investigates the nature of scagnostics, particularly when considered as candidates for projection pursuit indices (Section \ref{sec:investigate})). It develops indexes for finding shapes as defined by the scagnostics, and for finding different shapes between multiple groups (Section \ref{sec:indexes}). Changes to the optimisation of the projection pursuit guided tour were needed to accommodate some of the complexities of the scagnostic indexes. The new guided tour methods are applied to contemporary problems from paarticle physics (Section \ref{sec:phys}). The paper is accompanied by the R package "binostics" available on CRAN, and the new indices have been implemented in the "tourr" package. 
 
-The projectionpursuitindex, a function of all possible projections
-of the data, invariablyhas many "hills and valleys" and "knife-edgeridges"because of
-the varying shape of underlyingdensity estimates from one projectionto the next.
-
-The paper is accompanied by the R package "binostics" available on CRAN, and new indices have been implemented in the "tourr" package. 
-
-# Investigation of scagnostics 
+# Investigation of scagnostics
+\label{sec:investigate}
 
 ## Scagnostic discreteness
 
@@ -80,6 +74,7 @@ The paper is accompanied by the R package "binostics" available on CRAN, and new
 ## Tour optimisation
 
 # Scagnostics indices
+\label{sec:indexes}
 
 ## Individual 
 
@@ -88,6 +83,7 @@ The paper is accompanied by the R package "binostics" available on CRAN, and new
 ## Multiple group differences
 
 # Application to particle physics data
+\label{sec:phys}
 
 ## Data description
 
