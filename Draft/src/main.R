@@ -8,6 +8,7 @@ library(gridExtra)
 library(wesanderson) #color palette
 library(tictoc) #timer
 library(mbgraphic) #Katrins package
+library(dfoptim)
 
 # function to log transform part of data
 asLog <- function(dt){
@@ -51,19 +52,23 @@ scagIndex2 <- function(proj) {
   proj <- matrix(proj, ncol=2, byrow=FALSE)
   proj <- tourr:::orthonormalise(proj)
   if(any(is.nan(proj))) return(0)
-  mat <- as.matrix(numbat_only[,c(4,6,7)]) %*% proj
-  scagType <- "Clumpy"
+  mat <- as.matrix(numbat_only) %*% proj
+  scagType <- "Monotonic"
   sR <- scagnostics.default(mat[,1],mat[,2])$s
   return(sR[scagType])
 }
 
-par0 <- c(1,0,0,0,1,0)
-lower <- rep(-1,6)
-upper <- rep(1, 6)
-hjkb(par0, scagIndex2, lower=lower, upper=upper,
+par0 <- c(1,0,0,0,0,0,0,0,0,0, 0,1,0,0,0,0,0,0,0,0)
+lower <- rep(-1,20)
+upper <- rep(1, 20)
+opt <- hjkb(par0, scagIndex2, lower=lower, upper=upper,
      control = list(maximize=TRUE, tol=0.001, 
-                    target=0.08, info=TRUE))
+                    info=TRUE))
   
+prj <- tourr:::orthonormalise(matrix(opt$par, ncol=2, byrow=FALSE))
+df <- as.data.frame(as.matrix(numbat_only) %*% prj)
+ggplot(df, aes(x=V1, y=V2)) + geom_point()
+
 splineIndex <- function(){
   function(mat){
     return(splines2d(mat[,1], mat[,2]))
@@ -212,8 +217,8 @@ animate(thisMatrix, guided_tour(scagIndex("Convex"), search_f = tourr:::search_b
         display_xy(axes="bottomleft"))
 
 numbat_circle <- read_csv("data/numbat.csv")
-numbat_only <- numbat %>% filter(group=="A") %>% select(-group)
-circle_only <- numbat %>% filter(group=="B") %>% select(-group)
+numbat_only <- numbat_circle %>% filter(group=="A") %>% select(-group)
+circle_only <- numbat_circle %>% filter(group=="B") %>% select(-group)
 animate(numbat_only[,c(4,6,7)], guided_tour(scagIndex("Clumpy"), search_f = tourr:::search_better, method="geodesic", alpha=2, cooling=0.8),
         display_xy(axes="bottomleft"))
 animate(circle_only[,c(4,6,7)], guided_tour(scagIndex("Striated"), search_f = tourr:::search_better, method="geodesic", alpha=2, cooling=0.8),
