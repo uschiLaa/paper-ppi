@@ -1,0 +1,79 @@
+---
+title: Using Scagnostics to find Interesting Projections of Multivariate Data
+
+# to produce blinded version set to 1
+blinded: 0
+
+authors: 
+- name: Ursula Laa
+  thanks: The authors gratefully acknowledge the support of the Australian Research Council
+  affiliation: Department of Physics, Monash University
+  email: \email{ursula.laa@monash.edu}
+  
+- name: Dianne Cook
+  affiliation: Department of Econometrics and Business Statistics, Monash University
+
+keywords:
+- tour
+- projection pursuit 
+- statistical graphics
+- data visualisation
+- exploratory data analysis
+- high-dimensional data
+
+abstract: |
+  Projection pursuit describes a procedure for searching high-dimensional data for "interesting" low-dimensional projections via the optimization of a criterion function called the projection pursuit index. Most indexes developed focus on finding projections with cluster structure, outliers, or separations between known groups. Here, we are interested in finding projections where the shapes are odd, or where known groups have different shapes despite having the same mean and variance. The new indexes are based on scagnostics, which were originally developed to choose pairs of interesting variables from a large collection. An examination of the properties of the scagnostics is included, and code in the form of an R package is provided.  
+
+bibliography: bibliography.bib
+output: rticles::asa_article
+---
+
+# Introduction
+
+The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high-(say $p$)dimensional data for "interesting" low- dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not necessarily found by methods such as principal component analysis.
+
+A large number of projection pursuit indices have been developed [@f87] [@CBC92] [@Lee05] [@AHC02] [@CEM:CEM2568] [@JS87] [@5508437]. 
+
+*** Motivating example
+
+*** Explanation of tour algorithm and projection pursuit and software
+
+*** Explanation of scagnostics and software
+
+# Investigation of scagnostics 
+
+## Scagnostic discreteness
+
+*** temporal trace of scagnostics showing discreteness, with projections illustrating little difference
+
+*** katrin's work
+
+## Speed
+
+# Modification to scagnostics
+
+## Smoothing
+
+## Jittering
+
+## Tour optimisation
+
+# Scagnostics indices
+
+## Individual 
+
+## Two group differences
+
+## Multiple group differences
+
+# Application to particle physics data
+
+## Data description
+
+## Software setup
+
+## Scagnostics of grand tour projections
+
+# Discussion
+
+# References
