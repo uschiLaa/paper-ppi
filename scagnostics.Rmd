@@ -40,6 +40,16 @@ bibliography: bibliography.bib
 output: rticles::asa_article
 ---
 
+```{r initial, echo = FALSE, cache = FALSE, include = FALSE}
+library(knitr)
+opts_chunk$set(
+  warning = FALSE, message = FALSE, echo = FALSE, 
+  fig.path = 'figure/', cache.path = 'cache/', fig.align = 'center', 
+  fig.show = 'hold', cache = TRUE, external = TRUE, dev = "pdf",
+  fig.height = 5, fig.width = 8, out.width = "\\textwidth"
+)
+```
+
 # Introduction
 
 The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high-(say $p$)dimensional data for "interesting" low- dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not necessarily found by methods such as principal component analysis.
@@ -57,15 +67,65 @@ The paper investigates the nature of scagnostics, particularly when considered a
 # Investigation of scagnostics
 \label{sec:investigate}
 
-## Scagnostic discreteness
+The nine scagnostics measures are designed to be computed together, producing a matrix of values with dimensions corresponding to the number of all pairs of variables, and the number of scagnostics. If there are 100 variables, the dimension will be $4950x9$. It is typically used to extract the pairs of variables that have the highest scagnostic values, and thus considered to be the most interesting. It can also be used to do more in-depth exploratory analysis, and is interesting to study the distribution of the scagnostics resulting from the data, as a data set in itself. In a sense this the data's "fingerprint".
+
+To use scagnostics for projection pursuit requires that each of the measures for functions that are relatively smooth over the space of all 2D projections, and that they can be computed rapidly enough that the display can be updated many times a second during optimisation.
+
+
+## Smoothness
 
 *** temporal trace of scagnostics showing discreteness, with projections illustrating little difference
 
 *** katrin's work
 
+XXX Probably use a simple benchmark data to illustrate the issues, maybe mtcars that comes with the scagnostics package
+
+```{r load}
+library(tourr)
+library(tidyverse)
+library(reshape2)
+library(binostics) #https://github.com/uschiLaa/binostics
+library(gridExtra)
+library(wesanderson) #color palette
+library(tictoc) #timer
+library(mbgraphic) #Katrins package
+library(dfoptim)
+```
+
+```{r util}
+scagIndex <- function(scagType){
+  function(mat){
+    sR <- scagnostics.default(mat[,1],mat[,2])$s
+    return(sR[scagType])
+  }
+}
+```
+
+```{r tourpath}
+data(mtcars)
+t1 <- save_history(mtcars, grand_tour(2), max=4)
+t1full <- as.list(interpolate(t1))
+n <- length(t1full)
+sc <- NULL
+for (i in 1:n) {
+  dprj <- as.matrix(mtcars) %*% t1full[[i]]
+  sc <- rbind(sc, scagnostics(dprj))
+}
+sc <- as.data.frame(sc)
+sc$t <- 1:n
+sc <- sc %>% gather(index, value, -t)
+```
+
+```{r plotscag, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
+ggplot(sc, aes(x=t, y=value)) + geom_line() + 
+  facet_wrap(~index, ncol=1, scales = "free_y")
+```
+
+## Effect of binning
+
 ## Speed
 
-# Modification to scagnostics
+# Possible modifications
 
 ## Smoothing
 
