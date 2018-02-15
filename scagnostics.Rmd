@@ -48,11 +48,18 @@ A large number of projection pursuit indices have been developed [@f87] [@CBC92]
 
 *** Motivating example ??
 
-Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection. XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia)
+Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection. XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia). Scagnostics are available in two R packages [@LWscagR] and [@HWscagR]. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms. 
 
+Projection pursuit is typically 
 *** Explanation of tour algorithm and projection pursuit and software
 
 *** Explanation of scagnostics and software
+
+The projectionpursuitindex, a function of all possible projections
+of the data, invariablyhas many "hills and valleys" and "knife-edgeridges"because of
+the varying shape of underlyingdensity estimates from one projectionto the next.
+
+The paper is accompanied by the R package "binostics" available on CRAN, and new indices have been implemented in the "tourr" package. 
 
 # Investigation of scagnostics 
 
