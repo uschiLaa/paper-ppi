@@ -58,7 +58,18 @@ A large number of projection pursuit indices have been developed [@f87] [@CBC92]
 
 *** Motivating example ??
 
-Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection. XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia). Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms. 
+Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection.
+XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia).
+Nine graph-theoretic measures have been defined to characterise scatterplots. They are calculated from a set of elementary building blocks: the convex hull, the alpha hull and the minimal spanning tree (MST). For definiteness all variables are rescaled to a [0,1] intervall, such that all measures will take values between 0 and 1 as well.
+The following measures have been defined:
+
+* Outlying: Outliers are defined in non-parametric fashion via the edge length in the MST, where the 25% and 75% quantil edge length define a threshold value $w=q_{75}+1.5(q_{75}-q_{25})$ above which an edge is considered long. The outlying measure is then calculated as $c_{outlying} = \frac{\mathrm{Total\ length\ of\ long\ edges}}{\mathrm{Total\ length\ of\ all\ edges}}$. Note that outlying points are not considered in the calculation of the other measures.
+* Skewed: Skewness is defined via the distribution of edge length in the MST, $q_{skew}=\frac{q_{90}-q{50}}{q_{90}-q_{10}}$. This is inverted as $c_{skew}= 1-w(1-q_{skew})$ to account for binning effects that result in decreasing values of $q_{skew}$ with increasing n.
+* Sparse: 
+
+Note that in practice, for efficiency and robustness, the measures are calculated from binned data, and after removing outliers.
+Moreover, scaling factors are used to mitigate dependence on sample size.
+Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms. 
 
 A projection pursuit index, a function of all possible projections of the data, invariably has many "hills and valleys" and "knife-edge ridges" because of the varying shapes in the underlying density of observations from one projection to the next. From an exploratory data analysis perpective it is interesting to combine numerical optimisation with visualisation to watch the structure of the data moving into a maximum, to jump away from this projection and follow the optimisation again, invariably moving from local maxima to local maxima, and perhaps even a global maximum. Each of these maxima can reveal different information about the data. Projection pursuit optimisation combined with geodesic interpolations between projections provided by a tour [@As85], is called a projection pursuit guided tour [@CBCH94]. Software to run a projection pursuit guided tour is available in the R package, "tourr" [@tourr].
 
@@ -90,16 +101,22 @@ To use scagnostics for projection pursuit requires that each of the measures for
 As a test dataset we generate high dimensional geometrical shapes using the geozoo package (REF).
 Concretely we consider five dimensional objects, and we combine a hollow shpere with radius 1 and a solid torus with radii (0.5, 0.5, 0.1,0.1). The resulting distributions can be seen in the scatter plot matrix below. In the following we combine both groups to study the resulting non-standard distribution.
 
-```{r geozooDist, fig.width=6, fig.height=7, fig.cap="Scatter plot matrix of the five dimensional shapes, randomly selecting 100 points in each group. Group 1 (2) contains points selected on a hollow sphere (solid torus)."}
-hSphere <- sphere.hollow(p=5,n=100)$points
-sTorus <- torus(5,100, radius = c(0.5,0.5,0.1,0.1))$points
+```{r geozooDist, fig.width=6, fig.height=7, fig.cap="Scatter plot matrix of the five dimensional shapes, randomly selecting 500 points in each group. Group 1 (2) contains points selected on a hollow sphere (solid torus)."}
+hSphere <- sphere.hollow(p=5,n=500)$points
+sTorus <- torus(5,500, radius = c(0.5,0.5,0.1,0.1))$points
 geoDF <- bind_rows(as.data.frame(hSphere),as.data.frame(sTorus),.id = "Group")
 ggscatmat(geoDF, columns = 2:6, color="Group")
 ```
 
 ## Smoothness
+*** temporal trace of scagnostics showing discreteness, with projections illustrating little difference
 
-We first study the smoothness of the scagnostics measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path. The temporal trace of all nine measures is shown below, where each time step refers to an interpolation step with a target distance between interpolated bases is set to 0.05 radians. We observe sharp jumps in all nine measures, note however the large differences in overall scale between the measures. In particular "Clumpy", "Monotonic", "Sparse" and "Striated" show little sensitivity, as could be expected from the distributions in Figure (REF).
+*** katrin's work
+
+XXX Probably use a simple benchmark data to illustrate the issues, maybe mtcars that comes with the scagnostics package
+
+
+We first study the smoothness of the scagnostics measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path. The temporal trace of all nine measures is shown below, where each time step refers to an interpolation step with a target distance between interpolated bases is set to 0.05 radians. We observe sharp jumps in almost all measures (with "Monotonic" being the only exception), note however the large differences in overall scale between the measures. In particular "Clumpy", "Monotonic", "Outlying", "Sparse" and "Striated" show little sensitivity, as could be expected from the distributions in Figure (REF).
 
 ```{r util}
 scagIndex <- function(scagType){
@@ -108,9 +125,28 @@ scagIndex <- function(scagType){
     return(sR[scagType])
   }
 }
+
+plotProj <- function(nProj, fullPath, dMatrix,legendOn, lim=75){
+  p <- fullPath[nProj][[1]]
+  d <- as.matrix(dMatrix) %*% p
+  s <- scagnostics.default(d[,1],d[,2], bins= 50)
+  p1 <- ggplot()+
+    geom_point(data = as.data.frame(d), mapping=aes(x=V1, y=V2))
+  p2 <- ggplot()+
+    geom_point(data = as.data.frame(s$bins), mapping = aes(x=V1, y=V2, color=V3, size=V3))+
+    xlim(0,1000)+
+    ylim(0,1000)+
+    expand_limits(colour = c(1,lim), size = c(1,lim))+
+    scale_color_gradientn(colors=wes_palette(name="Zissou"))+
+    scale_size(range = c(1,3))
+    if(legendOn==0){p2 = p2 + guides(color=FALSE, size=FALSE)}
+    grid.arrange(arrangeGrob(p1, widths = 2),arrangeGrob(p2, widths = 7),nrow=1)
+    return(s$s)
+}
 ```
 
 ```{r tourpathGeozoo}
+set.seed(272829)
 geoCombined <- select(geoDF,-Group)
 t1 <- save_history(geoCombined, grand_tour(2), max=4)
 t1full <- as.list(interpolate(t1))
@@ -129,31 +165,33 @@ sc <- sc %>% gather(index, value, -t)
 ```{r plotscagGeozoo, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
 ggplot(sc, aes(x=t, y=value)) + geom_line() + 
   facet_wrap(~index, ncol=1, scales = "free_y") +
-  geom_vline(mapping = aes(xintercept=15, color="red")) +
-  geom_vline(mapping = aes(xintercept=25, color="red")) +
+  geom_vline(mapping = aes(xintercept=24, color="red")) +
+  geom_vline(mapping = aes(xintercept=39, color="red")) +
   guides(color=FALSE)
 ```
 
-```{r plotscagPairs, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections, as above. Scatter plot of scagnostics calculated on each projection. FIXME is this relevant? Maybe remove this plot."}
+```{r plotscagPairs, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections, as above. Scatter plot of scagnostics calculated on each projection. Observations: discreetness of outlying and striated, anti-correlation of convex and skinny. FIXME is this relevant? Maybe remove this plot."}
 ggpairs(scPairs, columns = 1:9)
 ```
 
-Two projections, t=15 and t=25, have been marked in Figure (can I add a reference?), as examples exhibiting jumps in several measures with respect to the previous and/or next projection. We compare the observed behaviour to the scatter plots obtained from the projected data in the Figure below.
+Two projections, t=24 and t=39, have been marked in Figure (can I add a reference?), as examples exhibiting jumps in several measures with respect to the previous and/or next projection. In particular the outlying measure indicates that at least one outlier has been identified in the projection at t=24, but not the projections before or after. The removal of the point(s) will likely impact the calculation of other measures, and indeed we even see a small bump in the otherwise smooth measure "monotonic" (note however that the same is not true in other projections with outlying points). The projection at t=39 has been selected because of the sharp jumps in the measures "skewed", "stringy" and "striated". We compare the observed behaviour to the scatter plots obtained from the projected data in the Figure below. As expected the projections look similar over the 3 interpolation steps, small differences in the binned distribution can however be observed. Certainly the sometimes large differences (jumps of 0.1 absolute change in a measure from one projection to the next) are not indicating interesting differences in the projected view of the data.
 
-ADD Figure next
+```{r plotProj15, fig.width=6, fig.height=2, fig.cap="Projected data at t = 23, 24, 25 (top to bottom)."}
+s1 <- plotProj(23, t1full, geoCombined, legendOn=0)
+s2 <- plotProj(24, t1full, geoCombined, legendOn=0)
+s3 <- plotProj(25, t1full, geoCombined, legendOn=0)
+```
 
-## Smoothness
-
-*** temporal trace of scagnostics showing discreteness, with projections illustrating little difference
-
-*** katrin's work
-
-XXX Probably use a simple benchmark data to illustrate the issues, maybe mtcars that comes with the scagnostics package
-
-
+```{r plotProj25, fig.width=6, fig.height=2, fig.cap="Projected data at t = 38, 39, 40 (top to bottom). The original data points are shown on the left, the binned data, used for the calculation of the scagnostics measures is shown on the right."}
+s1 <- plotProj(38, t1full, geoCombined, legendOn=0)
+s2 <- plotProj(39, t1full, geoCombined, legendOn=0)
+s3 <- plotProj(40, t1full, geoCombined, legendOn=0)
+```
 
 
 ## Effect of binning
+
+Two possible sources of discreet jumps, from binning and discreetness of the underlying objects, in particular the minimal spanning tree. Can we see how mst looks for each projection to understand this?
 
 ## Speed
 
