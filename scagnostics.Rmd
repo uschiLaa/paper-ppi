@@ -71,6 +71,7 @@ splines_{2d} = max(1-\frac{Var(res_{X\sim Y})}{Var(X)}, 1-\frac{Var(res_{Y\sim X
 where $Var(.)$ is the variance and $res_{X\sim Y}$ are the residuals in the spline model where $X$ is considered a function of $Y$.
 The second new measure introduced in @mbgraphic is aiming to detect also non-functional relations and is based on the idea of distance correlation @szekely2007. (should I repeat definitions here?)
 Finally we will also consider the maximal and total information coefficient (MIC and TIC) defined in @Reshef1518 which are based on mutual information found when imposing grids on pair-wise variable plots. These functions are availabel in R via the interface implemented in the minerva package @minerva.
+(read paper and add more detail. how are they similar/different compared to scagnostics and distance correlation? the way that binning is being built into it may make difference in how MIC/TIC may be smoother?)
 
 Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection.
 XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia).
@@ -91,6 +92,8 @@ Moreover, scaling factors are used to mitigate dependence on sample size.
 Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms. 
 
 A projection pursuit index, a function of all possible projections of the data, invariably has many "hills and valleys" and "knife-edge ridges" because of the varying shapes in the underlying density of observations from one projection to the next. From an exploratory data analysis perpective it is interesting to combine numerical optimisation with visualisation to watch the structure of the data moving into a maximum, to jump away from this projection and follow the optimisation again, invariably moving from local maxima to local maxima, and perhaps even a global maximum. Each of these maxima can reveal different information about the data. Projection pursuit optimisation combined with geodesic interpolations between projections provided by a tour [@As85], is called a projection pursuit guided tour [@CBCH94]. Software to run a projection pursuit guided tour is available in the R package, "tourr" [@tourr].
+(Even just for the optimisation part the guided tour implementation is useful.)
+(Traditional projection pursuit indices are fast to compute and therefore the optimisation would be done in "real time" while displaying the tour. For the measures considered here this generally does not apply, as a consequence we "disentangle" the two into subsequent steps.)
 
 The paper investigates the nature of scagnostics, particularly when considered as candidates for projection pursuit indices (Section \ref{sec:investigate})). It develops indexes for finding shapes as defined by the scagnostics, and for finding different shapes between multiple groups (Section \ref{sec:indexes}). Changes to the optimisation of the projection pursuit guided tour were needed to accommodate some of the complexities of the scagnostic indexes. The new guided tour methods are applied to contemporary problems from paarticle physics (Section \ref{sec:phys}). The paper is accompanied by the R package "binostics" available on CRAN, and the new indices have been implemented in the "tourr" package. 
 
@@ -109,9 +112,10 @@ library(mbgraphic) #Katrins package
 library(dfoptim)
 library(GGally)
 library(geozoo)
+library(minerva)
 ```
 
-The nine scagnostics measures are designed to be computed together, producing a matrix of values with dimensions corresponding to the number of all pairs of variables, and the number of scagnostics. If there are 100 variables, the dimension will be $4950x9$. It is typically used to extract the pairs of variables that have the highest scagnostic values, and thus considered to be the most interesting. It can also be used to do more in-depth exploratory analysis, and is interesting to study the distribution of the scagnostics resulting from the data, as a data set in itself. In a sense this the data's "fingerprint".
+The nine scagnostics measures are designed to be computed together, producing a matrix of values with dimensions corresponding to the number of all pairs of variables, and the number of scagnostics. If there are 100 variables, the dimension will be $4950\times 9$. It is typically used to extract the pairs of variables that have the highest scagnostic values, and thus considered to be the most interesting. It can also be used to do more in-depth exploratory analysis, and is interesting to study the distribution of the scagnostics resulting from the data, as a data set in itself. In a sense this the data's "fingerprint".
 
 To use scagnostics for projection pursuit requires that each of the measures for functions that are relatively smooth over the space of all 2D projections, and that they can be computed rapidly enough that the display can be updated many times a second during optimisation.
 
