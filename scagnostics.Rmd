@@ -100,19 +100,18 @@ The paper investigates the nature of scagnostics, particularly when considered a
 # Investigation of scagnostics
 \label{sec:investigate}
 
+
 ```{r load}
 library(tourr)
 library(tidyverse)
 library(reshape2)
-library(binostics) #https://github.com/uschiLaa/binostics
+library(scagnostics)
 library(gridExtra)
-library(wesanderson) #color palette
 library(tictoc) #timer
 library(mbgraphic) #Katrins package
-library(dfoptim)
 library(GGally)
 library(geozoo)
-library(minerva)
+library(minerva) #MINE indices
 ```
 
 The nine scagnostics measures are designed to be computed together, producing a matrix of values with dimensions corresponding to the number of all pairs of variables, and the number of scagnostics. If there are 100 variables, the dimension will be $4950\times 9$. It is typically used to extract the pairs of variables that have the highest scagnostic values, and thus considered to be the most interesting. It can also be used to do more in-depth exploratory analysis, and is interesting to study the distribution of the scagnostics resulting from the data, as a data set in itself. In a sense this the data's "fingerprint".
@@ -121,27 +120,16 @@ To use scagnostics for projection pursuit requires that each of the measures for
 
 ## Dataset
 
-As a test dataset we generate high dimensional geometrical shapes using the geozoo package (REF).
-Concretely we consider five dimensional objects, and we combine a hollow shpere with radius 1 and a solid torus with radii (0.5, 0.5, 0.1,0.1). The resulting distributions can be seen in the scatter plot matrix below. In the following we combine both groups to study the resulting non-standard distribution.
-
-```{r geozooDist, fig.width=6, fig.height=7, fig.cap="Scatter plot matrix of the five dimensional shapes, randomly selecting 500 points in each group. Group 1 (2) contains points selected on a hollow sphere (solid torus)."}
-hSphere <- sphere.hollow(p=5,n=500)$points
-sTorus <- torus(5,500, radius = c(0.5,0.5,0.1,0.1))$points
-geoDF <- bind_rows(as.data.frame(hSphere),as.data.frame(sTorus),.id = "Group")
-ggscatmat(geoDF, columns = 2:6, color="Group")
-```
+We consider three example distributions in n=6 dimensions with p randomly selected points $x_i, i = 1,..,n$:
+1. p points on an n-dimensional sphere as an example of dataset without special views
+2. p points where n-1 points are independently drawn from a uniform distribution between [-1,1], and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not showing functional dependence, and where sampling boundaries are apparant in the distribution 
+3. p points where n-1 points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
 
 ## Smoothness
-*** temporal trace of scagnostics showing discreteness, with projections illustrating little difference
-
-*** katrin's work
-
-XXX Probably use a simple benchmark data to illustrate the issues, maybe mtcars that comes with the scagnostics package
-
-
-We first study the smoothness of the scagnostics measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path. The temporal trace of all nine measures is shown below, where each time step refers to an interpolation step with a target distance between interpolated bases is set to 0.05 radians. We observe sharp jumps in almost all measures (with "Monotonic" being the only exception), note however the large differences in overall scale between the measures. In particular "Clumpy", "Monotonic", "Outlying", "Sparse" and "Striated" show little sensitivity, as could be expected from the distributions in Figure (REF).
+We first study the smoothness of the scagnostics measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step.
 
 ```{r util}
+#defining index functions to be used with the tour
 scagIndex <- function(scagType){
   function(mat){
     sR <- scagnostics.default(mat[,1],mat[,2])$s
@@ -149,29 +137,85 @@ scagIndex <- function(scagType){
   }
 }
 
-plotProj <- function(nProj, fullPath, dMatrix,legendOn, lim=75){
-  p <- fullPath[nProj][[1]]
-  d <- as.matrix(dMatrix) %*% p
-  s <- scagnostics.default(d[,1],d[,2], bins= 50)
-  p1 <- ggplot()+
-    geom_point(data = as.data.frame(d), mapping=aes(x=V1, y=V2))
-  p2 <- ggplot()+
-    geom_point(data = as.data.frame(s$bins), mapping = aes(x=V1, y=V2, color=V3, size=V3))+
-    xlim(0,1000)+
-    ylim(0,1000)+
-    expand_limits(colour = c(1,lim), size = c(1,lim))+
-    scale_color_gradientn(colors=wes_palette(name="Zissou"))+
-    scale_size(range = c(1,3))
-    if(legendOn==0){p2 = p2 + guides(color=FALSE, size=FALSE)}
-    grid.arrange(arrangeGrob(p1, widths = 2),arrangeGrob(p2, widths = 7),nrow=1)
-    return(s$s)
+splineIndex <- function(){
+  function(mat){
+    return(splines2d(mat[,1], mat[,2]))
+  }
+}
+
+dcorIndex <- function(){
+  function(mat){
+    return(dcor2d(mat[,1], mat[,2]))
+  }
+}
+
+mineIndex <- function(mineIndex){
+  function(mat){
+    return(mine(mat[,1], mat[,2])[[mineIndex]])
+  }
 }
 ```
 
-```{r tourpathGeozoo}
-set.seed(272829)
-geoCombined <- select(geoDF,-Group)
-t1 <- save_history(geoCombined, grand_tour(2), max=4)
+```{r datasetFunctions}
+sphereData <- function(n, p){
+  dRet <- geozoo::sphere.solid.random(n,p)
+  return(as.tibble(dRet$points))
+}
+
+pipeData <- function(n, p){
+  i <- 1
+  dRet <- NULL
+  while(i <= p){
+    v <- runif(n, -1, 1)
+    if(abs(v[n-1]*v[n-1] + v[n]*v[n] - 1) < 0.1){
+      dRet <- rbind(dRet, v)
+      i <- i+1
+    }
+  }
+  return(as.tibble(dRet))
+}
+
+sinData <- function(n, p){
+  vName <- paste0("V",n)
+  vNameM1 <- paste0("V",n-1)
+  expr <- paste0(vName,"=sin(",vNameM1,")") # need string expression if I want to use tibble here
+  dRet <- as.tibble(matrix(rnorm((n-1)*p), ncol=(n-1))) #generate normal distributed n-1 dim data
+  dRet <- mutate_(dRet, expr) #string evaluation calculates var(n) as tan(var(n-1))
+  colnames(dRet)[n] <- vName #correct name of new variable
+  dRet[vName] <- jitter(dRet[[vName]]) #adding noise
+  return(dRet)
+}
+```
+
+```{r datasets}
+sphere100 <- sphereData(6, 100)
+sphere1000 <- sphereData(6, 1000)
+
+pipe100 <- pipeData(6, 100)
+pipe1000 <- pipeData(6,1000)
+
+sin100 <- sinData(6, 100)
+sin1000 <- sinData(6, 1000)
+```
+
+```{r getProj}
+getProj <- function(df, tPath, nameStr){
+  sc <- NULL
+  n <- length(tPath)
+  df <- rescale(df)
+  for (i in 1:n) {
+  dprj <- df %*% tPath[[i]]
+  #FIXME not only scagnostics but all relevant!
+  #also keep track of t=i, and nameStr
+  #after want to be able to directly plot full comparison.
+  sc <- rbind(sc, scagnostics(dprj))
+}
+}
+```
+
+```{r grandtourpath}
+set.seed(1988)
+t1 <- save_history(sphere100, grand_tour(2), max=4)
 t1full <- as.list(interpolate(t1))
 n <- length(t1full)
 sc <- NULL
@@ -179,37 +223,23 @@ for (i in 1:n) {
   dprj <- as.matrix(geoCombined) %*% t1full[[i]]
   sc <- rbind(sc, scagnostics(dprj))
 }
-sc <- as.data.frame(sc)
-sc$t <- 1:n
-scPairs <- sc
-sc <- sc %>% gather(index, value, -t)
-```
+#sc <- as.data.frame(sc)
+#sc$t <- 1:n
+#scPairs <- sc
+#sc <- sc %>% gather(index, value, -t)
+#```
 
-```{r plotscagGeozoo, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
-ggplot(sc, aes(x=t, y=value)) + geom_line() + 
-  facet_wrap(~index, ncol=1, scales = "free_y") +
-  geom_vline(mapping = aes(xintercept=24, color="red")) +
-  geom_vline(mapping = aes(xintercept=39, color="red")) +
-  guides(color=FALSE)
-```
+#```{r plotscagGeozoo, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on #projections. Most of the indices exhibit sharp jumps in scagnostic value."}
+#ggplot(sc, aes(x=t, y=value)) + geom_line() + 
+#  facet_wrap(~index, ncol=1, scales = "free_y") +
+#  geom_vline(mapping = aes(xintercept=24, color="red")) +
+#  geom_vline(mapping = aes(xintercept=39, color="red")) +
+#  guides(color=FALSE)
+#```
 
-```{r plotscagPairs, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections, as above. Scatter plot of scagnostics calculated on each projection. Observations: discreetness of outlying and striated, anti-correlation of convex and skinny. FIXME is this relevant? Maybe remove this plot."}
-ggpairs(scPairs, columns = 1:9)
-```
 
-Two projections, t=24 and t=39, have been marked in Figure (can I add a reference?), as examples exhibiting jumps in several measures with respect to the previous and/or next projection. In particular the outlying measure indicates that at least one outlier has been identified in the projection at t=24, but not the projections before or after. The removal of the point(s) will likely impact the calculation of other measures, and indeed we even see a small bump in the otherwise smooth measure "monotonic" (note however that the same is not true in other projections with outlying points). The projection at t=39 has been selected because of the sharp jumps in the measures "skewed", "stringy" and "striated". We compare the observed behaviour to the scatter plots obtained from the projected data in the Figure below. As expected the projections look similar over the 3 interpolation steps, small differences in the binned distribution can however be observed. Certainly the sometimes large differences (jumps of 0.1 absolute change in a measure from one projection to the next) are not indicating interesting differences in the projected view of the data.
 
-```{r plotProj15, fig.width=6, fig.height=2, fig.cap="Projected data at t = 23, 24, 25 (top to bottom)."}
-s1 <- plotProj(23, t1full, geoCombined, legendOn=0)
-s2 <- plotProj(24, t1full, geoCombined, legendOn=0)
-s3 <- plotProj(25, t1full, geoCombined, legendOn=0)
-```
 
-```{r plotProj25, fig.width=6, fig.height=2, fig.cap="Projected data at t = 38, 39, 40 (top to bottom). The original data points are shown on the left, the binned data, used for the calculation of the scagnostics measures is shown on the right."}
-s1 <- plotProj(38, t1full, geoCombined, legendOn=0)
-s2 <- plotProj(39, t1full, geoCombined, legendOn=0)
-s3 <- plotProj(40, t1full, geoCombined, legendOn=0)
-```
 
 
 ## Effect of binning
