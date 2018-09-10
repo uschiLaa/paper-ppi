@@ -38,6 +38,9 @@ abstract: |
 
 bibliography: bibliography.bib
 output: rticles::asa_article
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
 ---
 
 ```{r initial, echo = FALSE, cache = FALSE, include = FALSE}
@@ -126,7 +129,8 @@ We consider three example distributions in n=6 dimensions with p randomly select
 3. p points where n-1 points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
 
 ## Smoothness
-We first study the smoothness of the scagnostics measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that each parameter range has been rescaled to be between [0,1] for direct comparison.
+We first study the smoothness of a subset of measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path between 4 anchor planes and using the default interpolation angle of 0.05. For this comparison we rescale the data such that each parameter takes values between [0,1]. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that the value of TIC is strongly dependent on the input distribution and we have therefore rescaled the range for each individual dataset to [0,1], all other measures are reproduced as reported by the calculation.
+
 
 ```{r util}
 #defining index functions to be used with the tour
@@ -253,33 +257,49 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
   facet_wrap(~variable, ncol=1, scales = "free_y")
 ```
 
+Sharp jumps can be observed in all measures except the distance correlation measure when considering small datasets of only 100 points. Generally we observe smoother behaviour for larger datasets, notably all considered scagnostics measures show only small variation around a flat baseline. Interestingly all other indices indicate preferred viewing directions for dataset 3 when studying large samples, but not for dataset 2 which contains a special view in the same direction. We therefore show 2-d view defined by the tour step $t=58$, with projection matrix
+```{r t58matrix, echo=FALSE}
+knitr::kable(t1full[[58]] ,  caption = "Matrix representation of projection 58.")
+```
+i.e. while the last two parameters enter significantly, they will not dominate the view and we do not expect to fully observe the built in features.
+```{r plot58, fig.width=6, fig.height=7, fig.cap="View of all datasets defined by at tour step 58."}
+p58 <- t1full[[58]]
+pL <- list()
+i <- 1
+pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
+for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
+  dm <- rescale(ds)
+  pData <- as.tibble(dm %*% p58)
+  pC <- ggplot(pData, aes(V1, V2)) +
+    geom_point() +
+    ggtitle(pLabels[i])
+  pL[[i]] <- pC
+  i <- i+1
+}
+grid.arrange(pL[[1]], pL[[2]],
+             pL[[3]], pL[[4]],
+             pL[[5]], pL[[6]],
+             ncol=2)
+
+```
+We see from Fig. ((how to add cross references?)) that the built in special views cannot be seen in this projection, but confirm that the sine 1000 dataset presents some correlation in this view.
 
 
 
+## Guided tour
+Given the behaviour of the various index measures under an interpolated tour path we next try to use the tourr implementation of the guided tour together with selected index functions to uncover the special views in datasets 2 and 3 with 1000 datapoints.
+
+### Review of guided tour optimisation
+
+### Looking down the pipe
+TIC should be able to uncover special view, compare performance of all indices on guided tour path. (also cmass and holes?)
 
 
-## Effect of binning
+### Finding sine waves
+Use spline2d to try and find sine shape, compare performance of all indices on guided tour path.
 
-Two possible sources of discreet jumps, from binning and discreetness of the underlying objects, in particular the minimal spanning tree. Can we see how mst looks for each projection to understand this?
-
-## Speed
-
-
-# Possible modifications
-We next study possible modifications that will enable the use of scagnostics as an index for guided tours.
-First, given the often large variation in scagnositcs measures between neighbouring projections, we consider smoothing the calculation, either via averaging over $n$ previous projections, or by jittering either the points or the projection matrix and averaging the resulting scagnostics measures over jittered projections.
-We then consider how different optimizers may be more adapt for an optimization over the erratic scagnostics measures.
-
-## Smoothing
-First we consider smoothing the scagnostics index by averaging over $n$ previous projections, the resulting behaviour is shown in Figure...
-
-
-## Jittering
-Another method of smoothing the scagnostics index would consist in jittering either the projected data points, or the projection itself.
-We show the impact of both methods in Figure ...
-
-## Tour optimisation
-How does current optimizer work? What is the advantege of the alternative optimizer? Show results we get using each optimizer
+### Note on calculation time
+Considerations: time to calculate index for single 2-d plot, parameters to turn for guided tour (max.tries, alpha, cooling)
 
 
 # Scagnostics indices
