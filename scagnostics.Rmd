@@ -126,7 +126,7 @@ We consider three example distributions in n=6 dimensions with p randomly select
 3. p points where n-1 points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
 
 ## Smoothness
-We first study the smoothness of the scagnostics measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step.
+We first study the smoothness of the scagnostics measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that each parameter range has been rescaled to be between [0,1] for direct comparison.
 
 ```{r util}
 #defining index functions to be used with the tour
@@ -199,17 +199,38 @@ sin1000 <- sinData(6, 1000)
 ```
 
 ```{r getProj}
-getProj <- function(df, tPath, nameStr){
-  sc <- NULL
+getProj <- function(df, tPath, nameStr, size){
+  sc <- tibble(convex=numeric(),
+               clumpy=numeric(),
+               skinny=numeric(),
+               stringy=numeric(),
+               dcor2d=numeric(),
+               splines2d=numeric(),
+               MIC=numeric(),
+               TIC1=numeric(),
+               t=numeric(),
+               name=character(),
+               size=numeric())
   n <- length(tPath)
   df <- rescale(df)
   for (i in 1:n) {
-  dprj <- df %*% tPath[[i]]
-  #FIXME not only scagnostics but all relevant!
-  #also keep track of t=i, and nameStr
-  #after want to be able to directly plot full comparison.
-  sc <- rbind(sc, scagnostics(dprj))
-}
+    dprj <- df %*% tPath[[i]]
+    scagRes <- scagnostics(dprj)
+    dcorRes <- dcor2d(dprj[,1], dprj[,2])
+    splineRes <- splines2d(dprj[,1], dprj[,2])
+    mineRes <- mine(dprj[,1], dprj[,2])
+    sc <- add_row(sc, convex=scagRes["Convex"],
+                  clumpy=scagRes["Clumpy"], skinny=scagRes["Skinny"],
+                  stringy=scagRes["Stringy"], dcor2d=dcorRes,
+                  splines2d=splineRes, MIC=mineRes$MIC,
+                  TIC1=mineRes$TIC, t=i, name=nameStr, size=size)
+  }
+  maxTIC <- max(sc$TIC1)
+  sc <- sc %>%
+    mutate(TIC = TIC1/maxTIC) %>%
+    select(-TIC1)
+  
+  return(sc)
 }
 ```
 
@@ -217,25 +238,20 @@ getProj <- function(df, tPath, nameStr){
 set.seed(1988)
 t1 <- save_history(sphere100, grand_tour(2), max=4)
 t1full <- as.list(interpolate(t1))
-n <- length(t1full)
-sc <- NULL
-for (i in 1:n) {
-  dprj <- as.matrix(geoCombined) %*% t1full[[i]]
-  sc <- rbind(sc, scagnostics(dprj))
-}
-#sc <- as.data.frame(sc)
-#sc$t <- 1:n
-#scPairs <- sc
-#sc <- sc %>% gather(index, value, -t)
-#```
+fullRes <- getProj(sin100, t1full, "sin", 100) %>%
+  rbind(getProj(sin1000, t1full, "sin", 1000)) %>%
+  rbind(getProj(sphere100, t1full, "sphere", 100)) %>%
+  rbind(getProj(sphere1000, t1full, "sphere", 1000)) %>%
+  rbind(getProj(pipe100, t1full, "pipe", 100)) %>%
+  rbind(getProj(pipe1000, t1full, "pipe", 1000))
+```
 
-#```{r plotscagGeozoo, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on #projections. Most of the indices exhibit sharp jumps in scagnostic value."}
-#ggplot(sc, aes(x=t, y=value)) + geom_line() + 
-#  facet_wrap(~index, ncol=1, scales = "free_y") +
-#  geom_vline(mapping = aes(xintercept=24, color="red")) +
-#  geom_vline(mapping = aes(xintercept=39, color="red")) +
-#  guides(color=FALSE)
-#```
+```{r plotgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
+fullResMelt <- melt(fullRes, id=c("t", "name", "size"))
+ggplot(fullResMelt, aes(x=t, y=value)) +
+  geom_line(aes(color=name, linetype=factor(size))) + 
+  facet_wrap(~variable, ncol=1, scales = "free_y")
+```
 
 
 
