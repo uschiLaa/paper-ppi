@@ -117,21 +117,6 @@ library(geozoo)
 library(minerva) #MINE indices
 ```
 
-The nine scagnostics measures are designed to be computed together, producing a matrix of values with dimensions corresponding to the number of all pairs of variables, and the number of scagnostics. If there are 100 variables, the dimension will be $4950\times 9$. It is typically used to extract the pairs of variables that have the highest scagnostic values, and thus considered to be the most interesting. It can also be used to do more in-depth exploratory analysis, and is interesting to study the distribution of the scagnostics resulting from the data, as a data set in itself. In a sense this the data's "fingerprint".
-
-To use scagnostics for projection pursuit requires that each of the measures for functions that are relatively smooth over the space of all 2D projections, and that they can be computed rapidly enough that the display can be updated many times a second during optimisation.
-
-## Dataset
-
-We consider three example distributions in n=6 dimensions with p randomly selected points $x_i, i = 1,..,n$:
-1. p points on an n-dimensional sphere as an example of dataset without special views
-2. p points where n-1 points are independently drawn from a uniform distribution between [-1,1], and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not showing functional dependence, and where sampling boundaries are apparant in the distribution 
-3. p points where n-1 points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
-
-## Smoothness
-We first study the smoothness of a subset of measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path between 4 anchor planes and using the default interpolation angle of 0.05. For this comparison we rescale the data such that each parameter takes values between [0,1]. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that the value of TIC is strongly dependent on the input distribution and we have therefore normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation.
-
-
 ```{r util}
 #defining index functions to be used with the tour
 scagIndex <- function(scagType){
@@ -159,6 +144,17 @@ mineIndex <- function(mineIndex){
   }
 }
 ```
+
+The nine scagnostics measures are designed to be computed together, producing a matrix of values with dimensions corresponding to the number of all pairs of variables, and the number of scagnostics. If there are 100 variables, the dimension will be $4950\times 9$. It is typically used to extract the pairs of variables that have the highest scagnostic values, and thus considered to be the most interesting. It can also be used to do more in-depth exploratory analysis, and is interesting to study the distribution of the scagnostics resulting from the data, as a data set in itself. In a sense this the data's "fingerprint".
+
+To use scagnostics for projection pursuit requires that each of the measures for functions that are relatively smooth over the space of all 2D projections, and that they can be computed rapidly enough that the display can be updated many times a second during optimisation.
+
+## Dataset
+
+We consider three example distributions in n=6 dimensions with p randomly selected points $x_i, i = 1,..,n$:
+1. p points on an n-dimensional sphere as an example of dataset without special views
+2. p points where n-1 points are independently drawn from a uniform distribution between [-1,1], and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not showing functional dependence, and where sampling boundaries are apparant in the distribution 
+3. p points where n-1 points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
 
 ```{r datasetFunctions}
 sphereData <- function(n, p){
@@ -201,6 +197,96 @@ pipe1000 <- pipeData(6,1000)
 sin100 <- sinData(6, 100)
 sin1000 <- sinData(6, 1000)
 ```
+
+To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforces relationships will also affect the overall distribution as can be seen from (fig:dataPlotsDensity).
+
+```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Data views of V1 vs V2."}
+pL <- list()
+i <- 1
+pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
+for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
+  pC <- ggplot(ds, aes(V1, V2)) +
+    geom_point() +
+    ggtitle(pLabels[i])
+  pL[[i]] <- pC
+  i <- i+1
+}
+grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
+             ncol=2)
+```
+
+```{r dataPlotsV5V6, fig.width=6, fig.height=7, fig.cap="Data views of V5 vs V6."}
+pL <- list()
+i <- 1
+pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
+for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
+  pC <- ggplot(ds, aes(V5, V6)) +
+    geom_point() +
+    ggtitle(pLabels[i])
+  pL[[i]] <- pC
+  i <- i+1
+}
+grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
+             ncol=2)
+```
+
+```{r dataPlotsDensity, fig.width=6, fig.height=7, fig.cap="Data views of V1 vs V6."}
+pL <- list()
+i <- 1
+pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
+for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
+  distData <- melt(ds)
+  pC <- ggplot(distData, aes(value, color=variable)) +
+    geom_density() +
+    ggtitle(pLabels[i])
+  pL[[i]] <- pC
+  i <- i+1
+}
+grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
+             ncol=2)
+```
+
+We next compare the various indexvalues for three views: V1 vs V2, V5 vs V6 and V1 vs V6 (capturing differences from the different distribution in V6).
+
+```{r indexTable, echo=FALSE}
+i <- 1
+pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
+indexOverview <- tibble(convex=numeric(),
+               clumpy=numeric(),
+               skinny=numeric(),
+               stringy=numeric(),
+               dcor2d=numeric(),
+               splines2d=numeric(),
+               MIC=numeric(),
+               TIC=numeric(),
+               name=character(),
+               vars=character())
+for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
+  ds <- as.tibble(rescale(ds))
+  for(vars in list(c("V1","V2"),c("V5","V6"),c("V1","V6"))){
+    dprj <- as.matrix(select_(ds, vars[1], vars[2]))
+    scagRes <- scagnostics(dprj)
+    dcorRes <- dcor2d(dprj[,1], dprj[,2])
+    splineRes <- splines2d(dprj[,1], dprj[,2])
+    mineRes <- mine(dprj[,1], dprj[,2])
+    indexOverview <- add_row(indexOverview, convex=scagRes["Convex"],
+                    clumpy=scagRes["Clumpy"], skinny=scagRes["Skinny"],
+                    stringy=scagRes["Stringy"], dcor2d=dcorRes,
+                    splines2d=splineRes, MIC=mineRes$MIC,
+                    TIC=mineRes$TIC, name=pLabels[i], vars=paste0(vars[1],"-",vars[2]))
+  }
+  i <- i+1
+}
+knitr::kable(indexOverview ,  caption = "Summary of index values.", digits=2) 
+```
+
+```
+
+
+## Smoothness
+We first study the smoothness of a subset of measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path between 4 anchor planes and using the default interpolation angle of 0.05. For this comparison we rescale the data such that each parameter takes values between [0,1]. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that the value of TIC is strongly dependent on the input distribution and we have therefore normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation.
+
+
 
 ```{r getProj}
 getProj <- function(df, tPath, nameStr, size){
@@ -300,7 +386,7 @@ Not currently finding "best" view. Options: compare results from n different ran
 set.seed(2018)
 pipeResc <- rescale(pipe1000)
 pipeTour <- save_history(pipeResc,
-                         guided_tour(mineIndex("TIC")), start = p58)
+                         guided_tour(mineIndex("TIC"), n=10, cooling = 0.8), start = p58)
 pipeTourFull <- as.list(interpolate(pipeTour))
 pipeTourRes <- getProj(pipe1000, pipeTourFull, "Pipe", 1000)
 pipeTourResMelt <- melt(pipeTourRes, id=c("t", "name", "size"))
