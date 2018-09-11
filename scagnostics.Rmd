@@ -129,7 +129,7 @@ We consider three example distributions in n=6 dimensions with p randomly select
 3. p points where n-1 points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
 
 ## Smoothness
-We first study the smoothness of a subset of measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path between 4 anchor planes and using the default interpolation angle of 0.05. For this comparison we rescale the data such that each parameter takes values between [0,1]. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that the value of TIC is strongly dependent on the input distribution and we have therefore rescaled the range for each individual dataset to [0,1], all other measures are reproduced as reported by the calculation.
+We first study the smoothness of a subset of measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path between 4 anchor planes and using the default interpolation angle of 0.05. For this comparison we rescale the data such that each parameter takes values between [0,1]. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that the value of TIC is strongly dependent on the input distribution and we have therefore normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation.
 
 
 ```{r util}
@@ -290,10 +290,31 @@ We see from Fig. ((how to add cross references?)) that the built in special view
 Given the behaviour of the various index measures under an interpolated tour path we next try to use the tourr implementation of the guided tour together with selected index functions to uncover the special views in datasets 2 and 3 with 1000 datapoints.
 
 ### Review of guided tour optimisation
+We use the default method "search_geodesic" implemented in the tourr package. (Should I try other optimisation methods, i.e. search_better, search_better_random?)
+Search geodesic first collects $n=5$ samples by default, amongst which the most promising direction is selected. In a second step a linear search along the geodesic is performed in that direction. The optimisation is stopped when ???
 
 ### Looking down the pipe
 TIC should be able to uncover special view, compare performance of all indices on guided tour path. (also cmass and holes?)
+Not currently finding "best" view. Options: compare results from n different random starting planes, try with smaller space (e.g. omitting variable 1 and 2), turn some of the guided tour parameters
+```{r findpipe, fig.width=6, fig.height=7, fig.cap="Guided tour optimising TIC index for Pipe 1000 dataset."}
+set.seed(2018)
+pipeResc <- rescale(pipe1000)
+pipeTour <- save_history(pipeResc,
+                         guided_tour(mineIndex("TIC")), start = p58)
+pipeTourFull <- as.list(interpolate(pipeTour))
+pipeTourRes <- getProj(pipe1000, pipeTourFull, "Pipe", 1000)
+pipeTourResMelt <- melt(pipeTourRes, id=c("t", "name", "size"))
+ggplot(pipeTourResMelt, aes(x=t, y=value)) +
+  geom_line() + 
+  facet_wrap(~variable, ncol=1, scales = "free_y")
+```
 
+```{r testpipe}
+iLast <- length(pipeTourFull)
+fProj <- pipeTourFull[[iLast]]
+dProj <- as.tibble(pipeResc %*% fProj)
+ggplot(dProj, aes(V1,V2)) + geom_point()
+```
 
 ### Finding sine waves
 Use spline2d to try and find sine shape, compare performance of all indices on guided tour path.
