@@ -412,13 +412,16 @@ As seen before (reference figure) MIC or TIC should be able to find the view dow
 The described procedure is CPU time intensive, however it is promising that we manage to uncover such small scale structure in the distribution. On the other hand no "guarantee" can be provided for uncovering the special view. Parameters for the scouting phase will need to be adapted to different examples, and with increasing number of dimensions it may be better to consider several runs with different starting projections.
 This gives some indication on how to handle difficult datasets. As we will see below most of the time standard "search_geodesic" optimisation will be efficient enough to uncover the interesting views.
 
-```{r findpipe, fig.width=6, fig.height=7, fig.cap="Guided tour optimising TIC index for Pipe 1000 dataset.", echo=FALSE}
+```{r findpipe, echo=FALSE}
 set.seed(2018)
 pipeResc <- rescale(pipe1000) #unselect 2 variables to make optimisation easier
 pipeTour <- save_history(pipeResc,
                          guided_tour(mineIndex("TIC"), search_f = tourr:::search_better,
                                      cooling=1, alpha = 0.5, max.tries = 5000))
 pipeTourFull <- as.list(interpolate(pipeTour))
+```
+
+```{r pipeFirstRun,fig.width=6, fig.height=7, fig.cap="Guided tour optimising MIC index for Pipe 1000 dataset.", echo=FALSE}
 pipeTourRes <- getProj(pipe1000, pipeTourFull, "Pipe", 1000)
 pipeTourResMelt <- melt(pipeTourRes, id=c("t", "name", "size"))
 ggplot(pipeTourResMelt, aes(x=t, y=value)) +
@@ -427,7 +430,6 @@ ggplot(pipeTourResMelt, aes(x=t, y=value)) +
 ```
 
 ```{r testpipe}
-
 iLast <- length(pipeTourFull)
 fProj <- pipeTourFull[[iLast]]
 dProj <- as.tibble(pipeResc %*% fProj)
@@ -445,8 +447,8 @@ ggplot(pipeTourResMelt2, aes(x=t, y=value)) +
 ```
 
 ```{r testpipe2}
-iLast <- length(pipeTourFull)
-fProj <- pipeTourFull[[iLast]]
+iLast <- length(pipeTourFull2)
+fProj <- pipeTourFull2[[iLast]]
 dProj <- as.tibble(pipeResc %*% fProj)
 ggplot(dProj, aes(V1,V2)) + geom_point()
 ```
