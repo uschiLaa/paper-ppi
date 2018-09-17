@@ -335,8 +335,9 @@ fullRes <- getProj(sin100, t1full, "sin", 100) %>%
 ```{r plotgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
 fullResMelt <- melt(fullRes, id=c("t", "name", "size"))
 ggplot(fullResMelt, aes(x=t, y=value)) +
-  geom_line(aes(color=name, linetype=factor(size))) + 
-  facet_wrap(~variable, ncol=1, scales = "free_y")
+  geom_line(aes(color=factor(size))) + 
+  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
+  guides(color=FALSE)
 ```
 
 Sharp jumps can be observed in all measures except the distance correlation measure when considering small datasets of only 100 points. Generally we observe smoother behaviour for larger datasets, notably all considered scagnostics measures show only small variation around a flat baseline. Interestingly all other indices indicate preferred viewing directions for dataset 3 when studying large samples, but not for dataset 2 which contains a special view in the same direction. We therefore show 2-d view defined by the tour step $t=58$, with projection matrix
@@ -388,9 +389,9 @@ fullResPlanned <- getProj(sin100, t2full, "sin", 100) %>%
 ```{r plannedgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
 fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
 ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
-  geom_line(aes(color=name, linetype=factor(size))) + 
-  facet_wrap(~variable, ncol=1, scales = "free_y")
-
+  geom_line(aes(color=factor(size))) + 
+  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
+  guides(color=FALSE)
 ```
 
 We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparant much closer to the final projection, making this structure more challenging to detect with a guided tour.
