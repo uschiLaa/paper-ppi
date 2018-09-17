@@ -401,6 +401,8 @@ Possible issue with search_geodesic is that the search window is fixed in the co
 
 TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full information of the characteristics is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view.
 
+Here we also see how the existing indices in the tourr package are inadequat for the detection of these type of dependence, the holes index taking maximum values before the final view and decreasing when moving into the special view. On the other hand, surprisingly the cmass index increases when moving into the special view, but the intermediate minimum makes it unsuitable as a projection pursuit index here. QUESTION: how come they are all almost the same for the various distributions? Especially pipe and sphere seem to give almost identical behaviour, can it be understood from the index definition?
+
 
 
 ## Guided tour
