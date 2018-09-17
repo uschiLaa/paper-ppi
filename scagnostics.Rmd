@@ -279,17 +279,20 @@ We first study the smoothness of a subset of measures calculated on a sequence o
 
 ```{r getProj}
 getProj <- function(df, tPath, nameStr, size){
-  sc <- tibble(convex=numeric(),
-               clumpy=numeric(),
-               skinny=numeric(),
-               stringy=numeric(),
-               dcor2d=numeric(),
-               splines2d=numeric(),
-               MIC=numeric(),
-               TIC1=numeric(),
-               t=numeric(),
-               name=character(),
-               size=numeric())
+  sc <- tibble(
+    holes=numeric(),
+    cmass=numeric(),
+    convex=numeric(),
+    clumpy=numeric(),
+    skinny=numeric(),
+    stringy=numeric(),
+    dcor2d=numeric(),
+    splines2d=numeric(),
+    MIC=numeric(),
+    TIC1=numeric(),
+    t=numeric(),
+    name=character(),
+    size=numeric())
   n <- length(tPath)
   df <- rescale(df)
   for (i in 1:n) {
@@ -298,7 +301,10 @@ getProj <- function(df, tPath, nameStr, size){
     dcorRes <- dcor2d(dprj[,1], dprj[,2])
     splineRes <- splines2d(dprj[,1], dprj[,2])
     mineRes <- mine(dprj[,1], dprj[,2])
-    sc <- add_row(sc, convex=scagRes["Convex"],
+    holesRes <- holes(dprj)
+    cmassRes <- cmass(dprj)
+    sc <- add_row(sc, holes=holesRes, cmass=cmassRes,
+                  convex=scagRes["Convex"],
                   clumpy=scagRes["Clumpy"], skinny=scagRes["Skinny"],
                   stringy=scagRes["Stringy"], dcor2d=dcorRes,
                   splines2d=splineRes, MIC=mineRes$MIC,
@@ -323,6 +329,7 @@ fullRes <- getProj(sin100, t1full, "sin", 100) %>%
   rbind(getProj(sphere1000, t1full, "sphere", 1000)) %>%
   rbind(getProj(pipe100, t1full, "pipe", 100)) %>%
   rbind(getProj(pipe1000, t1full, "pipe", 1000))
+
 ```
 
 ```{r plotgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
@@ -375,6 +382,7 @@ fullResPlanned <- getProj(sin100, t2full, "sin", 100) %>%
   rbind(getProj(sphere1000, t2full, "sphere", 1000)) %>%
   rbind(getProj(pipe100, t2full, "pipe", 100)) %>%
   rbind(getProj(pipe1000, t2full, "pipe", 1000))
+
 ```
 
 ```{r plannedgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
@@ -382,6 +390,7 @@ fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
 ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
   geom_line(aes(color=name, linetype=factor(size))) + 
   facet_wrap(~variable, ncol=1, scales = "free_y")
+
 ```
 
 We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparant much closer to the final projection, making this structure more challenging to detect with a guided tour.
