@@ -399,6 +399,10 @@ Can force it when using search_better with large alpha, cooling=1, max.tries=100
 Difficulties also from "fake" structure from the sampling boundaries?
 Possible issue with search_geodesic is that the search window is fixed in the code..
 
+TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full information of the characteristics is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view.
+
+
+
 ## Guided tour
 Given the behaviour of the various index measures under an interpolated tour path we next try to use the tourr implementation of the guided tour together with selected index functions to uncover the special views in datasets 2 and 3 with 1000 datapoints.
 
