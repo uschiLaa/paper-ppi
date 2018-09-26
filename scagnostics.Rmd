@@ -404,6 +404,7 @@ ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
 ```
 
 We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparant much closer to the final projection, making this structure more challenging to detect with a guided tour.
+Note that the various indices appear less noisy than for the grand tour shown before, but should note that the tour path here is shorter, and the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplfied in the previous views).
 (What does this mean for optimisation? How can I detect such "smaller scale increase"? Maybe try "search_better" instead of search_geodesic? increase alpha and decrease cooling? increase max.tries?)
 Can force it when using search_better with large alpha, cooling=1, max.tries=1000, but not ideal..
 Difficulties also from "fake" structure from the sampling boundaries?
@@ -448,7 +449,6 @@ ggplot(pipeTourResMelt, aes(x=t, y=value)) +
 ```
 
 ```{r testpipe}
-
 iLast <- length(pipeTourFull)
 fProj <- pipeTourFull[[iLast]]
 dProj <- as.tibble(pipeResc %*% fProj)
@@ -467,7 +467,6 @@ ggplot(pipeTourResMelt2, aes(x=t, y=value)) +
 ```
 
 ```{r testpipe2}
-
 iLast <- length(pipeTourFull2)
 fProj <- pipeTourFull2[[iLast]]
 dProj <- as.tibble(pipeResc %*% fProj)
@@ -519,6 +518,7 @@ For further study we therefore remove m2 from the dataset. We first look at the 
 Given the observations from the grand tour display we expect a functional relation between some of the parameters, and we therefore optimise the "splines2d" index function. Note that all parameters are standardised to the range $[0,1]$ before running the optimisation.
 Show final view found from the guided tour, give corresponding projection matrix, make corresponding plot from combination of original parameters.
 ```{r neutronStarEq,  results="hide"}
+set.seed(2018)
 nsD <- read_csv("data/samples.csv") 
 nsM <- nsD %>%
   select(-m2) %>% # remove m2 to avoid finding well known correlation
@@ -543,6 +543,9 @@ p1 <- ggplot(nsD, aes(R1, L1)) + geom_point(alpha = 0.05)
 p2 <- ggplot(nsD, aes(R1-2*pi*m1, L1)) + geom_point(alpha = 0.05)
 grid.arrange(p1, p2, ncol=2)
 ```
+
+This is reflecting the dependence of the deformability parameter $\Lambda$ on the so-called compactness which is proportional to $m/R$.
+QUESTIONS: can see this when plotting e.g. R1/m1 vs L1, why also with the linear combination used in the plot (only works if I get the factor about right)? not clear how this was built into the simulation, seems not strict equality mentioned in the paper
 
 ## Higher D
 To complicate things can work with bigger dataset that Rory sent me, need to check if this is public, also need help with interpretation, but here optimising TIC finds interesting projection
