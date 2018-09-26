@@ -34,7 +34,7 @@ keywords:
 - high-dimensional data
 
 abstract: |
-  Projection pursuit describes a procedure for searching high-dimensional data for "interesting" low-dimensional projections via the optimization of a criterion function called the projection pursuit index. Most indexes developed focus on finding projections with cluster structure, outliers, or separations between known groups. Here, we are interested in finding projections where the shapes are odd, or where known groups have different shapes despite having the same mean and variance. The new indexes are based on scagnostics, which were originally developed to choose pairs of interesting variables from a large collection. An examination of the properties of the scagnostics is included, and code in the form of an R package is provided.  
+  Projection pursuit describes a procedure for searching high-dimensional data for "interesting" low-dimensional projections via the optimization of a criterion function called the projection pursuit index. Most indexes developed focus on finding projections with cluster structure, outliers, or separations between known groups. Here, we are interested in finding projections revealing potentially complex relations between combinations of parameters, by combining the notion of projection pursuit with index functions developed for the detection of interesting bivariate views in the data, including scagnostics and maximum information coefficient.
 
 bibliography: bibliography.bib
 output: rticles::asa_article
@@ -57,49 +57,37 @@ opts_chunk$set(
 
 The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high-(say $p$)dimensional data for "interesting" low- dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not necessarily found by methods such as principal component analysis.
 
-A large number of projection pursuit indices have been developed [@f87] [@CBC92] [@Lee05] [@AHC02] [@CEM:CEM2568] [@JS87] [@5508437]. Many of these are developed to detect departure from multivariate normal, which includes clusters or outliers, or nonlinearity. Some have been developed to detect separations between known groups. However, if one wants to find unusual shapes, or shape differences between groups there are no options. One reason, is that it is hard, because defining what is meant by shape is not straightforward.
-
+A large number of projection pursuit indices have been developed [@f87] [@CBC92] [@Lee05] [@AHC02] [@CEM:CEM2568] [@JS87] [@5508437]. Many of these are developed to detect departure from multivariate normal, which includes clusters or outliers, or nonlinearity. Some have been developed to detect separations between known groups. However, if one wants to find complicated codependence between parameters there are no options.
+On the other hand, for the related question of the selection of pair-wise scatter plots in datasets with large numbers of parameters, a number of different methods have been developed, from detection of linear relations by correlation coefficients, to more complex measures aiming to capture generally the information in a given view.
 Here we want to extend the list of projection pursuit indices with the aim of detecting non-trivial dependence between parameter combinations, i.e. we want to find complicated functional dependence as well as association not described by a function (e.g. an ellipse or non-coexistence).
-Our main motivation stems from particle physics applications where such type of association is commonly implied by experimental and theoretical constraints. A well-studied example would be the so-called CKM triangle. Here an instructive parametrisation is known, and measurements can pin-point the physical value of the parameters. Fig. \ref{fig:CKM} (left) shows a schematic view of the 2-parameter dependence for various constraints. Fig. \ref{fig:CKM} (right) shows the current state of the art constraints.
-We expect this type of relations are common in particle physics, and their detection will aid understanding of the relevant physics, and as a consequence improve modelling and parametrisation. The task of uncovering the relevant features is however becoming more challenging as more complicated models are fit to larger sets of experimental results.
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figure/CKM-0104062.pdf}
-\includegraphics[width=0.5\textwidth]{figure/rhoeta_large_ckmfitter.png}
-\caption{CKM triangle constraints, schematic view shown on the left, taken from \cite{Hocker2001xe}, current picture shown on the right, from \cite{Charles2004jd}.}\label{fig:CKM}
-\end{figure}
+Our motivation is based on potential physics applications aiding the interpretation of model fits to experimental results. Let us consider a physical model with a set of $n$ free parameters that cannot be measured directly but should be determined from fitting a set of $p$ experimental observations for which predictions can be calculated when fixing all $n$ parameters. Note here that while we often have analytic expressions for the predictions, this is not always the case and we may have to rely on numeric calculations. Moreover, a single prediction can be a complicated function of all free parameters. In addition we often deal with large number of observations, $p \sim 100-1000$ as well as sizable parameter spaces $n \sim 10$. The results of a fit are generally interpreted using visualisations selected based on physics intuition and previous knowledge, but the above stated observations suggest that some correlations clearly dictated by the data may be missed, as we are typically only studying selected views of the results. The idea of finding special views in scatter plots fits naturally with the concept of using posterior samples obtained in a Bayesian fit.
+The idea is that by finding special views of the posterior samples we gain insight into the physics relevant to accurately describe the experimental data. Apart from improved intuition, finding special regions in parameter space is important as it allows us to further scrutinize the model. There are many examples of this, for example in particle physics detailed studies have been performed e.g. in the alingment limit of the 2HDM or in coannihilation regions in models of dark matter.
 
 
 
+A related question is the selection of pair-wise scatter plots in datasets with large numbers of parameters, for which different methods have been developed. One approch are scatterplot diagnostics, "scagnostics", developed by @scag, and explored in @WW08. \footnote{Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms.} They are calculated from a set of elementary graph-theoretic building blocks: the convex hull, the alpha hull and the minimal spanning tree (MST). These are used to define eight measures: Outlying, Skewed, Sparse, Clumpy, Striated, Convex, Skinny and Stringy. While in principle each measure could be used on its own to define a ranking, the original idea suggested considering pair-wise scatter plots of the scagnostics measures for identification of "characteristic" and "unusual" 2-d views in the original parameter space. Alternative methods suggested by (Katrins Thesis or maybe her R package?) suggest using parallel coordinates, glyphs or a so-called scagramm (based on the idea of corrgrams) that shouold be coupled to interactive brushing for selection of pair-wise scatter plots to be displayed.
+(moved scagnostics definitions to appendix, not sure if needed at all.)
+(Issues with scagnostics already for selection of pairs have been described in Katrins Thesis, should have short summary of that here?)
 
-A related question is the selection of pair-wise scatter plots in datasets with large numbers of parameters, for which different methods have been developed. One approch are scatterplot diagnostics, "scagnostics", developed by @scag, and explored in @WW08. They are calculated from a set of elementary graph-theoretic building blocks: the convex hull, the alpha hull and the minimal spanning tree (MST). These are used to define eight measures: Outlying, Skewed, Sparse, Clumpy, Striated, Convex, Skinny and Stringy. While in principle each measure could be used on its own to define a ranking, the original idea suggested considering pair-wise scatter plots of the scagnostics measures for identification of "characteristic" and "unusual" 2-d views in the original parameter space. Alternative methods suggested by (Katrins Thesis or maybe her R package?) suggest using parallel coordinates, glyphs or a so-called scagramm (based on the idea of corrgrams) that shouold be coupled to interactive brushing for selection of pair-wise scatter plots to be displayed.
-(FIXME just give reference rather than all definitions here?)
-(Issues with scagnostics already for selection of pairs have been described in Katrins Thesis, maybe have short summary of that here?)
 Given the various shortcomings of the scagnostics approach we consider several other measures that can directly be interpreted as ranking of information contained in a given 2-d view.
 Two such additional measures have been defined in @mbgraphic. The first is based on smoothing splines, and is defined such that it will take maximum values when the data distribution can be described by a functional form. For a scatterplot with variable X and Y we calculate it as
 \begin{equation}
 splines_{2d} = max(1-\frac{Var(res_{X\sim Y})}{Var(X)}, 1-\frac{Var(res_{Y\sim X})}{Var(Y)})
 \end{equation}
 where $Var(.)$ is the variance and $res_{X\sim Y}$ are the residuals in the spline model where $X$ is considered a function of $Y$.
-The second new measure introduced in @mbgraphic is aiming to detect also non-functional relations and is based on the idea of distance correlation @szekely2007. (should I repeat definitions here?)
-Finally we will also consider the maximal and total information coefficient (MIC and TIC) defined in @Reshef1518 which are based on mutual information found when imposing grids on pair-wise variable plots. These functions are availabel in R via the interface implemented in the minerva package @minerva.
+The second new measure introduced in @mbgraphic is aiming to detect also non-functional relations and is based on the idea of distance correlation [@szekely2007]. (need to add definition)
+Finally we will also consider the maximal and total information coefficient (MIC and TIC) defined in @Reshef1518 which are based on mutual information found when imposing grids on pair-wise variable plots. These functions are availabel in R via the interface implemented in the minerva package [@minerva]. 
 (read paper and add more detail. how are they similar/different compared to scagnostics and distance correlation? the way that binning is being built into it may make difference in how MIC/TIC may be smoother?)
 
-Scagnostics are scatterplot diagnostics. They were primarily developed to extract pairs of interesting variables from a large collection.
-XXX (Ursula to fill in based loosely on material at the German language wikipedia page - it would be good to translate this page and provide an English version on wikipedia).
-Nine graph-theoretic measures have been defined to characterise scatterplots. They are calculated from a set of elementary building blocks: the convex hull, the alpha hull and the minimal spanning tree (MST). For definiteness all variables are rescaled to a [0,1] intervall, such that all measures will take values between 0 and 1 as well.
-
-Note that in practice, for efficiency and robustness, the measures are calculated from binned data, and after removing outliers.
-Moreover, scaling factors are used to mitigate dependence on sample size.
-Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms. 
 
 A projection pursuit index, a function of all possible projections of the data, invariably has many "hills and valleys" and "knife-edge ridges" because of the varying shapes in the underlying density of observations from one projection to the next. From an exploratory data analysis perpective it is interesting to combine numerical optimisation with visualisation to watch the structure of the data moving into a maximum, to jump away from this projection and follow the optimisation again, invariably moving from local maxima to local maxima, and perhaps even a global maximum. Each of these maxima can reveal different information about the data. Projection pursuit optimisation combined with geodesic interpolations between projections provided by a tour [@As85], is called a projection pursuit guided tour [@CBCH94]. Software to run a projection pursuit guided tour is available in the R package, "tourr" [@tourr].
+(Motivation strongly relates to intuition, i.e. guided tour, local tour and manual tour may be useful to understand structure in the multivariate context.)
 (Even just for the optimisation part the guided tour implementation is useful.)
 (Traditional projection pursuit indices are fast to compute and therefore the optimisation would be done in "real time" while displaying the tour. For the measures considered here this generally does not apply, as a consequence we "disentangle" the two into subsequent steps.)
 
-The paper investigates the nature of scagnostics, particularly when considered as candidates for projection pursuit indices (Section \ref{sec:investigate})). It develops indexes for finding shapes as defined by the scagnostics, and for finding different shapes between multiple groups (Section \ref{sec:indexes}). Changes to the optimisation of the projection pursuit guided tour were needed to accommodate some of the complexities of the scagnostic indexes. The new guided tour methods are applied to contemporary problems from paarticle physics (Section \ref{sec:phys}). The paper is accompanied by the R package "binostics" available on CRAN, and the new indices have been implemented in the "tourr" package. 
+The paper investigates the nature of the above defined measures, particularly when considered as candidates for projection pursuit indices (Section \ref{sec:investigate})). The new guided tour methods are applied to posterior distributions from physics examples (Section \ref{sec:phys}).
 
-# Investigation of scagnostics
+# Investigation of indices
 \label{sec:investigate}
 
 
@@ -144,15 +132,23 @@ mineIndex <- function(mineIndex){
 }
 ```
 
+((REVISE - where should measure definitions go? now basically in introduction.))
 The nine scagnostics measures are designed to be computed together, producing a matrix of values with dimensions corresponding to the number of all pairs of variables, and the number of scagnostics. If there are 100 variables, the dimension will be $4950\times 9$. It is typically used to extract the pairs of variables that have the highest scagnostic values, and thus considered to be the most interesting. It can also be used to do more in-depth exploratory analysis, and is interesting to study the distribution of the scagnostics resulting from the data, as a data set in itself. In a sense this the data's "fingerprint".
 
-To use scagnostics for projection pursuit requires that each of the measures for functions that are relatively smooth over the space of all 2D projections, and that they can be computed rapidly enough that the display can be updated many times a second during optimisation.
+
+((maybe better to start with something like this, though maybe too obvious?))
+The various measures defined in the introduciton are designed to be computed for all pairs of variables, followed either by selection based on comparing scagnostics scores between all pairs, or by an absolute ranking from most to least interesting (e.g. when using TIC).
+Here we modify the usage as follows. The tour implementation is used to generate projections of the multivariate dataset down to two dimensions, i.e. the projected data can be represented as a scatter plot. In this projection the data is represented by two parameters that are defined as combinations of the input parameters, and this parametrisation is passed into the index function calculation to obtain a score for the selected view. Using the guided tour implementation the index functions are optimized such that we find the generalised 2-d parametrisation yielding the most intersting view of the data.
+
+To use an index function for projection pursuit requires that the measure be relatively smooth over the space of all 2D projections, and we will first investigate the smoothness over randomly selected projections. An additional consideration is the computing time, ideally fast computation is preferred as the guided tour can be viewed as the index is being optimized. However, a compuationally more costly index may be preferred for better detection properties, and one can consider recording the guided tour for viewing after the optimisation has converged. Finally we note that another important consideration is how the index function changes as the tour moves into the "optimal" view, this will however depend mainly on the distribution rather than the selected index function. (we will see this in the examples)
+
 
 ## Dataset
 
 We consider three example distributions in n=6 dimensions with p randomly selected points $x_i, i = 1,..,n$:
-1. p points on an n-dimensional sphere as an example of dataset without special views
-2. p points where n-1 points are independently drawn from a uniform distribution between [-1,1], and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not showing functional dependence, and where sampling boundaries are apparant in the distribution 
+
+1. p points on an n-dimensional sphere randomly selected using the geozoo package, as an example of dataset without special views
+2. p points where n-1 points are independently drawn from a uniform distribution between [-1,1], and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparant in the distribution 
 3. p points where n-1 points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
 
 ```{r datasetFunctions}
@@ -197,7 +193,7 @@ sin100 <- sinData(6, 100)
 sin1000 <- sinData(6, 1000)
 ```
 
-To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforces relationships will also affect the overall distribution as can be seen from (fig:dataPlotsDensity).
+To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractios of V6 (and V5 for the Pipe distribution) will be distinct from uninformed views of distributions 2 and 3. We select two samples for each distribution, with 100 and 1000 sampled points respectively.
 
 ```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Data views of V1 vs V2."}
 pL <- list()
@@ -245,7 +241,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
              ncol=2)
 ```
 
-We next compare the various indexvalues for three views: V1 vs V2, V5 vs V6 and V1 vs V6 (capturing differences from the different distribution in V6). For the Sphere distribution by construction we see only random fluctuations between the different views, which can be sizable in particular for small datasets. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fuctional dependence.
+We next compare the various index values for three views: V1 vs V2, V5 vs V6 and V1 vs V6 (capturing differences from the different distribution in V6). For the Sphere distribution by construction we see only random fluctuations between the different views, which can be sizable in particular for small datasets. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fuctional dependence.
 
 ```{r indexTable, echo=FALSE}
 i <- 1
