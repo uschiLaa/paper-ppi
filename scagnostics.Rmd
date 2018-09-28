@@ -1,5 +1,5 @@
 ---
-title: An investigation into using scagnostics interesting projections of high-dimensional data
+title: An investigation into using scagnostics to find interesting projections of high-dimensional data
 
 # to produce blinded version set to 1
 blinded: 0
@@ -43,7 +43,7 @@ header-includes:
   - \usepackage{longtable}
 ---
 
-```{r initial, echo = FALSE, cache = FALSE, include = FALSE}
+```{r initial, echo = FALSE, cache = TRUE, include = FALSE}
 library(knitr)
 opts_chunk$set(
   warning = FALSE, message = FALSE, echo = FALSE, 
@@ -73,7 +73,7 @@ Organisation of this section:
 
 The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high (say $p-$)dimensional data for "interesting" low-dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not found by methods such as principal component analysis.
 
-A large number of projection pursuit indices have been developed [@f87] [@CBC92] [@Lee05] [@AHC02] [@CEM:CEM2568] [@JS87] [@5508437]. Many of these are developed to detect departure from multivariate normal, which includes clusters or outliers. Some have been developed to detect separations between known groups [REF]. Less work has been done on indexes to find nonlinear dependence between variables. 
+A large number of projection pursuit indices have been developed, to detect departure from multivariate normal, which includes clusters or outliers or separations between known groups (e.g. @f87, @CBC92, @Lee05, @AHC02, @CEM:CEM2568, @JS87, @5508437).  Less work has been done on indexes to find nonlinear dependence between variables. 
 
 <!-- check Perisic and Posse (2012) and recent paper by Austrian guys -->
 
@@ -128,13 +128,18 @@ Explain here how to construct the pp index
 Organisation of this section:
 
 Criteria for a good index
+
   - smoothness
   - speed
   - fine and broad structure detection
+  
 Simulation study
+
   - example data 
   - sample size, and other factors used
+  
 Overview procedures 
+
   - look at index values of pairs of variables
   - tour betwen pairs of variables
   - optimisation path
@@ -244,6 +249,12 @@ sin1000 <- sinData(6, 1000) %>% rescale() %>% as_tibble()
 ```
 
 To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of V6 (and V5 for the Pipe distribution) will be distinct from uninformed views of distributions 2 and 3. We select two samples for each distribution, with 100 and 1000 sampled points respectively.
+
+<!-- 
+Table and figure captions need to have three components: (1) what is the plot about, (2) specific details of plot, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.
+
+Be sure to cite R, as well as packages used in the work.
+-->
 
 ```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Data views of V1 vs V2."}
 pL <- list()
