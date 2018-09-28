@@ -55,22 +55,40 @@ opts_chunk$set(
 
 # Introduction
 
-<!--
-Motivation
-PP
-Scagnostics
-(section needs shortening)
+<!-- 
+Main point of paper:
+
+- Some metrics for exploring high-dimensional data by finding interesting pairs of variables, can be used to find interesting projections, but some have problems. 
+- What are the ways to evaluate.
+- What adjustments can be done.
+- How it can be applied
 -->
-The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high-(say $p$)dimensional data for "interesting" low- dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not necessarily found by methods such as principal component analysis.
 
-A large number of projection pursuit indices have been developed [@f87] [@CBC92] [@Lee05] [@AHC02] [@CEM:CEM2568] [@JS87] [@5508437]. Many of these are developed to detect departure from multivariate normal, which includes clusters or outliers, or nonlinearity. Some have been developed to detect separations between known groups. However, if one wants to find complicated co-dependence between parameters there are no options.
-On the other hand, for the related question of the selection of pair-wise scatter plots in datasets with large numbers of parameters, a number of different methods have been developed, from detection of linear relations by correlation coefficients, to more complex measures aiming to capture generally the information in a given view.
-Here we want to extend the list of projection pursuit indices with the aim of detecting non-trivial dependence between parameter combinations, i.e. we want to find complicated functional dependence as well as association not described by a function (e.g. an ellipse or non-coexistence).
-Our motivation is based on potential physics applications aiding the interpretation of model fits to experimental results. Let us consider a physical model with a set of $n$ free parameters that cannot be measured directly but should be determined from fitting a set of $p$ experimental observations for which predictions can be calculated when fixing all $n$ parameters. Note here that while we often have analytic expressions for the predictions, this is not always the case and we may have to rely on numeric calculations. Moreover, a single prediction can be a complicated function of all free parameters. In addition we often deal with large number of observations, $p \sim 100-1000$ as well as sizable parameter spaces $n \sim 10$. The results of a fit are generally interpreted using visualisations selected based on physics intuition and previous knowledge, but the above stated observations suggest that some correlations clearly dictated by the data may be missed, as we are typically only studying selected views of the results. The idea of finding special views in scatter plots fits naturally with the concept of using posterior samples obtained in a Bayesian fit.
-The idea is that by finding special views of the posterior samples we gain insight into the physics relevant to accurately describe the experimental data. Apart from improved intuition, finding special regions in parameter space is important as it allows us to further scrutinize the model. There are many examples of this, for example in particle physics detailed studies have been performed e.g. in the alignment limit of the 2HDM or in co-annihilation regions in models of dark matter.
+Organisation of this section:
 
+- Motivation first?
+- PP
+- Scagnostics
+- section needs shortening
 
+The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high (say $p-$)dimensional data for "interesting" low-dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not found by methods such as principal component analysis.
 
+A large number of projection pursuit indices have been developed [@f87] [@CBC92] [@Lee05] [@AHC02] [@CEM:CEM2568] [@JS87] [@5508437]. Many of these are developed to detect departure from multivariate normal, which includes clusters or outliers. Some have been developed to detect separations between known groups [REF]. Less work has been done on indexes to find nonlinear dependence between variables. 
+
+<!-- check Perisic and Posse (2012) and recent paper by Austrian guys -->
+
+A related topic is variable selection. With high-dimensional data, even plotting all pairs can be daunting, so "scagnostics" [@scag] [@WW08] have been developed to find the most interesting pairs of variables. There are 8 scagnostics, vividly named: "Outlying", "Skewed", "Sparse", "Clumpy", "Striated", "Convex", "Skinny" and "Stringy". Our question is whether these can be extended into projection pursuit indexes that can be used to find two-dimensional projections of high-dimensional data with unusual features. 
+
+Our motivation is based on applications in physics, to aid the interpretation of model fits on experimental results. Consider a physical model with a set of $m$ free parameters, that cannot be measured directly and are determined by fitting a set of $p$ experimental observations, for which predictions can be calculated when fixing all $m$ parameters. Note here, that while we often have analytic expressions for the predictions, this is not always the case and we may have to rely on numerical computation. Moreover, a single prediction can be a complicated function of all free parameters. In addition, we often deal with large number of observations, $p \sim 100-1000$ as well as sizable parameter spaces $m \sim 10$. The results of a fit are generally interpreted using combinations of variables selected by intuition and prior knowledge. But this begs the question, whether important associations are missed because tools to search are not available.
+
+<!--
+suggest that some correlations clearly dictated by the data may be missed, as we are typically only studying selected views of the results. The idea of finding special views in scatter plots fits naturally with the concept of using posterior samples obtained in a Bayesian fit.
+
+The idea is that by finding special views of the posterior samples we gain insight into the physics relevant to accurately describe the experimental data. Apart from improved intuition, finding special regions in parameter space is important as it allows us to further scrutinize the model. There are many examples of this, for example in particle physics detailed studies have been performed e.g. in the alignment limit of the 2HDM or in co-annihilation regions in models of dark matter.-->
+
+[REF] (Katrin's thesis) explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. These indices are all available in R packages, scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
+
+<!-- 
 A related question is the selection of pair-wise scatter plots in datasets with large numbers of parameters, for which different methods have been developed. One approach are scatterplot diagnostics, "scagnostics", developed by @scag, and explored in @WW08. \footnote{Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms.} They are calculated from a set of elementary graph-theoretic building blocks: the convex hull, the alpha hull and the minimal spanning tree (MST). These are used to define eight measures: Outlying, Skewed, Sparse, Clumpy, Striated, Convex, Skinny and Stringy. While in principle each measure could be used on its own to define a ranking, the original idea suggested considering pair-wise scatter plots of the scagnostics measures for identification of "characteristic" and "unusual" 2-d views in the original parameter space. Alternative methods suggested by (Katrins Thesis or maybe her R package?) suggest using parallel coordinates, glyphs or a so-called scagramm (based on the idea of corrgrams) that should be coupled to interactive brushing for selection of pair-wise scatter plots to be displayed.
 (moved scagnostics definitions to appendix, not sure if needed at all.)
 (Issues with scagnostics already for selection of pairs have been described in Katrins Thesis, should have short summary of that here?)
@@ -90,23 +108,25 @@ A projection pursuit index, a function of all possible projections of the data, 
 (Motivation strongly relates to intuition, i.e. guided tour, local tour and manual tour may be useful to understand structure in the multivariate context.)
 (Even just for the optimisation part the guided tour implementation is useful.)
 (Traditional projection pursuit indices are fast to compute and therefore the optimisation would be done in "real time" while displaying the tour. For the measures considered here this generally does not apply, as a consequence we "disentangle" the two into subsequent steps.)
+-->
 
-The paper investigates the nature of the above defined measures, particularly when considered as candidates for projection pursuit indices (Section \ref{sec:investigate})). The new guided tour methods are applied to posterior distributions from physics examples (Section \ref{sec:phys}).
+The paper investigates the behaviour of these newly-defined indexes. Section \ref{sec:construct} discusses index construction, and how they fit into the guided tour. Section \ref{sec:investigate} investigates the behaviour of the indexes, particularly in relation to optimisation. The new guided tour methods are applied to an example where the posterior distributions from physics models (Section \ref{sec:phys}) are explored.
 
 # Constructing a projection pursuit index
 \label{sec:construct}
 
-<!--
-Definition of pp index
-Optimisation
-Illustration of what is already available in tourr
-New index explanations
--->
+Explain here how to construct the pp index
+
+- Definition of pp index
+- Optimisation
+- Illustration of what is already available in tourr
+- New index explanations
 
 # Investigation of indices
 \label{sec:investigate}
 
-<!--
+Organisation of this section:
+
 Criteria for a good index
   - smoothness
   - speed
@@ -118,7 +138,6 @@ Overview procedures
   - look at index values of pairs of variables
   - tour betwen pairs of variables
   - optimisation path
--->
 
 ```{r load}
 library(tourr)
@@ -174,11 +193,11 @@ To use an index function for projection pursuit requires that the measure be rel
 
 ## Dataset
 
-We consider three example distributions in n=6 dimensions with p randomly selected points $x_i, i = 1,..,n$:
+We consider three example distributions in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$:
 
 1. p points on an n-dimensional sphere randomly selected using the geozoo package, as an example of dataset without special views
-2. p points where n-1 points are independently drawn from a uniform distribution between [-1,1], and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution 
-3. p points where n-1 points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
+2. p points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution 
+3. $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
 
 ```{r datasetFunctions}
 sphereData <- function(n, p){
@@ -211,15 +230,17 @@ sinData <- function(n, p){
 }
 ```
 
+<!-- I think you need to standardise the scale of the data -->
+
 ```{r datasets}
-sphere100 <- sphereData(6, 100)
-sphere1000 <- sphereData(6, 1000)
+sphere100 <- sphereData(6, 100) %>% rescale() %>% as_tibble()
+sphere1000 <- sphereData(6, 1000) %>% rescale() %>% as_tibble()
 
-pipe100 <- pipeData(6, 100)
-pipe1000 <- pipeData(6,1000)
+pipe100 <- pipeData(6, 100) %>% rescale() %>% as_tibble()
+pipe1000 <- pipeData(6,1000) %>% rescale() %>% as_tibble()
 
-sin100 <- sinData(6, 100)
-sin1000 <- sinData(6, 1000)
+sin100 <- sinData(6, 100) %>% rescale() %>% as_tibble()
+sin1000 <- sinData(6, 1000) %>% rescale() %>% as_tibble()
 ```
 
 To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of V6 (and V5 for the Pipe distribution) will be distinct from uninformed views of distributions 2 and 3. We select two samples for each distribution, with 100 and 1000 sampled points respectively.
@@ -305,7 +326,7 @@ for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
   }
   i <- i+1
 }
-knitr::kable(indexOverview ,  caption = "Summary of index values.", digits=2) 
+knitr::kable(indexOverview,  caption = "Summary of index values.", digits=2) 
 ```
 
 
@@ -314,7 +335,7 @@ knitr::kable(indexOverview ,  caption = "Summary of index values.", digits=2)
 We first study the smoothness of a subset of measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path between 4 anchor planes and using the default interpolation angle of 0.05. For this comparison we rescale the data such that each parameter takes values between [0,1]. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that the value of TIC is strongly dependent on the input distribution and we have therefore normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation.
 
 <!-- index values shouldn't be affected by sample size, on average it should be
-same value. Maybe some need to be normalised by n
+same value. Maybe some need to be normalised by n. Something needs fixing here.
 -->
 
 ```{r getProj}
@@ -369,7 +390,6 @@ fullRes <- getProj(sin100, t1full, "sin", 100) %>%
   rbind(getProj(sphere1000, t1full, "sphere", 1000)) %>%
   rbind(getProj(pipe100, t1full, "pipe", 100)) %>%
   rbind(getProj(pipe1000, t1full, "pipe", 1000))
-
 ```
 
 ```{r plotgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
@@ -454,13 +474,16 @@ Here we also see how the existing indices in the tourr package are inadequate fo
 
 
 ## Guided tour
+
 Given the behaviour of the various index measures under an interpolated tour path we next try to use the tourr implementation of the guided tour together with selected index functions to uncover the special views in datasets 2 and 3 with 1000 datapoints.
 
 ### Review of guided tour optimisation
+
 We use the default method "search_geodesic" implemented in the tourr package. (Should I try other optimisation methods, i.e. search_better, search_better_random?)
 Search geodesic first collects $n=5$ samples by default, amongst which the most promising direction is selected. In a second step a linear search along the geodesic is performed in that direction. The optimisation is stopped when ???
 
 ### Looking down the pipe
+
 As seen before (reference figure) MIC or TIC should be able to find the view down the pipe. The optimisation itself is however expected to be challenging because one has to be fairly close to the optimal projection to observe the increase in index value. We therefore suggest a two step procedure for the uncovering of such "small scale structures". The first step consists in "scouting" projections. Here we use the "search_better" optimisation available with the tourr package, with a standard search window $\alpha = 0.5$ and disabling the cooling (in practice this can be done by fixing the cooling parameter to $1$), together with a large number of tries (setting max.tries to 5000 here). The resulting search will quickly steer away from the most uninteresting projections, followed by a broad scan of the thus identified region. While the lack of cooling means that this will not converge towards the maximum, each step in this first search will increase the index value, thus it can be used to provide an informed starting plane that can be used in a second step where we use the "search_geodesic" optimization to improve the index further towards the maximum.
 The described procedure is CPU time intensive, however it is promising that we manage to uncover such small scale structure in the distribution. On the other hand no "guarantee" can be provided for uncovering the special view. Parameters for the scouting phase will need to be adapted to different examples, and with increasing number of dimensions it may be better to consider several runs with different starting projections.
 This gives some indication on how to handle difficult datasets. As we will see below most of the time standard "search_geodesic" optimisation will be efficient enough to uncover the interesting views.
@@ -513,10 +536,11 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 ```
 
 ### Finding sine waves
+
 We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from Fig 6 ((add proper ref)), we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}. Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Fig \ref{}
 
 
-```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset.", results="hide"}
+```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset.", results="hide", cache=TRUE}
 set.seed(2018)
 sineResc <- rescale(sin1000) #unselect 2 variables to make optimisation easier
 sineTour <- save_history(sineResc,
@@ -548,7 +572,7 @@ We now want to apply the developed tools to distributions from realistic physics
 ## Data description
 The model describes a neutron star merger and contains 6 free parameters, i.e. each neutron star is described by its mass and radius, and a so-called tidal deform ability parameter $\Lambda$. A posterior sample containing 2538 points is available @ligoData and can be used to constrain the parameters. Here we use the "Parametrized-EoS\_nomaxmass\_posterior\_samples.dat" dataset. For details about the modelling and statistical procedure see @Abbott2018exr. A common representation of posterior samples used for interpretation are so-called "corner plots", i.e. density displays for all 2-d parameter combinations as well as the 1-d profile, highlighting empirically evaluated regions of highest posterior density, which correspond to credibility regions at a given level. The information can similarly be presented in a scatter plot matrix using transparency to convey the density information. Since in the following we work with 2-d scatter plots we choose to show the data in this fashion, see Fig.
 
-```{r neutronStarSPLOM}
+```{r neutronStarSPLOM, fig.height=8, fig.width=8}
 nsD <- read_csv("data/samples.csv") 
 ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
 ```
@@ -557,8 +581,10 @@ We point out the following features seen from Fig. XX: the combination of the tw
 For further study we therefore remove m2 from the dataset. We first look at the distribution in a grand tour display, where we use a scatter plot display combined with alpha transparency to study the density distribution in the 5-d parameter space. The grand tour indicates that the data points are found on a curved surface in the five dimensional space. This may stem from a non-linear relation between the parameters, which we will try to uncover using the above developed formalism for new guided tour index functions.
 
 ## Using the guided tour
+
 Given the observations from the grand tour display we expect a functional relation between some of the parameters, and we therefore optimise the "splines2d" index function. Note that all parameters are standardised to the range $[0,1]$ before running the optimisation.
 Show final view found from the guided tour, give corresponding projection matrix, make corresponding plot from combination of original parameters.
+
 ```{r neutronStarEq,  results="hide"}
 set.seed(2018)
 nsD <- read_csv("data/samples.csv") 
@@ -570,7 +596,7 @@ nseTourFull <- as.list(interpolate(nseTour))
 iLast <- length(nseTourFull)
 fProj <- nseTourFull[[iLast]]
 dProj <- as.tibble(nsM %*% fProj)
-ggplot(dProj, aes(V1,V2)) + geom_point()
+ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
 ```
 
 ```{r nseMatrix, echo=FALSE}
@@ -581,16 +607,45 @@ The resulting projection clearly shows how the data selects a region that is wel
 
 
 ```{r nsePlotOrig}
-p1 <- ggplot(nsD, aes(R1, L1)) + geom_point(alpha = 0.05)
-p2 <- ggplot(nsD, aes(R1-2*pi*m1, L1)) + geom_point(alpha = 0.05)
-grid.arrange(p1, p2, ncol=2)
+p1 <- ggplot(nsD, aes(R1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
+p2 <- ggplot(nsD, aes(R1-2*pi*m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
+grid.arrange(p1, p2, ncol=2) 
 ```
 
 This is reflecting the dependence of the deformability parameter $\Lambda$ on the so-called compactness which is proportional to $m/R$.
 QUESTIONS: can see this when plotting e.g. R1/m1 vs L1, why also with the linear combination used in the plot (only works if I get the factor about right)? not clear how this was built into the simulation, seems not strict equality mentioned in the paper
 
 ## Higher D
+
 To complicate things can work with bigger dataset that Rory sent me, need to check if this is public, also need help with interpretation, but here optimising TIC finds interesting projection
+
+# Applications to collections of time series 
+
+This could be another example.
+
+```{r eval=FALSE}
+music <- read_csv("data/tigs_music.csv")
+music <- apply(music, 2, function(x) (x-mean(x))/sd(x))
+musicTour <- save_history(music,
+                         guided_tour(mineIndex("TIC"), 
+                            search_f = tourr:::search_better,
+                            cooling=1, alpha = 0.5, max.tries = 5000))
+musicTour <- save_history(music,
+                         guided_tour(dcorIndex(), 
+                            search_f = tourr:::search_better,
+                            cooling=1, alpha = 0.5, max.tries = 5000))
+musicTourFull <- as.list(interpolate(musicTour))
+iLast <- length(musicTourFull)
+fProj <- musicTourFull[[iLast]]
+dProj <- as.tibble(as.matrix(music) %*% fProj)
+ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+fullRes <- getProj(as.matrix(music), musicTourFull, "TIC", 100)
+fullResMelt <- melt(fullRes, id=c("t", "name", "size"))
+ggplot(fullResMelt, aes(x=t, y=value)) +
+  geom_line(aes(color=factor(size))) + 
+  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
+  guides(color=FALSE)
+```
 
 # Discussion
 
