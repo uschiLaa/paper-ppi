@@ -62,7 +62,6 @@ Main point of paper:
 - What are the ways to evaluate.
 - What adjustments can be done.
 - How it can be applied
--->
 
 Organisation of this section:
 
@@ -70,6 +69,7 @@ Organisation of this section:
 - PP
 - Scagnostics
 - section needs shortening
+-->
 
 The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high (say $p-$)dimensional data for "interesting" low-dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not found by methods such as principal component analysis.
 
@@ -347,6 +347,8 @@ We first study the smoothness of a subset of measures calculated on a sequence o
 
 <!-- index values shouldn't be affected by sample size, on average it should be
 same value. Maybe some need to be normalised by n. Something needs fixing here.
+
+can we get "theoretical" min/max values, to assess the scale of the index for any particular data set.
 -->
 
 ```{r getProj}
