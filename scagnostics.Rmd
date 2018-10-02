@@ -531,8 +531,13 @@ if(!file.exists("cache/findpipe.rda")){
 ```
 
 ```{r pipeFirstRun,fig.width=6, fig.height=7, fig.cap="Index value on tour path when scouting for high TIC index values."}
-pipeTourRes <- getProj(pipe1000, pipeTourFull, "Pipe", 1000)
-pipeTourResMelt <- melt(pipeTourRes, id=c("t", "name", "size"))
+if(!file.exists("cache/pipeFirstRun.rda")){
+  pipeTourRes <- getProj(pipe1000, pipeTourFull, "Pipe", 1000)
+  pipeTourResMelt <- melt(pipeTourRes, id=c("t", "name", "size"))
+  save(pipeTourRes, pipeTourResMelt, file = "cache/pipeFirstRun.rda")
+} else {
+  load("cache/pipeFirstRun.rda")
+}
 ggplot(pipeTourResMelt, aes(x=t, y=value)) +
   geom_line() + 
   facet_wrap(~variable, ncol=1, scales = "free_y")
