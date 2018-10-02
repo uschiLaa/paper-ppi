@@ -43,12 +43,12 @@ header-includes:
   - \usepackage{longtable}
 ---
 
-```{r initial, echo = FALSE, cache = TRUE, include = FALSE}
+```{r initial, echo = FALSE, include = FALSE}
 library(knitr)
 opts_chunk$set(
   warning = FALSE, message = FALSE, echo = FALSE, 
   fig.path = 'figure/', cache.path = 'cache/', fig.align = 'center', 
-  fig.show = 'hold', cache = TRUE, external = TRUE, dev = "pdf",
+  fig.show = 'hold', cache = FALSE, external = TRUE, dev = "pdf",
   fig.height = 5, fig.width = 8, out.width = "\\textwidth"
 )
 ```
@@ -87,7 +87,8 @@ suggest that some correlations clearly dictated by the data may be missed, as we
 
 The idea is that by finding special views of the posterior samples we gain insight into the physics relevant to accurately describe the experimental data. Apart from improved intuition, finding special regions in parameter space is important as it allows us to further scrutinize the model. There are many examples of this, for example in particle physics detailed studies have been performed e.g. in the alignment limit of the 2HDM or in co-annihilation regions in models of dark matter.-->
 
-[@Grimm2018] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics.\footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see @nason1992, @NIPS1997_1408.} These indices are all available in R packages, scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
+[@Grimm2018] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see \cite{nason1992}, \cite{NIPS1997_1408}.}
+These indices are all available in R packages, scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
 
 <!-- 
 A related question is the selection of pair-wise scatter plots in datasets with large numbers of parameters, for which different methods have been developed. One approach are scatterplot diagnostics, "scagnostics", developed by @scag, and explored in @WW08. \footnote{Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms.} They are calculated from a set of elementary graph-theoretic building blocks: the convex hull, the alpha hull and the minimal spanning tree (MST). These are used to define eight measures: Outlying, Skewed, Sparse, Clumpy, Striated, Convex, Skinny and Stringy. While in principle each measure could be used on its own to define a ranking, the original idea suggested considering pair-wise scatter plots of the scagnostics measures for identification of "characteristic" and "unusual" 2-d views in the original parameter space. Alternative methods suggested by (Katrins Thesis or maybe her R package?) suggest using parallel coordinates, glyphs or a so-called scagramm (based on the idea of corrgrams) that should be coupled to interactive brushing for selection of pair-wise scatter plots to be displayed.
@@ -239,6 +240,7 @@ sinData <- function(n, p){
 <!-- I think you need to standardise the scale of the data -->
 
 ```{r datasets}
+set.seed(1984)
 sphere100 <- sphereData(6, 100) %>% rescale() %>% as_tibble()
 sphere1000 <- sphereData(6, 1000) %>% rescale() %>% as_tibble()
 
@@ -396,14 +398,19 @@ getProj <- function(df, tPath, nameStr, size){
 
 ```{r grandtourpath}
 set.seed(1988)
-t1 <- save_history(sphere100, grand_tour(2), max=4)
-t1full <- as.list(interpolate(t1))
-fullRes <- getProj(sin100, t1full, "sin", 100) %>%
-  rbind(getProj(sin1000, t1full, "sin", 1000)) %>%
-  rbind(getProj(sphere100, t1full, "sphere", 100)) %>%
-  rbind(getProj(sphere1000, t1full, "sphere", 1000)) %>%
-  rbind(getProj(pipe100, t1full, "pipe", 100)) %>%
-  rbind(getProj(pipe1000, t1full, "pipe", 1000))
+if(!file.exists("cache/grandtourpath.rda")){
+  grandTourHist <- save_history(sphere100, grand_tour(2), max=4)
+  grandTourInt <- as.list(interpolate(grandTourHist))
+  fullRes <- getProj(sin100, grandTourInt, "sin", 100) %>%
+    rbind(getProj(sin1000, grandTourInt, "sin", 1000)) %>%
+    rbind(getProj(sphere100, grandTourInt, "sphere", 100)) %>%
+    rbind(getProj(sphere1000, grandTourInt, "sphere", 1000)) %>%
+    rbind(getProj(pipe100, grandTourInt, "pipe", 100)) %>%
+    rbind(getProj(pipe1000, grandTourInt, "pipe", 1000))
+  save(grandTourHist, grandTourInt, fullRes, file = "cache/grandtourpath.rda")
+} else {
+  load("cache/grandtourpath.rda")
+}
 ```
 
 ```{r plotgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
@@ -417,13 +424,13 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 Sharp jumps can be observed in all measures except the distance correlation measure when considering small datasets of only 100 points. Generally we observe smoother behaviour for larger datasets, notably all considered scagnostics measures show only small variation around a flat baseline. Interestingly all other indices indicate preferred viewing directions for dataset 3 when studying large samples, but not for dataset 2 which contains a special view in the same direction. We therefore show 2-d view defined by the tour step $t=58$, with projection matrix
 
 ```{r t58matrix, echo=FALSE}
-knitr::kable(t1full[[58]] ,  caption = "Matrix representation of projection 58.")
+knitr::kable(grandTourInt[[58]] ,  caption = "Matrix representation of projection 58.")
 ```
 
 i.e. while the last two parameters enter significantly, they will not dominate the view and we do not expect to fully observe the built in features.
 
 ```{r plot58, fig.width=6, fig.height=7, fig.cap="View of all datasets defined by at tour step 58."}
-p58 <- t1full[[58]]
+p58 <- grandTourInt[[58]]
 pL <- list()
 i <- 1
 pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
@@ -448,22 +455,27 @@ We see from Fig. ((how to add cross references?)) that the built in special view
 ## Transition
 We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6.
 ```{r plannedtourpath}
-m1 <- matrix(c(1,0,0,0,0,0,0,1,0,0,0,0),ncol=2)
-m2 <- matrix(c(0,0,0,0,1,0,0,0,0,0,0,1),ncol=2)
-#this is silly but seems that first two entries are being ignored, so need some fake entries
-m3 <- matrix(c(1,0,0,0,1,0,0,1,0,0,0,1),ncol=2)
-m4 <- matrix(c(1,1,1,0,0,0,0,1,1,0,0,0),ncol=2)
-t2 <- save_history(sin100,tour_path=planned_tour(list(m3,m4,m1,m2)))
-t2full <- as.list(interpolate(t2))
-fullResPlanned <- getProj(sin100, t2full, "sin", 100) %>%
-  rbind(getProj(sin1000, t2full, "sin", 1000)) %>%
-  rbind(getProj(sphere100, t2full, "sphere", 100)) %>%
-  rbind(getProj(sphere1000, t2full, "sphere", 1000)) %>%
-  rbind(getProj(pipe100, t2full, "pipe", 100)) %>%
-  rbind(getProj(pipe1000, t2full, "pipe", 1000))
+if(!file.exists("cache/plannedtourpath.rda")){
+  m1 <- matrix(c(1,0,0,0,0,0,0,1,0,0,0,0),ncol=2)
+  m2 <- matrix(c(0,0,0,0,1,0,0,0,0,0,0,1),ncol=2)
+  #this is silly but seems that first two entries are being ignored, so need some fake entries
+  m3 <- matrix(c(1,0,0,0,1,0,0,1,0,0,0,1),ncol=2)
+  m4 <- matrix(c(1,1,1,0,0,0,0,1,1,0,0,0),ncol=2)
+  t2 <- save_history(sin100,tour_path=planned_tour(list(m3,m4,m1,m2)))
+  t2full <- as.list(interpolate(t2))
+  fullResPlanned <- getProj(sin100, t2full, "sin", 100) %>%
+    rbind(getProj(sin1000, t2full, "sin", 1000)) %>%
+    rbind(getProj(sphere100, t2full, "sphere", 100)) %>%
+    rbind(getProj(sphere1000, t2full, "sphere", 1000)) %>%
+    rbind(getProj(pipe100, t2full, "pipe", 100)) %>%
+    rbind(getProj(pipe1000, t2full, "pipe", 1000))
+  save(t2, t2full, fullResPlanned, file = "cache/plannedtourpath.rda")
+} else {
+  load("cache/plannedtourpath.rda")
+}
 ```
 
-```{r plannedgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
+```{r plannedtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
 fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
 ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
   geom_line(aes(color=factor(size))) + 
@@ -505,12 +517,17 @@ This gives some indication on how to handle difficult datasets. As we will see b
 The results are shown below, first Fig. \ref{fig:pipeFirstRun} shows how the considered index values evolve in the scouting phase. Note that this is the interpolated path and there are small local maxima and minima along the index value, especially because we keep the step size in the guided tour large. We can see the clear maximum of the TIC index in the final projection, as well as clear minimum of the convex index that carries similar information On the other hand we see that MIC or the dcor2d index are not suitable for uncovering the special view here.
 
 ```{r findpipe, results="hide"}
-set.seed(2018)
-pipeResc <- rescale(pipe1000) #unselect 2 variables to make optimisation easier
-pipeTour <- save_history(pipeResc,
-                         guided_tour(mineIndex("TIC"), search_f = tourr:::search_better,
+if(!file.exists("cache/findpipe.rda")){
+  set.seed(1995)
+  pipeResc <- rescale(pipe1000) 
+  pipeTour <- save_history(pipeResc,
+                          guided_tour(mineIndex("TIC"), search_f = tourr:::search_better,
                                      cooling=1, alpha = 0.5, max.tries = 5000))
-pipeTourFull <- as.list(interpolate(pipeTour))
+  pipeTourFull <- as.list(interpolate(pipeTour))
+  save(pipeResc, pipeTour, pipeTourFull, file = "cache/findpipe.rda")
+} else {
+  load("cache/findpipe.rda")
+}
 ```
 
 ```{r pipeFirstRun,fig.width=6, fig.height=7, fig.cap="Index value on tour path when scouting for high TIC index values."}
@@ -531,11 +548,16 @@ dProj <- as.tibble(pipeResc %*% fProj)
 ggplot(dProj, aes(V1,V2)) + geom_point()
 ```
 
-```{r refine, results="hide"}
-pipeTour2 <- save_history(pipeResc, guided_tour(mineIndex("TIC")), start = fProj)
-pipeTourFull2 <- as.list(interpolate(pipeTour2))
-pipeTourRes2 <- getProj(pipe1000, pipeTourFull2, "Pipe", 1000)
-pipeTourResMelt2 <- melt(pipeTourRes2, id=c("t", "name", "size"))
+```{r refinepipe, results="hide"}
+if(!file.exists("cache/refinepipe.rda")){
+  pipeTour2 <- save_history(pipeResc, guided_tour(mineIndex("TIC")), start = fProj)
+  pipeTourFull2 <- as.list(interpolate(pipeTour2))
+  pipeTourRes2 <- getProj(pipe1000, pipeTourFull2, "Pipe", 1000)
+  pipeTourResMelt2 <- melt(pipeTourRes2, id=c("t", "name", "size"))
+  save(pipeTour2, pipeTourFull2, pipeTourRes2, pipeTourResMelt2, file = "cache/refinepipe.rda")
+} else {
+  load("cache/refinepipe.rda")
+}
 ggplot(pipeTourResMelt2, aes(x=t, y=value)) +
   geom_line() + 
   facet_wrap(~variable, ncol=1, scales = "free_y")
@@ -554,14 +576,19 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from Fig 6 ((add proper ref)), we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}. Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Fig \ref{}
 
 
-```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset.", results="hide", cache=TRUE}
+```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset.", results="hide"}
 set.seed(2018)
-sineResc <- rescale(sin1000) #unselect 2 variables to make optimisation easier
-sineTour <- save_history(sineResc,
-                         guided_tour(splineIndex()))
-sineTourFull <- as.list(interpolate(sineTour))
-sineTourRes <- getProj(sin1000, sineTourFull, "Sine", 1000)
-sineTourResMelt <- melt(sineTourRes, id=c("t", "name", "size"))
+if(!file.exists("cache/findsine.rda")){
+  sineResc <- rescale(sin1000)
+  sineTour <- save_history(sineResc,
+                          guided_tour(splineIndex()))
+  sineTourFull <- as.list(interpolate(sineTour))
+  sineTourRes <- getProj(sin1000, sineTourFull, "Sine", 1000)
+  sineTourResMelt <- melt(sineTourRes, id=c("t", "name", "size"))
+  save(sineResc, sineTour, sineTourFull, sineTourRes, sineTourResMelt, file = "cache/findsine.rda")
+} else {
+  load("cache/findsine.rda")
+}
 ggplot(sineTourResMelt, aes(x=t, y=value)) +
   geom_line() + 
   facet_wrap(~variable, ncol=1, scales = "free_y")
@@ -605,8 +632,13 @@ nsD <- read_csv("data/samples.csv")
 nsM <- nsD %>%
   select(-m2) %>% # remove m2 to avoid finding well known correlation
   rescale() # rescaling, this returns a matrix
-nseTour <- save_history(nsM, guided_tour(splineIndex()))
-nseTourFull <- as.list(interpolate(nseTour))
+if(!file.exists("cache/neutronStarEq.rda")){
+  nseTour <- save_history(nsM, guided_tour(splineIndex()))
+  nseTourFull <- as.list(interpolate(nseTour))
+  save(nseTour, nseTourFull, file = "cache/neutronStarEq.rda")
+} else {
+  load("cache/neutronStarEq.rda")
+}
 iLast <- length(nseTourFull)
 fProj <- nseTourFull[[iLast]]
 dProj <- as.tibble(nsM %*% fProj)
