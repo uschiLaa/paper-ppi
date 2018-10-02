@@ -1,4 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
+figure/
+scagnostics.tex
+scagnostics.pdf
 /Draft/cache/*
