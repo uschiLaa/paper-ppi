@@ -73,7 +73,7 @@ Organisation of this section:
 
 The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high (say $p-$)dimensional data for "interesting" low-dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not found by methods such as principal component analysis.
 
-A large number of projection pursuit indices have been developed, to detect departure from multivariate normal, which includes clusters or outliers or separations between known groups (e.g. @f87, @CBC92, @Lee05, @AHC02, @CEM:CEM2568, @JS87, @5508437).  Less work has been done on indexes to find nonlinear dependence between variables. 
+A large number of projection pursuit indices have been developed, to detect departure from multivariate normal, which includes clusters or outliers or separations between known groups (e.g. @f87, @CBC92, @lckl2005, @AHC02, @CEM:CEM2568, @JS87, @5508437).  Less work has been done on indexes to find nonlinear dependence between variables. 
 
 <!-- check Perisic and Posse (2012) and recent paper by Austrian guys -->
 
@@ -87,7 +87,7 @@ suggest that some correlations clearly dictated by the data may be missed, as we
 
 The idea is that by finding special views of the posterior samples we gain insight into the physics relevant to accurately describe the experimental data. Apart from improved intuition, finding special regions in parameter space is important as it allows us to further scrutinize the model. There are many examples of this, for example in particle physics detailed studies have been performed e.g. in the alignment limit of the 2HDM or in co-annihilation regions in models of dark matter.-->
 
-[@Grimm2018] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see \cite{nason1992}, \cite{NIPS1997_1408}.}
+[@Grimm2016] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see \cite{nason1992}, \cite{NIPS1997_1408}.}
 These indices are all available in R packages, scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
 
 <!-- 
@@ -117,12 +117,35 @@ The paper investigates the behaviour of these newly-defined indexes. Section \re
 # Constructing a projection pursuit index
 \label{sec:construct}
 
+<!--
 Explain here how to construct the pp index
 
 - Definition of pp index
 - Optimisation
 - Illustration of what is already available in tourr
 - New index explanations
+-->
+A projection pursuit index (ppi) is a scalar function $f$ defined on an $n$-dimensional data distribution. Typically the definition is such that larger values of $f$ indicate more interesting distribution, and therefore maximising $f$ over all possible $n$ dimensional projections of a data set with $p>n$ parameters will find the most interesting projections. The standard approach is then to map the empirical data distribution onto a density estimate for which the departure from a normal distribution can be characterised in various ways, see e.g. @CBC93. When departing from the idea of only characterising differences to the normal distribution it may however be preferred to work directly with the empirical data distribution to better capture the true distribution without bias from fitting a densitiy function.
+
+## Optimization
+Given a ppi we are confronted with the task of finding the maximum over all possible $n$ dimensional projections. An important consideration here is the necessity to avoid getting trapped in local maxima that are only a result of sampling fluctuatins \footnote{This is not only relevant for the choice of optimisation method but also an important consideration when designing an efficient ppi.}, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
+
+## New index functions
+
+Focusing now on $n=2$ dimensional projections, we aim to identify projections that reveal interesting structures or correlations between combinations of variables. We therefore draw on index functions that have been developped for the selection of variable pairs that show interesting features in a scatter plot, but we generalise the notion such that instead of variable pairs we consider any $2$ dimensional projection of the multivariate data distribution. It means that we consider the projection axes as input to the index functions, which will thus score the interestingness of the given projection.
+Concretely here we consider the following types of index functions:
+
+* Scagnostics
+    + Convex
+    + Skinny
+    + Stringy
+* New index function from @Grimm2016
+    + Distance correlation
+    + Spline based measure
+* Information based index functions from @Reshef1518
+    + Maximum Information Coefficient (MIC)
+    + Total Information Coefficient (TIC)
+
 
 # Investigation of indices
 \label{sec:investigate}
