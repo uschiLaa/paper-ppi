@@ -41,6 +41,7 @@ output: rticles::asa_article
 header-includes:
   - \usepackage{booktabs}
   - \usepackage{longtable}
+  - \usepackage{amssymb}
 ---
 
 ```{r initial, echo = FALSE, include = FALSE}
@@ -125,30 +126,68 @@ Explain here how to construct the pp index
 - Illustration of what is already available in tourr
 - New index explanations
 -->
-A projection pursuit index (ppi) is a scalar function $f$ defined on an $n$-dimensional data distribution. Typically the definition is such that larger values of $f$ indicate more interesting distribution, and therefore maximising $f$ over all possible $n$ dimensional projections of a data set with $p>n$ parameters will find the most interesting projections. The standard approach is then to map the empirical data distribution onto a density estimate for which the departure from a normal distribution can be characterised in various ways, see e.g. @CBC93. When departing from the idea of only characterising differences to the normal distribution it may however be preferred to work directly with the empirical data distribution to better capture the true distribution without bias from fitting a densitiy function.
+A projection pursuit index (ppi) is a scalar function $f$ defined on an $n$-dimensional data distribution. Typically the definition is such that larger values of $f$ indicate more interesting distribution, and therefore maximising $f$ over all possible $n$ dimensional projections of a data set with $p>n$ parameters will find the most interesting projections. As most indices characterise deviations from a normal distribution, one would first map the empiric data distribution onto a density for which such deviations may be defined in different ways, see e.g. @CBC93. When departing from the idea of characterising differences to the normal distribution it may however be preferred to work directly with the empirical data distribution to better capture the true distribution, and instead characterise the distribution by measures based on e.g. the minimal spanning tree or the mutual information.
 
 ## Standardization
-scaling/sphering of data? what about outlier removal? it is build in for calculation of scagnostics measures, but not the other index functions, can generate "fake linear behaviour" by highlighting direction with outliers
-consider using log transformed parameter as appropriate? e.g. timeseries examples...
+Lower dimensional projections are highly sensitive to standardization performed on the original distribution. We want to avoid e.g.  highlighting directions based only on different scales, or artifically extending the parameter range by including outliers, which may result in seemingly linear behaviour for most points. Methods to consider include rescaling of individual directions to a common interval (e.g. to fall between $[0,1]$), sphering, outlier removal or transformation to a logarithmic scale. The method(s) of choice should be informed by the distributions found in the data set as well as aims of the analysis. ((particular challenges: noise only directions, identification of outliers?))
 
 ## Optimization
-Given a ppi we are confronted with the task of finding the maximum over all possible $n$ dimensional projections. An important consideration here is the necessity to avoid getting trapped in local maxima that are only a result of sampling fluctuatins \footnote{This is not only relevant for the choice of optimisation method but also an important consideration when designing an efficient ppi.}, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
+Given a ppi we are confronted with the task of finding the maximum over all possible $n$ dimensional projections. An important challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuatins or a consequence of noisy index functions, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
 
 ## New index functions
-
 Focusing now on $n=2$ dimensional projections, we aim to identify projections that reveal interesting structures or correlations between combinations of variables. We therefore draw on index functions that have been developped for the selection of variable pairs that show interesting features in a scatter plot, but we generalise the notion such that instead of variable pairs we consider any $2$ dimensional projection of the multivariate data distribution. It means that we consider the projection axes as input to the index functions, which will thus score the interestingness of the given projection. What we are optimising over are then the entries of the $p\times2$ dimensional projection matrix, considering that they obey orthonormality conditions.
-Concretely here we consider the following types of index functions (give definitions in Appendix??):
+Concretely here we consider the following types of index functions:
 
-* Scagnostics
-    + Convex
-    + Skinny
-    + Stringy
-* New index function from @Grimm2016
-    + Distance correlation
-    + Spline based measure
-* Information based index functions from @Reshef1518
-    + Maximum Information Coefficient (MIC)
-    + Total Information Coefficient (TIC)
+* From the scagnostics family select those best suited to detect shapes:
+    + Convex: The convex measure is defined as $c_{convex}= \frac{area(A)}{area(H)}$ where $A$ is the alpha hull and $H$ the convex hull. This is the only measure where interesting projections will take low values and one may either minimize the index function or maximize $1-c_{convex}$.
+    + Skinny: The skinnyness of a polygon can be measured as the ratio of the perimeter to the area. We define $c_{skinny} = 1 -  \frac{\sqrt{4\pi area(A)}}{perimeter(A)}$, where the normalisation is chosen such that $c_{skinny} = 0$ for a full circle, and values close to one or skinny polygons.
+    + Stringy: The stringy index is a measure of the branching structure of the minimal spanning tree (MST), $c_{stringy} = \frac{diameter(MST)}{length(MST)}$ where the diameter is the longest connected path, and the length is the total length (sum of all edges), i.e. $c_{stringy}=1$ if the MST contains no branches.
+
+* New index functions available in @mbgraphic:
+    + Distance correlation defined in @szekely2007: The definition is based on empiric measures of distance covariance and variance defined on the dataset 
+    \begin{equation}
+(X,Y) = \{(x_1,y_1), ..., (x_n, y_n) \in \mathbb{R}^p \times \mathbb{R}^q\}
+\end{equation}
+ as
+ \begin{equation}
+ Cov^2(X,Y) = \frac{1}{n^2} \sum_{k,l=1}^{n} A_{kl}B_{kl},\\
+ Var^2(X) = \frac{1}{n^2} \sum_{k,l=1}^{n} A_{kl}^2
+ \end{equation}
+ where $A_{kl}=a_{kl}-\bar{a}_{k.}-\bar{a}_{l.}+\bar{a}_{..}$ with
+ \begin{equation}
+ a_{kl} = | x_k - x_l|_p,\\
+ \bar{a}_{k.} = \frac{1}{n} \sum_{l=1}^n a_{kl},\\
+  \bar{a}_{.l} = \frac{1}{n} \sum_{k=1}^n a_{kl},\\
+ \bar{a}_{..} = \frac{1}{n^2}\sum_{k,l=1}^n a_{kl}
+ \end{equation}
+ and reads
+ \begin{equation}
+ dCor(X,Y) = \begin{cases}
+ \frac{Cov(X,Y)}{\sqrt{Var(X)Var(Y)}} & Var(X)Var(Y) > 0\\
+ 0 & Var(X)Var(Y) = 0
+ \end{cases}
+ \end{equation}
+    + Spline based measure: Given a spline model of the data distribution that is obtained via the R implentation in the \texttt{gam} function in the mgcv R package [@w16], we define the index based on the variance of the residuals:
+    \begin{equation}
+    splines_{2d} = max(1- \frac{Var(res_{X\sim Y})}{Var(X)}, 1-\frac{Var(res_{Y\sim X})}{Var(Y)}),
+    \end{equation}
+    which takes large values if the distribution is well described by the spline model, indicating functional dependence.
+    
+* Information based index functions from @Reshef1518 are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as 
+\begin{equation}
+M(D)_{x,y} = \frac{I^{\ast} (D, x, y)}{\log \min{x,y}}.
+\end{equation}
+We can now define the following metrics:
+    + Maximum Information Coefficient (MIC):
+    \begin{equation}
+    MIC(D) = \max_{xy<B(n)}\{M(D)_{x,y}\},
+    \end{equation}
+    where by default $B(n) = n^{0.6}$
+    + Total Information Coefficient (TIC), see @JMLRv1715308:
+    \begin{equation}
+    TIC(D) = \sum_{xy<B(n)} M(D)_{x,y}
+    \end{equation}
+  While $MIC$ is normalised to fall between $[0,1]$, the upper bound of $TIC$ depends on the sample size via the bounding function $B(n)$. $TIC$ was designed to be more stable test against null hypothesis of independence, using the full information of the characteristic matrix rather than just the maximum, and as such is expected to be better suited as a ppi.
 
 
 # Investigation of indices
