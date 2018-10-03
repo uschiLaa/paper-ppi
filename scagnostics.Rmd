@@ -89,7 +89,7 @@ suggest that some correlations clearly dictated by the data may be missed, as we
 The idea is that by finding special views of the posterior samples we gain insight into the physics relevant to accurately describe the experimental data. Apart from improved intuition, finding special regions in parameter space is important as it allows us to further scrutinize the model. There are many examples of this, for example in particle physics detailed studies have been performed e.g. in the alignment limit of the 2HDM or in co-annihilation regions in models of dark matter.-->
 
 [@Grimm2016] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see \cite{nason1992}, \cite{NIPS1997_1408}.}
-These indices are all available in R packages, scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
+These indices are all available in R packages [@rref]: scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
 
 <!-- 
 A related question is the selection of pair-wise scatter plots in datasets with large numbers of parameters, for which different methods have been developed. One approach are scatterplot diagnostics, "scagnostics", developed by @scag, and explored in @WW08. \footnote{Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms.} They are calculated from a set of elementary graph-theoretic building blocks: the convex hull, the alpha hull and the minimal spanning tree (MST). These are used to define eight measures: Outlying, Skewed, Sparse, Clumpy, Striated, Convex, Skinny and Stringy. While in principle each measure could be used on its own to define a ranking, the original idea suggested considering pair-wise scatter plots of the scagnostics measures for identification of "characteristic" and "unusual" 2-d views in the original parameter space. Alternative methods suggested by (Katrins Thesis or maybe her R package?) suggest using parallel coordinates, glyphs or a so-called scagramm (based on the idea of corrgrams) that should be coupled to interactive brushing for selection of pair-wise scatter plots to be displayed.
@@ -211,6 +211,9 @@ Overview procedures
   - look at index values of pairs of variables
   - tour betwen pairs of variables
   - optimisation path
+  
+In general we require that a good ppi should be smooth over geodesically interpolated projections, and be fast to calculate for dynamic viewing of the optimization with the guided tour. Note that there is a trade-off between smoothness requirements and the efficiency of the optization, and index functions sensitive to random small fluctuations may be viable in conjunction with an approriate optimization strategy, as noted above. Moreover, larger calculation times may be acceptable when we do not require observing the optimization in real-time, but instead record the guided tour which can be replayed once the optimization has converged. 
+  
 
 ```{r load}
 library(tourr)
