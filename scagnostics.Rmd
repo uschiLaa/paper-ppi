@@ -135,6 +135,7 @@ Lower dimensional projections are highly sensitive to standardization performed 
 Given a ppi we are confronted with the task of finding the maximum over all possible $n$ dimensional projections. An important challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuatins or a consequence of noisy index functions, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
 
 ## New index functions
+\label{sec:indexDef}
 Focusing now on $n=2$ dimensional projections, we aim to identify projections that reveal interesting structures or correlations between combinations of variables. We therefore draw on index functions that have been developped for the selection of variable pairs that show interesting features in a scatter plot, but we generalise the notion such that instead of variable pairs we consider any $2$ dimensional projection of the multivariate data distribution. It means that we consider the projection axes as input to the index functions, which will thus score the interestingness of the given projection. What we are optimising over are then the entries of the $p\times2$ dimensional projection matrix, considering that they obey orthonormality conditions.
 Concretely here we consider the following types of index functions:
 
@@ -192,28 +193,29 @@ We can now define the following metrics:
 
 # Investigation of indices
 \label{sec:investigate}
+We now examine the indices listed in Section \ref{sec:indexDef} to test which of them are suitable as projection pursuit measures, and how we may modify them for improved performance. We start by considering the relevant criteria:
 
-Organisation of this section:
-
-Criteria for a good index
-
-  - smoothness
-  - speed
-  - fine and broad structure detection
+  - smoothness: the index function should evolve smoothly between nearby projections, i.e. on an interpolated path we expect to observe slow and consistent change in the index function. On the other hand if two similar projections produce very different index values, i.e. we observe sharp jumps when looking at the evolution of the index function, and in particular if those fluctuations dominate the overall evolution, the index is not suitable for projection pursuit.
+  - speed: the computation time is an important factor in particular when the guided tour is used to view the optimisation in real time. Note that longer computation times may be acceptable when first recording the optimisation and replaying the guided tour once the maximum has been identified.
+  - ability to find fine and broad structure: We consider a broad structure one that is roughly observable over a large angle around the optimal projection, it should in general be easy to identify and a good ppi should show smooth increase over a large number of projections as we are approaching the optimal view. On the other hand fine structures are difficult to identify as they are only visible close to the optimal view. This poses problems in particular for the optimization, but we may use index definitions to amplify larger index values while suppressing smaller ones, such that the optimization will be less sensitive to noise.
+  - distribution of index values: the distribution of index values when studying data points without structure should have a low variance, and be clearly separated from index values obtained when looking at structured data distributions.
   
-Simulation study
+##Simulation study
+To test the behaviour of the index functions we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
 
-  - example data 
-  - sample size, and other factors used
-  
-Overview procedures 
+1. $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
+2. $p$ points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution, labelled "pipe"
+3. $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function, labelled "sine"
 
-  - look at index values of pairs of variables
-  - tour betwen pairs of variables
-  - optimisation path
+For each distribution we consider a small sample of $p=100$ and a large sample with $p=1000$.
+
+To understand the potential for the various indices defined we use the following overview procedures on the simulated data sets:
+
+- index values for pair of variables, explicitly comparing the uninformative and special view of each dataset, as well as discussing the dependence on the sample size
+- tour between pairs of variables, considering a planned tour that moves from the $x_1 - x_2$ view either to the $x_3 - x_4$ view (no special structure encountered over the full path) or to the $x_5 - x_6$ (moving from uninformed to special view)
+- optimisation path, starting from $x_1 - x_2$, how can we use the available index functions and optimisation algorithms to identify the special view
   
-In general we require that a good ppi should be smooth over geodesically interpolated projections, and be fast to calculate for dynamic viewing of the optimization with the guided tour. Note that there is a trade-off between smoothness requirements and the efficiency of the optization, and index functions sensitive to random small fluctuations may be viable in conjunction with an approriate optimization strategy, as noted above. Moreover, larger calculation times may be acceptable when we do not require observing the optimization in real-time, but instead record the guided tour which can be replayed once the optimization has converged. 
-  
+###Dataset overview
 
 ```{r load}
 library(tourr)
@@ -256,24 +258,6 @@ mineIndex <- function(mineIndex){
 }
 ```
 
-((REVISE - where should measure definitions go? now basically in introduction.))
-The nine scagnostics measures are designed to be computed together, producing a matrix of values with dimensions corresponding to the number of all pairs of variables, and the number of scagnostics. If there are 100 variables, the dimension will be $4950\times 9$. It is typically used to extract the pairs of variables that have the highest scagnostic values, and thus considered to be the most interesting. It can also be used to do more in-depth exploratory analysis, and is interesting to study the distribution of the scagnostics resulting from the data, as a data set in itself. In a sense this the data's "fingerprint".
-
-
-((maybe better to start with something like this, though maybe too obvious?))
-The various measures defined in the introduction are designed to be computed for all pairs of variables, followed either by selection based on comparing scagnostics scores between all pairs, or by an absolute ranking from most to least interesting (e.g. when using TIC).
-Here we modify the usage as follows. The tour implementation is used to generate projections of the multivariate dataset down to two dimensions, i.e. the projected data can be represented as a scatter plot. In this projection the data is represented by two parameters that are defined as combinations of the input parameters, and this parametrisation is passed into the index function calculation to obtain a score for the selected view. Using the guided tour implementation the index functions are optimized such that we find the generalised 2-d parametrisation yielding the most interesting view of the data.
-
-To use an index function for projection pursuit requires that the measure be relatively smooth over the space of all 2D projections, and we will first investigate the smoothness over randomly selected projections. An additional consideration is the computing time, ideally fast computation is preferred as the guided tour can be viewed as the index is being optimized. However, a computationally more costly index may be preferred for better detection properties, and one can consider recording the guided tour for viewing after the optimisation has converged. Finally we note that another important consideration is how the index function changes as the tour moves into the "optimal" view, this will however depend mainly on the distribution rather than the selected index function. (we will see this in the examples)
-
-
-## Dataset
-
-We consider three example distributions in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$:
-
-1. p points on an n-dimensional sphere randomly selected using the geozoo package, as an example of dataset without special views
-2. p points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution 
-3. $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function
 
 ```{r datasetFunctions}
 sphereData <- function(n, p){
@@ -320,7 +304,7 @@ sin100 <- sinData(6, 100) %>% rescale() %>% as_tibble()
 sin1000 <- sinData(6, 1000) %>% rescale() %>% as_tibble()
 ```
 
-To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of V6 (and V5 for the Pipe distribution) will be distinct from uninformed views of distributions 2 and 3. We select two samples for each distribution, with 100 and 1000 sampled points respectively.
+To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of V6 (and V5 for the Pipe distribution) will be distinct from uninformed views of distributions 2 and 3.
 
 <!-- 
 Table and figure captions need to have three components: (1) what is the plot about, (2) specific details of plot, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.
