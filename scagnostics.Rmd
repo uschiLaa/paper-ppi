@@ -189,6 +189,8 @@ We can now define the following metrics:
     TIC(D) = \sum_{xy<B(n)} M(D)_{x,y}
     \end{equation}
   While $MIC$ is normalised to fall between $[0,1]$, the upper bound of $TIC$ depends on the sample size via the bounding function $B(n)$. $TIC$ was designed to be more stable test against null hypothesis of independence, using the full information of the characteristic matrix rather than just the maximum, and as such is expected to be better suited as a ppi.
+  
+((What is upper bound of TIC as function of sample size? If we define $n' = n^{0.6}$, rounded to integer values only, can we calculate it as $TIC_{max} = 2 \sum_{i=1}^{n'} \frac{n'}{i}$, keeping in mind that each entry of the characteristic matrix should be between [0,1]. Each entry in the sum should be rounded also, only integer number of bins enter actual calculation, so this should be approximation only.))
 
 
 # Investigation of indices
@@ -309,10 +311,9 @@ To get an overview of the dataset we show views of the first two parameters show
 <!-- 
 Table and figure captions need to have three components: (1) what is the plot about, (2) specific details of plot, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.
 
-Be sure to cite R, as well as packages used in the work.
 -->
 
-```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Data views of V1 vs V2."}
+```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the first two parameters V1 and V2, i.e. showing a typical uninformed view for each dataset."}
 pL <- list()
 i <- 1
 pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
@@ -327,7 +328,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
              ncol=2)
 ```
 
-```{r dataPlotsV5V6, fig.width=6, fig.height=7, fig.cap="Data views of V5 vs V6."}
+```{r dataPlotsV5V6, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the last two parameters V5 and V6, i.e. showing the special view built into the Pipe and Sine datasets."}
 pL <- list()
 i <- 1
 pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
@@ -346,7 +347,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
 its possible to do a single figure legend - need to look up code for this
 -->
 
-```{r dataPlotsDensity, fig.width=6, fig.height=7, fig.cap="Data views of V1 vs V6."}
+```{r dataPlotsDensity, fig.width=6, fig.height=7, fig.cap="One dimensional density distribution for all parameters and all data sets considered. Apart from statistical fluctuations we see that for the Pipe datasets the parameters V5 and V6 are pushed towards more extreme values by vetoing points away from the circle outline, and for the Sine dataset the parameter V6 follows a very distinct distribution. Note also that the first five paramters of the Sine dataset appear to be drawn from different normal distributions, which is a result of the rescaling, shifting the modes to different values for each direction."}
 pL <- list()
 i <- 1
 pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
@@ -368,7 +369,6 @@ We next compare the various index values for three views: V1 vs V2, V5 vs V6 and
 i <- 1
 pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
 indexOverview <- tibble(convex=numeric(),
-               clumpy=numeric(),
                skinny=numeric(),
                stringy=numeric(),
                dcor2d=numeric(),
@@ -386,10 +386,10 @@ for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
     splineRes <- splines2d(dprj[,1], dprj[,2])
     mineRes <- mine(dprj[,1], dprj[,2])
     indexOverview <- add_row(indexOverview, convex=scagRes[,"Convex"],
-                    clumpy=scagRes[,"Clumpy"], skinny=scagRes[,"Skinny"],
-                    stringy=scagRes[,"Stringy"], dcor2d=dcorRes,
-                    splines2d=splineRes, MIC=mineRes$MIC,
-                    TIC=mineRes$TIC, name=pLabels[i], vars=paste0(vars[1],"-",vars[2]))
+                    skinny=scagRes[,"Skinny"], stringy=scagRes[,"Stringy"],
+                    dcor2d=dcorRes, splines2d=splineRes,
+                    MIC=mineRes$MIC, TIC=mineRes$TIC,
+                    name=pLabels[i], vars=paste0(vars[1],"-",vars[2]))
   }
   i <- i+1
 }
@@ -399,7 +399,7 @@ knitr::kable(indexOverview,  caption = "Summary of index values.", digits=2)
 
 
 ## Smoothness
-We first study the smoothness of a subset of measures calculated on a sequence of 2-d projections obtained via an interpolated grand tour path between 4 anchor planes and using the default interpolation angle of 0.05. For this comparison we rescale the data such that each parameter takes values between [0,1]. The temporal trace of a selected set of measures is shown below, where each time step refers to an interpolation step. Note that the value of TIC is strongly dependent on the input distribution and we have therefore normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation.
+We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto V1-V2 to the projection onto V3-V4 and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views ((it is however curious to see the actual evolution, which seems not to depend on the underlying random distributions, but is clearely evolving over the path of the planned tour)). Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples (p=100), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples (p=1000) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
 
 <!-- index values shouldn't be affected by sample size, on average it should be
 same value. Maybe some need to be normalised by n. Something needs fixing here.
@@ -413,7 +413,6 @@ getProj <- function(df, tPath, nameStr, size){
     holes=numeric(),
     cmass=numeric(),
     convex=numeric(),
-    clumpy=numeric(),
     skinny=numeric(),
     stringy=numeric(),
     dcor2d=numeric(),
@@ -434,8 +433,7 @@ getProj <- function(df, tPath, nameStr, size){
     holesRes <- holes(dprj)
     cmassRes <- cmass(dprj)
     sc <- add_row(sc, holes=holesRes, cmass=cmassRes,
-                  convex=scagRes[,"Convex"],
-                  clumpy=scagRes[,"Clumpy"], skinny=scagRes[,"Skinny"],
+                  convex=scagRes[,"Convex"], skinny=scagRes[,"Skinny"],
                   stringy=scagRes[,"Stringy"], dcor2d=dcorRes,
                   splines2d=splineRes, MIC=mineRes$MIC,
                   TIC1=mineRes$TIC, t=i, name=nameStr, size=size)
@@ -449,24 +447,28 @@ getProj <- function(df, tPath, nameStr, size){
 }
 ```
 
-```{r grandtourpath}
-set.seed(1988)
-if(!file.exists("cache/grandtourpath.rda")){
-  grandTourHist <- save_history(sphere100, grand_tour(2), max=4)
-  grandTourInt <- as.list(interpolate(grandTourHist))
-  fullRes <- getProj(sin100, grandTourInt, "sin", 100) %>%
-    rbind(getProj(sin1000, grandTourInt, "sin", 1000)) %>%
-    rbind(getProj(sphere100, grandTourInt, "sphere", 100)) %>%
-    rbind(getProj(sphere1000, grandTourInt, "sphere", 1000)) %>%
-    rbind(getProj(pipe100, grandTourInt, "pipe", 100)) %>%
-    rbind(getProj(pipe1000, grandTourInt, "pipe", 1000))
-  save(grandTourHist, grandTourInt, fullRes, file = "cache/grandtourpath.rda")
+```{r V1V2toV3V4}
+if(!file.exists("cache/V1V2toV3V4.rda")){
+  m1 <- matrix(c(1,0,0,0,0,0,0,1,0,0,0,0),ncol=2)
+  m2 <- matrix(c(0,0,1,0,0,0,0,0,0,1,0,0),ncol=2)
+  #this is silly but seems that first two entries are being ignored, so need some fake entries
+  m3 <- matrix(c(1,0,0,0,1,0,0,1,0,0,0,1),ncol=2)
+  m4 <- matrix(c(1,1,1,0,0,0,0,1,1,0,0,0),ncol=2)
+  t1 <- save_history(sin100,tour_path=planned_tour(list(m3,m4,m1,m2)))
+  t1full <- as.list(interpolate(t1))
+  fullRes <- getProj(sin100, t1full, "sin", 100) %>%
+    rbind(getProj(sin1000, t1full, "sin", 1000)) %>%
+    rbind(getProj(sphere100, t1full, "sphere", 100)) %>%
+    rbind(getProj(sphere1000, t1full, "sphere", 1000)) %>%
+    rbind(getProj(pipe100, t1full, "pipe", 100)) %>%
+    rbind(getProj(pipe1000, t1full, "pipe", 1000))
+  save(t1, t1full, fullRes, file = "cache/V1V2toV3V4.rda")
 } else {
-  load("cache/grandtourpath.rda")
+  load("cache/V1V2toV3V4.rda")
 }
 ```
 
-```{r plotgrandtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
+```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="Short tour paths of uninformed views, moving from the projection onto V1-V2 to the projection onto V3-V4, for all considered datasets and index functions. Small samples (p=100) are shown in red, large samples (p=1000) in blue."}
 fullResMelt <- melt(fullRes, id=c("t", "name", "size"))
 ggplot(fullResMelt, aes(x=t, y=value)) +
   geom_line(aes(color=factor(size))) + 
@@ -474,39 +476,25 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
   guides(color=FALSE)
 ```
 
-Sharp jumps can be observed in all measures except the distance correlation measure when considering small datasets of only 100 points. Generally we observe smoother behaviour for larger datasets, notably all considered scagnostics measures show only small variation around a flat baseline. Interestingly all other indices indicate preferred viewing directions for dataset 3 when studying large samples, but not for dataset 2 which contains a special view in the same direction. We therefore show 2-d view defined by the tour step $t=58$, with projection matrix
-
-```{r t58matrix, echo=FALSE}
-knitr::kable(grandTourInt[[58]] ,  caption = "Matrix representation of projection 58.")
-```
-
-i.e. while the last two parameters enter significantly, they will not dominate the view and we do not expect to fully observe the built in features.
-
-```{r plot58, fig.width=6, fig.height=7, fig.cap="View of all datasets defined by at tour step 58."}
-p58 <- grandTourInt[[58]]
-pL <- list()
-i <- 1
-pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
-for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
-  dm <- rescale(ds)
-  pData <- as.tibble(dm %*% p58)
-  pC <- ggplot(pData, aes(V1, V2)) +
-    geom_point() +
-    ggtitle(pLabels[i])
-  pL[[i]] <- pC
-  i <- i+1
-}
-grid.arrange(pL[[1]], pL[[2]],
-             pL[[3]], pL[[4]],
-             pL[[5]], pL[[6]],
-             ncol=2)
-
-```
-
-We see from Fig. ((how to add cross references?)) that the built in special views cannot be seen in this projection, but confirm that the sine 1000 dataset presents some correlation in this view.
 
 ## Transition
-We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6.
+We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6, which will also allow us to view the picture between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
+We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour.
+Note that the various indices appear less noisy than for the grand tour shown before, but should note that the tour path here is shorter, and the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
+(What does this mean for optimisation? How can I detect such "smaller scale increase"? Maybe try "search_better" instead of search_geodesic? increase alpha and decrease cooling? increase max.tries?)
+Can force it when using search_better with large alpha, cooling=1, max.tries=1000, but not ideal..
+Difficulties also from "fake" structure from the sampling boundaries?
+Possible issue with search_geodesic is that the search window is fixed in the code..
+
+TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full information of the characteristics is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view.
+(As I understand TIC is however not equitable, i.e. it will prefer linear relations, and it may be instructive to optimise MIC and TIC)
+
+FIXME need to check the MIC_e and TIC_e, supposedly faster computation and better discrimination!
+
+Here we also see how the existing indices in the tourr package are inadequate for the detection of these type of dependence, the holes index taking maximum values before the final view and decreasing when moving into the special view. On the other hand, surprisingly the cmass index increases when moving into the special view, but the intermediate minimum makes it unsuitable as a projection pursuit index here. QUESTION: how come they are all almost the same for the various distributions? Especially pipe and sphere seem to give almost identical behaviour, can it be understood from the index definition?
+
+
+
 ```{r plannedtourpath}
 if(!file.exists("cache/plannedtourpath.rda")){
   m1 <- matrix(c(1,0,0,0,0,0,0,1,0,0,0,0),ncol=2)
@@ -536,19 +524,7 @@ ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
   guides(color=FALSE)
 ```
 
-We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour.
-Note that the various indices appear less noisy than for the grand tour shown before, but should note that the tour path here is shorter, and the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
-(What does this mean for optimisation? How can I detect such "smaller scale increase"? Maybe try "search_better" instead of search_geodesic? increase alpha and decrease cooling? increase max.tries?)
-Can force it when using search_better with large alpha, cooling=1, max.tries=1000, but not ideal..
-Difficulties also from "fake" structure from the sampling boundaries?
-Possible issue with search_geodesic is that the search window is fixed in the code..
 
-TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full information of the characteristics is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view.
-(As I understand TIC is however not equitable, i.e. it will prefer linear relations, and it may be instructive to optimise MIC and TIC)
-
-FIXME need to check the MIC_e and TIC_e, supposedly faster computation and better discrimination!
-
-Here we also see how the existing indices in the tourr package are inadequate for the detection of these type of dependence, the holes index taking maximum values before the final view and decreasing when moving into the special view. On the other hand, surprisingly the cmass index increases when moving into the special view, but the intermediate minimum makes it unsuitable as a projection pursuit index here. QUESTION: how come they are all almost the same for the various distributions? Especially pipe and sphere seem to give almost identical behaviour, can it be understood from the index definition?
 
 
 
