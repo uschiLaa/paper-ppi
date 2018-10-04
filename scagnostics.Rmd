@@ -539,15 +539,20 @@ Search geodesic first collects $n=5$ samples by default, amongst which the most 
 
 ### Looking down the pipe
 
+Double challengind: fine structure + (coherent) noise
+
 As seen before (reference figure) MIC or TIC should be able to find the view down the pipe. The optimisation itself is however expected to be challenging because one has to be fairly close to the optimal projection to observe the increase in index value. We therefore suggest a two step procedure for the uncovering of such "small scale structures". The first step consists in "scouting" projections. Here we use the "search_better" optimisation available with the tourr package, with a standard search window $\alpha = 0.5$ and disabling the cooling (in practice this can be done by fixing the cooling parameter to $1$), together with a large number of tries (setting max.tries to 5000 here). The resulting search will quickly steer away from the most uninteresting projections, followed by a broad scan of the thus identified region. While the lack of cooling means that this will not converge towards the maximum, each step in this first search will increase the index value, thus it can be used to provide an informed starting plane that can be used in a second step where we use the "search_geodesic" optimization to improve the index further towards the maximum.
 The described procedure is CPU time intensive, however it is promising that we manage to uncover such small scale structure in the distribution. On the other hand no "guarantee" can be provided for uncovering the special view. Parameters for the scouting phase will need to be adapted to different examples, and with increasing number of dimensions it may be better to consider several runs with different starting projections.
 This gives some indication on how to handle difficult datasets. As we will see below most of the time standard "search_geodesic" optimisation will be efficient enough to uncover the interesting views.
 
 The results are shown below, first Fig. \ref{fig:pipeFirstRun} shows how the considered index values evolve in the scouting phase. Note that this is the interpolated path and there are small local maxima and minima along the index value, especially because we keep the step size in the guided tour large. We can see the clear maximum of the TIC index in the final projection, as well as clear minimum of the convex index that carries similar information On the other hand we see that MIC or the dcor2d index are not suitable for uncovering the special view here.
 
+UPDATE: highlight times corresponding to new basis planes by red vertical line, as we approach the special view higher index values of TIC are often found on interpolated bases, this is why generally we want cooling but here we are trying to find overall maximum, but instead have good chance of finding a plane close to the special view allowing optimisation in a second step
+By no means stable procedure, when changing seed we easily end up not finding special view but rather end up with plane that is not useful for further optimisation to identify pipe view.
+
 ```{r findpipe, results="hide"}
 if(!file.exists("cache/findpipe.rda")){
-  set.seed(1995)
+  set.seed(1984)
   pipeResc <- rescale(pipe1000) 
   pipeTour <- save_history(pipeResc,
                           guided_tour(mineIndex("TIC"), search_f = tourr:::search_better,
@@ -567,9 +572,11 @@ if(!file.exists("cache/pipeFirstRun.rda")){
 } else {
   load("cache/pipeFirstRun.rda")
 }
+newBasisPipeTour <- which(attributes(interpolate(pipeTour))$new_basis)
 ggplot(pipeTourResMelt, aes(x=t, y=value)) +
   geom_line() + 
-  facet_wrap(~variable, ncol=1, scales = "free_y")
+  facet_wrap(~variable, ncol=1, scales = "free_y")+
+  geom_vline(data=as.tibble(newBasisPipeTour), mapping=aes(xintercept=value), color="red")
 ```
 
 We next show in Fig \ref{fig:testpipe} the final view corresponding to the highest index found in the TIC scouting phase. While this is clearly not the optimal view of the pipe feature, we can already guess the type of dependence in the distribution, and we expect to be able to find the maximum when using this plane as a starting point of the geodesic optimisation. Indeed performing a standard guided tour with the TIC index and the identified starting plane efficiently identifies the optimal view shown in Fig ...
