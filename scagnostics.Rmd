@@ -570,14 +570,68 @@ ggplot(allRes, aes(x=value)) +
   facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
 ```
 
+
+## Note on calculation time
+Computing time differs for each index, and depends strongly on the number of data points (as well as probably some dependence on distribution type), here we use as an example the 6-d sphere and calculate the computing time for different indices over 100 interpolated grand tour projections as a function of the sample size.
+
+```{r getTimer}
+timeThis <- function(d, t, idx, pmax){ #d=data matrix, t=interpolated tour path, idx=index function, pmax=max number of projections
+    i <- 1
+    tic.clearlog()
+    tic() #start timer
+    for(pMatrix in t){
+      if(i>pmax) break
+      dProj <- d %*% pMatrix
+      sgnst <- idx(dProj[,1],dProj[,2])
+      i = i+1
+    }
+    toc(log=TRUE,quiet=TRUE)
+    scTd <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+}
+
+```
+
+
+```{r timer}
+if(!file.exists("cache/timer.rda")){
+  set.seed(2018)
+  grandTour100 <- save_history(sphere100, grand_tour(2), max=4) %>%
+    interpolate() %>%
+    as.list()
+
+  sizeL <- seq(0,10000,by=100)
+  n <- length(sizeL)
+  dfTimer = data.frame( n=rep(0, n), scagT=rep(0,n), dcorT=rep(0,n), splineT=rep(0,n), mineT=rep(0,n))
+  t <- 1
+  for(sampleSize in sizeL){
+    set.seed(sampleSize + 11) # new seed for each sample size
+    if(sampleSize == 0) sampleSize = 10 # smallest considered sample has 10 points
+    thisMatrix <-  sphereData(6, sampleSize) %>% rescale()
+    scagT <- timeThis(thisMatrix, grandTour100, scagnostics.default, 100)
+    dcorT <- timeThis(thisMatrix, grandTour100, dcor2d, 100)
+    splineT <- timeThis(thisMatrix, grandTour100, splines2d, 100)
+    mineT <- timeThis(thisMatrix, grandTour100, mine, 100)
+    dfTimer[t,] <- c(sampleSize, scagT, dcorT, splineT, mineT)
+    t <-  t+1
+  }
+  save(dfTimer, file = "cache/timer.rda")
+} else {
+  load("cache/timer.rda")
+}
+
+timerMelt <- melt(dfTimer, id="n")
+ggplot(timerMelt, aes(x = n, y = value, color=variable)) + 
+  geom_line() +
+  geom_line(data=subset(df, n==2),aes(linetype = as.factor(n))) +
+  geom_line(data=subset(df, n==3),aes(linetype = as.factor(n))) +
+  labs(x = "Sample Size", y = "Time [s]", color = "Index family")
+```
+
+
 ## Guided tour
 
 Given the behaviour of the various index measures under an interpolated tour path we next try to use the tourr implementation of the guided tour together with selected index functions to uncover the special views in datasets 2 and 3 with 1000 datapoints.
 
-### Review of guided tour optimisation
-
-We use the default method "search_geodesic" implemented in the tourr package. (Should I try other optimisation methods, i.e. search_better, search_better_random?)
-Search geodesic first collects $n=5$ samples by default, amongst which the most promising direction is selected. In a second step a linear search along the geodesic is performed in that direction. The optimisation is stopped when ???
 
 ### Looking down the pipe
 
@@ -682,8 +736,6 @@ dProj <- as.tibble(sineResc %*% fProj)
 ggplot(dProj, aes(V1,V2)) + geom_point()
 ```
 
-### Note on calculation time
-Considerations: time to calculate index for single 2-d plot, parameters to turn for guided tour (max.tries, alpha, cooling)
 
 
 # Application to physics data
