@@ -555,8 +555,18 @@ ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
 ```
 
 
+## Distributions of index values
 
+Compare typical index values over the two tour paths. Notation: path1 / 2 labels tour from V1-V2 to V3-V4 / V5-V6.
 
+```{r indexDist, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
+fullResMelt1 <- fullResMelt %>% add_column(path="path1")
+fullResMeltPlanned1 <- fullResMeltPlanned %>% add_column(path="path2")
+allRes <- rbind(fullResMelt1, fullResMeltPlanned1)
+ggplot(allRes, aes(x=value)) +
+  geom_density(aes(color=path, linetype = factor(size))) +
+  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
+```
 
 ## Guided tour
 
