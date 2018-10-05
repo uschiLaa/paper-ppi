@@ -192,6 +192,48 @@ We can now define the following metrics:
   
 ((What is upper bound of TIC as function of sample size? If we define $n' = n^{0.6}$, rounded to integer values only, can we calculate it as $TIC_{max} = 2 \sum_{i=1}^{n'} \frac{n'}{i}$, keeping in mind that each entry of the characteristic matrix should be between [0,1]. Each entry in the sum should be rounded also, only integer number of bins enter actual calculation, so this should be approximation only.))
 
+((Notes on holes/cmass indices)):
+
+Holes index in $d=2$ dimensional projections, we have projected data given by 
+\begin{equation}
+m = \begin{pmatrix}
+x_1 & y_1 \\
+x_2 & y_2 \\
+\vdots & \vdots \\
+x_n & y_n
+\end{pmatrix}
+\end{equation}
+In tourr calculate holes index as $num/den$ where for $d=2$ we have
+\begin{equation}
+num = 1 - \frac{1}{n} \sum_{i=1}^n e^{(x_i^2+y_i^2)/2}
+\end{equation}
+and $den$ is fixed for fixed number of dimensions, here $den = 1 - \frac{1}{e}$. Considering now the case where all $x_i, y_i \leq 1$ we can see that points at the edge may lead to larger values than points on a circle, $x_i^2+y_i^2 = 1$. Note also that we cannot give generic upper limit on the index values, it will depend on the range, in particular values $>1$ also possible. Cmass calculated as $1-holes$, will take negative values if $holes>1$, e.g. the case for entries $x_i, y_i > 1$, example: 
+
+```{r load}
+library(tourr)
+library(tidyverse)
+library(reshape2)
+library(scagnostics)
+library(gridExtra)
+library(tictoc) #timer
+library(mbgraphic) #Katrins package
+library(GGally)
+library(geozoo)
+library(minerva) #MINE indices
+```
+
+
+```{r sillyExample, echo=TRUE}
+
+mX <- matrix(c(2,2,2,2), nrow=2)
+holes(mX)
+cmass(mX)
+# compare random points on circle to extreme positions
+mC <- matrix(c(cos(1.2*pi), sin(1.2*pi), cos(pi/3), sin(pi/3), cos(0.6*pi), sin(0.6*pi)), ncol = 2)
+mT <- matrix(c(1,0,0,1,1,1), ncol=2)
+holes(mC)
+holes(mT)
+```
 
 # Investigation of indices
 \label{sec:investigate}
@@ -219,18 +261,6 @@ To understand the potential for the various indices defined we use the following
   
 ###Dataset overview
 
-```{r load}
-library(tourr)
-library(tidyverse)
-library(reshape2)
-library(scagnostics)
-library(gridExtra)
-library(tictoc) #timer
-library(mbgraphic) #Katrins package
-library(GGally)
-library(geozoo)
-library(minerva) #MINE indices
-```
 
 ```{r util}
 #defining index functions to be used with the tour
