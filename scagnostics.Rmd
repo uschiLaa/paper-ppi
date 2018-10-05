@@ -174,7 +174,7 @@ Concretely here we consider the following types of index functions:
     \end{equation}
     which takes large values if the distribution is well described by the spline model, indicating functional dependence.
     
-* Information based index functions from @Reshef1518 are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as 
+* Information based index functions from @Reshef1518 are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as \footnote{We note that all descriptions are idealized, while in practice approximations and binning are used to obtain reasonable computing time, we refer to original references and package documentation for details.}
 \begin{equation}
 M(D)_{x,y} = \frac{I^{\ast} (D, x, y)}{\log \min{x,y}}.
 \end{equation}
@@ -546,7 +546,7 @@ if(!file.exists("cache/plannedtourpath.rda")){
 }
 ```
 
-```{r plannedtour, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
+```{r plannedtour, fig.width=6, fig.height=7, fig.cap="As Figure \ref{fig:plotV1V2toV3V4} but moving from the projection onto V1-V2 to the projection onto V5-V6, i.e. starting from random distribution view, and moving into the special view."}
 fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
 ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
   geom_line(aes(color=factor(size))) + 
@@ -557,9 +557,11 @@ ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
 
 ## Distributions of index values
 
-Compare typical index values over the two tour paths. Notation: path1 / 2 labels tour from V1-V2 to V3-V4 / V5-V6.
+Compare typical index values over the two tour paths. Notation: path 1 / 2 labels tour from V1-V2 to V3-V4 / V5-V6. Typically find broader distributions for small samples because of the large fluctuations in this case. Some indices show preferred behaviour, i.e. sharp peaks around low values for path 1, and very broad distributions leading up to maximum values for path 2. For other indices we can see the strong dependence of the index on sample size, the most extreme example is the skinny index.
 
-```{r indexDist, fig.width=6, fig.height=7, fig.cap="Short tour paths with scagnostics computed on projections. Most of the indices exhibit sharp jumps in scagnostic value."}
+No clear interpretation without trace for comparison? See e.g. TIC for path2 pipe vs sine
+
+```{r indexDist, fig.width=6, fig.height=7, fig.cap="Comparing distributions of index values found in the interpolated tour paths 1 and 2 as described in the text."}
 fullResMelt1 <- fullResMelt %>% add_column(path="path1")
 fullResMeltPlanned1 <- fullResMeltPlanned %>% add_column(path="path2")
 allRes <- rbind(fullResMelt1, fullResMeltPlanned1)
@@ -590,6 +592,9 @@ The results are shown below, first Fig. \ref{fig:pipeFirstRun} shows how the con
 UPDATE: highlight times corresponding to new basis planes by red vertical line, as we approach the special view higher index values of TIC are often found on interpolated bases, this is why generally we want cooling but here we are trying to find overall maximum, but instead have good chance of finding a plane close to the special view allowing optimisation in a second step
 By no means stable procedure, when changing seed we easily end up not finding special view but rather end up with plane that is not useful for further optimisation to identify pipe view.
 
+There is some issue still with search\_better not actually giving monotonically increasing results, my guess is it is because of rigid assignment of x and y axis, i.e. calculating index on starting plane, compare to randomly selected new planes, if new index > starting index and with step size = inf (default when using save history) this means we move to the new plane, but in the interpolation framework, i.e. may be rotated wrt new plane found by search\_better, and since now the distribution is the same, but x/y values are not, we get somewhat different values, this may result in somewhat smaller values than anticipated in the new starting plane, which may result in small drops rather than monotonic increase.
+
+
 ```{r findpipe, results="hide"}
 if(!file.exists("cache/findpipe.rda")){
   set.seed(1984)
@@ -619,15 +624,8 @@ ggplot(pipeTourResMelt, aes(x=t, y=value)) +
   geom_vline(data=as.tibble(newBasisPipeTour), mapping=aes(xintercept=value), color="red")
 ```
 
-We next show in Fig \ref{fig:testpipe} the final view corresponding to the highest index found in the TIC scouting phase. While this is clearly not the optimal view of the pipe feature, we can already guess the type of dependence in the distribution, and we expect to be able to find the maximum when using this plane as a starting point of the geodesic optimisation. Indeed performing a standard guided tour with the TIC index and the identified starting plane efficiently identifies the optimal view shown in Fig ...
-((Probably should remove second trace plot as it does not give much information, maybe show final view in same figure as final scouting view...))
+We next show in Fig \ref{fig:testpipe} (left) the final view corresponding to the highest index found in the TIC scouting phase. While this is clearly not the optimal view of the pipe feature, we can already identify the feature in the distribution, and we expect to be able to find the maximum when using this plane as a starting point of the geodesic optimisation. Indeed performing a standard guided tour with the TIC index and the identified starting plane efficiently identifies the optimal view shown in the right plot. In this case the optimisation quickly converges, following a smooth, monotonic increas of the TIC index. ((not shown because that is already full informtion basically))
 
-```{r testpipe, out.width=".5\\textwidth", fig.cap="Final view discovered by the scouting phase."}
-iLast <- length(pipeTourFull)
-fProj <- pipeTourFull[[iLast]]
-dProj <- as.tibble(pipeResc %*% fProj)
-ggplot(dProj, aes(V1,V2)) + geom_point()
-```
 
 ```{r refinepipe, results="hide"}
 if(!file.exists("cache/refinepipe.rda")){
@@ -639,17 +637,19 @@ if(!file.exists("cache/refinepipe.rda")){
 } else {
   load("cache/refinepipe.rda")
 }
-ggplot(pipeTourResMelt2, aes(x=t, y=value)) +
-  geom_line() + 
-  facet_wrap(~variable, ncol=1, scales = "free_y")
-
 ```
 
-```{r testpipe2, out.width=".5\\textwidth"}
+
+```{r testpipe,  fig.height=4, fig.cap="Final view discovered by the scouting phase (left) and after second optimisation (right)."}
+iLast <- length(pipeTourFull)
+fProj <- pipeTourFull[[iLast]]
+dProj <- as.tibble(pipeResc %*% fProj)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point()
 iLast <- length(pipeTourFull2)
 fProj <- pipeTourFull2[[iLast]]
 dProj <- as.tibble(pipeResc %*% fProj)
-ggplot(dProj, aes(V1,V2)) + geom_point()
+p2 <- ggplot(dProj, aes(V1,V2)) + geom_point()
+grid.arrange(p1, p2, ncol=2)
 ```
 
 ### Finding sine waves
