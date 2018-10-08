@@ -573,6 +573,7 @@ ggplot(allRes, aes(x=value)) +
 
 ## Note on calculation time
 Computing time differs for each index, and depends strongly on the number of data points (as well as probably some dependence on distribution type), here we use as an example the 6-d sphere and calculate the computing time for different indices over 100 interpolated grand tour projections as a function of the sample size.
+We see that the evaluation of the spline index shows weak dependence on the sample size, making it the least efficient for very small data sets, but one of the fastest when considering large data sets. The situation is similar for calculating the scagnositics measures, which are however faster to compute on datasets of around 10 points. This is because the implementation is first binning the data points, which is fast compared to the evaluation that requires triangulation of the binned points. The distance correlation based measure exhibits strong increase with sample size, we note however that the implementation also allowes for evaluation on binned data points which we have not considered. Finally for the MINE family the computing time increases exponentially as can be expected from the dependence on the sample size, where we see that the improved $MIC_e$ algorithm is somewhat faster than the original implementation, see also @JMLRv1715308.
 
 ```{r getTimer}
 
@@ -796,15 +797,21 @@ The resulting projection clearly shows how the data selects a region that is wel
 ```{r nsePlotOrig}
 p1 <- ggplot(nsD, aes(R1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
 p2 <- ggplot(nsD, aes(R1-2*pi*m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
-grid.arrange(p1, p2, ncol=2) 
+p3 <- ggplot(nsD, aes(R1/m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
+grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
-This is reflecting the dependence of the deformability parameter $\Lambda$ on the so-called compactness which is proportional to $m/R$.
-QUESTIONS: can see this when plotting e.g. R1/m1 vs L1, why also with the linear combination used in the plot (only works if I get the factor about right)? not clear how this was built into the simulation, seems not strict equality mentioned in the paper
+This is reflecting the dependence of the deformability parameter $\Lambda$ on the so-called compactness which is approximately proportional to $(m/R)^{-5}$ [@Abbott2018exr].
+QUESTION: what is relation between displaying as function of ratio or linear combination? can I see this from doing taylor expansion?
 
 ## Higher D
+The above example is using only a reduced set of the free parameters relevant to the physical interpretation. In general many additional nuissance parameters will also enter the fit, see e.g. @Smith:2016qas. We use a simulation study (simulating a binary black hole (BBH) merger event...need more info maybe, no reference but Rory offered to write short description) including the full set of nuissance parameters as a test case of larger parameter space in which we aim to detect structure. The dataset is summarised in \ref{fig:bbhSimulation} where we have removed a subset of less informative parameters to obtain a clear picture. Interesting correlations can be seen between the parameters "ra", "dec" and "time", where the first two describe the position of the BBH event in the sky, and the "time" being the merging time (in GPS units). Note in particular the relation between "dec" and "time" is not functional, which motivates us to use the TIC index for this example. Some other interesting patterns can also be identified, and we next optimise the index in a guided tour.
 
-To complicate things can work with bigger dataset that Rory sent me, need to check if this is public, also need help with interpretation, but here optimising TIC finds interesting projection
+```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300}
+bbhD <- read_csv("data/posterior_samples.csv")
+bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
+ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
+```
 
 # Applications to collections of time series 
 
