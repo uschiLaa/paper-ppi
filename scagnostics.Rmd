@@ -271,6 +271,13 @@ scagIndex <- function(scagType){
   }
 }
 
+invConvexIndex <- function(){
+  function(mat){
+    sR <- scagnostics.default(mat[,1],mat[,2])$s
+    return(1 - sR["Convex"])
+  }
+}
+
 splineIndex <- function(){
   function(mat){
     return(splines2d(mat[,1], mat[,2]))
@@ -814,18 +821,45 @@ ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
 ```
 
 ```{r bbhGuided, results="hide", fig.cap="Final view identified optimising the TIC index for the posterior obtained in the BBH merger simulation study."}
-bbhM <- rescale(select(bbhD,-m2))
-if(!file.exists("cache/bbhGuided.rda")){
-  bbhTour <- save_history(bbhM, guided_tour(mineIndex("TIC")))
-  bbhTourFull <- as.list(interpolate(bbhTour))
-  save(bbhTour, bbhTourFull, file = "cache/bbhGuided.rda")
+bbhM <- rescale(select(bbhD,-m2, -chi_eff))
+if(!file.exists("cache/bbhGuidedTIC.rda")){
+  set.seed(2018)
+  bbhTour1 <- save_history(bbhM, guided_tour(mineIndex("TIC")))
+  bbhTourFull1 <- as.list(interpolate(bbhTour1))
+  save(bbhTour1, bbhTourFull1, file = "cache/bbhGuidedTIC.rda")
 } else {
-  load("cache/bbhGuided.rda")
+  load("cache/bbhGuidedTIC.rda")
 }
-iLast <- length(bbhTourFull)
-fProj <- bbhTourFull[[iLast]]
-dProj <- as.tibble(bbhM %*% fProj)
-ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+if(!file.exists("cache/bbhGuidedSpline.rda")){
+  set.seed(2018)
+  bbhTour2 <- save_history(bbhM, guided_tour(splineIndex()))
+  bbhTourFull2 <- as.list(interpolate(bbhTour2))
+  save(bbhTour2, bbhTourFull2, file = "cache/bbhGuidedSpline.rda")
+} else {
+  load("cache/bbhGuidedSpline.rda")
+}
+if(!file.exists("cache/bbhGuidedConvex.rda")){
+  set.seed(2018)
+  bbhTour3 <- save_history(bbhM, guided_tour(invConvexIndex()))
+  bbhTourFull3 <- as.list(interpolate(bbhTour3))
+  save(bbhTour3, bbhTourFull3, file = "cache/bbhGuidedConvex.rda")
+} else {
+  load("cache/bbhGuidedConvex.rda")
+}
+
+iLast <- length(bbhTourFull1)
+fProj1 <- bbhTourFull1[[iLast]]
+dProj <- as.tibble(bbhM %*% fProj1)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+iLast <- length(bbhTourFull2)
+fProj2 <- bbhTourFull2[[iLast]]
+dProj <- as.tibble(bbhM %*% fProj2)
+p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+iLast <- length(bbhTourFull3)
+fProj3 <- bbhTourFull3[[iLast]]
+dProj <- as.tibble(bbhM %*% fProj3)
+p3 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
 Indeed the TIC index guided tour found an informative view between the three parameters time, ra and dec whithin the full datase (after once again removing the second mass parameter, see explanation above), which is not described by a function. We can approximate it by showing the sum of the rescaled ra and dec variable against time, or when using the original parameter values by approximate scaling, see Figure \ref{fig:bbhRes}, but clearly the view in Fig. \ref{fig:bbhGuided} has higher TIC score. ((interesting to show guided tour animation here? draw axes on final view?))
