@@ -721,7 +721,7 @@ For further study we therefore remove m2 from the dataset. We first look at the 
 Given the observations from the grand tour display we expect a functional relation between some of the parameters, and we therefore optimise the "splines2d" index function. Note that all parameters are standardised to the range $[0,1]$ before running the optimisation.
 Show final view found from the guided tour, give corresponding projection matrix, make corresponding plot from combination of original parameters.
 
-```{r neutronStarEq,  results="hide", fig.height=3, fig.cap="Final view when optimising the splines2d index for the neutron star merger dataset, showing the functional dependence between the mass, radius and lambda parameter of one of the neutron stars."}
+```{r neutronStarEq,  results="hide"}
 set.seed(2018)
 nsD <- read_csv("data/samples.csv") 
 nsM <- nsD %>%
@@ -737,7 +737,6 @@ if(!file.exists("cache/neutronStarEq.rda")){
 iLast <- length(nseTourFull)
 fProj <- nseTourFull[[iLast]]
 dProj <- as.tibble(nsM %*% fProj)
-ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
 ```
 
 ```{r nseMatrix, echo=FALSE}
@@ -746,11 +745,11 @@ knitr::kable(fProj ,  caption = "Matrix representation of the final projection i
 
 \textcolor{red}{should have function formatting projectino matrices for readable output.}
 
-The resulting projection clearly shows how the data selects a region that is well defined as a combination of several parameters. From the matrix representation we read off that parameters m1, L1 and R1 are important in this projection. Using the original (non-rescaled) data and taking into account the difference in scale between m1 and R1 we can reproduce a similar picture shown in Fig \ref{nsePlotOrig} (right), which we compare to the next closest bivariate plot shown on the left. It is clear that in this example additional information is found when considering general projections rather than focusing only on bivariate relations.
+The resulting projection clearly shows how the data selects a region that is well defined as a combination of several parameters. From the matrix representation we read off that parameters m1, L1 and R1 are important in this projection. Using the original (non-rescaled) data and taking into account the difference in scale between m1 and R1 we can reproduce a similar picture shown in Fig \ref{fig:nsePlotOrig} (right), which we compare to the next closest bivariate plot shown on the left. It is clear that in this example additional information is found when considering general projections rather than focusing only on bivariate relations.
 
 
-```{r nsePlotOrig}
-p1 <- ggplot(nsD, aes(R1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
+```{r nsePlotOrig, fig.cap="Comparison of guided tour final view (left), approximation based on original parameters (middle) and expected relation based on analysis setup (right)."}
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
 p2 <- ggplot(nsD, aes(R1-2*pi*m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
 p3 <- ggplot(nsD, aes(R1/m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
 grid.arrange(p1, p2, p3, ncol=3) 
@@ -813,11 +812,6 @@ grid.arrange(p1, p2, p3, ncol=3)
 Indeed the TIC index guided tour found an informative view between the three parameters time, ra and dec whithin the full datase (after once again removing the second mass parameter, see explanation above), which is not described by a function. We can approximate it by showing the sum of the rescaled ra and dec variable against time, or when using the original parameter values by approximate scaling, see Figure \ref{fig:bbhRes}, but clearly the view in Fig. \ref{fig:bbhGuided} has higher TIC score. 
 
 \textcolor{red}{Things to add here: comparison of final projection matrices for all three, comparison of index evolution between the three index functions over the TIC guided tour path, plotly animation of the guided tour (check with Nick S. about function to readily to this)}
-
-```{r bbhRes, fig.cap="Approximating the final view found in the TIC guided tour optimisation by simple parameter combinations."}
-ggplot(as.tibble(bbhM), aes(time, ra+dec)) + geom_point()
-ggplot(bbhD, aes(time, ra+pi*dec)) + geom_point()
-```
 
 
 # Applications to collections of time series 
