@@ -42,6 +42,7 @@ header-includes:
   - \usepackage{booktabs}
   - \usepackage{longtable}
   - \usepackage{amssymb}
+  - \usepackage{xcolor}
 ---
 
 ```{r initial, echo = FALSE, include = FALSE}
@@ -84,34 +85,18 @@ A related topic is variable selection. With high-dimensional data, even plotting
 Our motivation is based on applications in physics, to aid the interpretation of model fits on experimental results. Consider a physical model with a set of $m$ free parameters, that cannot be measured directly and are determined by fitting a set of $p$ experimental observations, for which predictions can be calculated when fixing all $m$ parameters. Note here, that while we often have analytic expressions for the predictions, this is not always the case and we may have to rely on numerical computation. Moreover, a single prediction can be a complicated function of all free parameters. In addition, we often deal with large number of observations, $p \sim 100-1000$ as well as sizable parameter spaces $m \sim 10$. The results of a fit are generally interpreted using combinations of variables selected by intuition and prior knowledge. But this begs the question, whether important associations are missed because tools to search are not available.
 
 <!--
-suggest that some correlations clearly dictated by the data may be missed, as we are typically only studying selected views of the results. The idea of finding special views in scatter plots fits naturally with the concept of using posterior samples obtained in a Bayesian fit.
+Suggestion German:
+We are motivated by physics applications, specifically to assist the interpretation of models fit to experimental results. In these problems one has a physical model with a set of m free parameters which cannot be measured directly, but that are determined instead by fitting a set of p experimental observations. The model predicts all the observations in terms of the m parameters, often analytically, but occasionally only numerically. Moreover, a single prediction can be a complicated function of all the free parameters requiring intensive numerical resources. 
 
-The idea is that by finding special views of the posterior samples we gain insight into the physics relevant to accurately describe the experimental data. Apart from improved intuition, finding special regions in parameter space is important as it allows us to further scrutinize the model. There are many examples of this, for example in particle physics detailed studies have been performed e.g. in the alignment limit of the 2HDM or in co-annihilation regions in models of dark matter.-->
+These problems often deal with a large number of observations and parameters, with p in the hundreds or even thousands and m of order 10. 
+The results of a fit have been generally interpreted in terms of combinations of parameters selected by intuition or prior knowledge. Recently, these selections have been also assisted by machine learning techniques including BDT and neural networks.
+
+Our visualisation tools complement these procedures providing a high dimensional picture which assists with the interpretation of the results,  serves as a check for other methods and possibly revealing new associations.
+-->
 
 [@Grimm2016] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see \cite{nason1992}, \cite{NIPS1997_1408}.}
 These indices are all available in R packages [@rref]: scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
 
-<!-- 
-A related question is the selection of pair-wise scatter plots in datasets with large numbers of parameters, for which different methods have been developed. One approach are scatterplot diagnostics, "scagnostics", developed by @scag, and explored in @WW08. \footnote{Scagnostics are available in two R packages @LWscagR and @HWscagR. This work is built upon the scagnostics package by @HWscagR because the underlying base is built using C, works across platforms.} They are calculated from a set of elementary graph-theoretic building blocks: the convex hull, the alpha hull and the minimal spanning tree (MST). These are used to define eight measures: Outlying, Skewed, Sparse, Clumpy, Striated, Convex, Skinny and Stringy. While in principle each measure could be used on its own to define a ranking, the original idea suggested considering pair-wise scatter plots of the scagnostics measures for identification of "characteristic" and "unusual" 2-d views in the original parameter space. Alternative methods suggested by (Katrins Thesis or maybe her R package?) suggest using parallel coordinates, glyphs or a so-called scagramm (based on the idea of corrgrams) that should be coupled to interactive brushing for selection of pair-wise scatter plots to be displayed.
-(moved scagnostics definitions to appendix, not sure if needed at all.)
-(Issues with scagnostics already for selection of pairs have been described in Katrins Thesis, should have short summary of that here?)
-
-Given the various shortcomings of the scagnostics approach we consider several other measures that can directly be interpreted as ranking of information contained in a given 2-d view.
-Two such additional measures have been defined in @mbgraphic. The first is based on smoothing splines, and is defined such that it will take maximum values when the data distribution can be described by a functional form. For a scatterplot with variable X and Y we calculate it as
-\begin{equation}
-splines_{2d} = max(1-\frac{Var(res_{X\sim Y})}{Var(X)}, 1-\frac{Var(res_{Y\sim X})}{Var(Y)})
-\end{equation}
-where $Var(.)$ is the variance and $res_{X\sim Y}$ are the residuals in the spline model where $X$ is considered a function of $Y$.
-The second new measure introduced in @mbgraphic is aiming to detect also non-functional relations and is based on the idea of distance correlation [@szekely2007]. (need to add definition)
-Finally we will also consider the maximal and total information coefficient (MIC and TIC) defined in @Reshef1518 which are based on mutual information found when imposing grids on pair-wise variable plots. These functions are available in R via the interface implemented in the minerva package [@minerva]. 
-(read paper and add more detail. how are they similar/different compared to scagnostics and distance correlation? the way that binning is being built into it may make difference in how MIC/TIC may be smoother?)
-
-
-A projection pursuit index, a function of all possible projections of the data, invariably has many "hills and valleys" and "knife-edge ridges" because of the varying shapes in the underlying density of observations from one projection to the next. From an exploratory data analysis perspective it is interesting to combine numerical optimisation with visualisation to watch the structure of the data moving into a maximum, to jump away from this projection and follow the optimisation again, invariably moving from local maxima to local maxima, and perhaps even a global maximum. Each of these maxima can reveal different information about the data. Projection pursuit optimisation combined with geodesic interpolations between projections provided by a tour [@As85], is called a projection pursuit guided tour [@CBCH94]. Software to run a projection pursuit guided tour is available in the R package, "tourr" [@tourr].
-(Motivation strongly relates to intuition, i.e. guided tour, local tour and manual tour may be useful to understand structure in the multivariate context.)
-(Even just for the optimisation part the guided tour implementation is useful.)
-(Traditional projection pursuit indices are fast to compute and therefore the optimisation would be done in "real time" while displaying the tour. For the measures considered here this generally does not apply, as a consequence we "disentangle" the two into subsequent steps.)
--->
 
 The paper investigates the behaviour of these newly-defined indexes. Section \ref{sec:construct} discusses index construction, and how they fit into the guided tour. Section \ref{sec:investigate} investigates the behaviour of the indexes, particularly in relation to optimisation. The new guided tour methods are applied to an example where the posterior distributions from physics models (Section \ref{sec:phys}) are explored.
 
@@ -190,24 +175,11 @@ We can now define the following metrics:
     \end{equation}
   While $MIC$ is normalised to fall between $[0,1]$, the upper bound of $TIC$ depends on the sample size via the bounding function $B(n)$. $TIC$ was designed to be more stable test against null hypothesis of independence, using the full information of the characteristic matrix rather than just the maximum, and as such is expected to be better suited as a ppi.
   
-((What is upper bound of TIC as function of sample size? If we define $n' = n^{0.6}$, rounded to integer values only, can we calculate it as $TIC_{max} = 2 \sum_{i=1}^{n'} \frac{n'}{i}$, keeping in mind that each entry of the characteristic matrix should be between [0,1]. Each entry in the sum should be rounded also, only integer number of bins enter actual calculation, so this should be approximation only.))
+\textcolor{red}{What is upper bound of TIC as function of sample size? If we define $n' = n^{0.6}$, rounded to integer values only, can we calculate it as $TIC_{max} = 2 \sum_{i=1}^{n'} \frac{n'}{i}$, keeping in mind that each entry of the characteristic matrix should be between [0,1]. Each entry in the sum should be rounded also, only integer number of bins enter actual calculation, so this should be approximation only.}
 
-((Notes on holes/cmass indices)):
+\textcolor{red}{Holes and cmass index require standardisation of data, in general PCA, here rescaling to mean zero, standard deviation one should be enough, need to investigate implementation for standardisation in the background. Should standardisation be used when working with new indices as well?}
 
-Holes index in $d=2$ dimensional projections, we have projected data given by 
-\begin{equation}
-m = \begin{pmatrix}
-x_1 & y_1 \\
-x_2 & y_2 \\
-\vdots & \vdots \\
-x_n & y_n
-\end{pmatrix}
-\end{equation}
-In tourr calculate holes index as $num/den$ where for $d=2$ we have
-\begin{equation}
-num = 1 - \frac{1}{n} \sum_{i=1}^n e^{(x_i^2+y_i^2)/2}
-\end{equation}
-and $den$ is fixed for fixed number of dimensions, here $den = 1 - \frac{1}{e}$. Considering now the case where all $x_i, y_i \leq 1$ we can see that points at the edge may lead to larger values than points on a circle, $x_i^2+y_i^2 = 1$. Note also that we cannot give generic upper limit on the index values, it will depend on the range, in particular values $>1$ also possible. Cmass calculated as $1-holes$, will take negative values if $holes>1$, e.g. the case for entries $x_i, y_i > 1$, example: 
+
 
 ```{r load}
 library(tourr)
@@ -222,18 +194,6 @@ library(geozoo)
 library(minerva) #MINE indices
 ```
 
-
-```{r sillyExample, echo=TRUE}
-
-mX <- matrix(c(2,2,2,2), nrow=2)
-holes(mX)
-cmass(mX)
-# compare random points on circle to extreme positions
-mC <- matrix(c(cos(1.2*pi), sin(1.2*pi), cos(pi/3), sin(pi/3), cos(0.6*pi), sin(0.6*pi)), ncol = 2)
-mT <- matrix(c(1,0,0,1,1,1), ncol=2)
-holes(mC)
-holes(mT)
-```
 
 # Investigation of indices
 \label{sec:investigate}
@@ -346,10 +306,6 @@ sin1000 <- sinData(6, 1000) %>% rescale() %>% as_tibble()
 
 To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of V6 (and V5 for the Pipe distribution) will be distinct from uninformed views of distributions 2 and 3.
 
-<!-- 
-Table and figure captions need to have three components: (1) what is the plot about, (2) specific details of plot, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.
-
--->
 
 ```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the first two parameters V1 and V2, i.e. showing a typical uninformed view for each dataset."}
 pL <- list()
@@ -519,18 +475,10 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6, which will also allow us to view the picture between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
 We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour.
 Note that the various indices appear less noisy than for the grand tour shown before, but should note that the tour path here is shorter, and the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
-(What does this mean for optimisation? How can I detect such "smaller scale increase"? Maybe try "search_better" instead of search_geodesic? increase alpha and decrease cooling? increase max.tries?)
-Can force it when using search_better with large alpha, cooling=1, max.tries=1000, but not ideal..
-Difficulties also from "fake" structure from the sampling boundaries?
-Possible issue with search_geodesic is that the search window is fixed in the code..
 
 TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full information of the characteristics is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view.
-(As I understand TIC is however not equitable, i.e. it will prefer linear relations, and it may be instructive to optimise MIC and TIC)
 
-FIXME need to check the MIC_e and TIC_e, supposedly faster computation and better discrimination!
-
-Here we also see how the existing indices in the tourr package are inadequate for the detection of these type of dependence, the holes index taking maximum values before the final view and decreasing when moving into the special view. On the other hand, surprisingly the cmass index increases when moving into the special view, but the intermediate minimum makes it unsuitable as a projection pursuit index here. QUESTION: how come they are all almost the same for the various distributions? Especially pipe and sphere seem to give almost identical behaviour, can it be understood from the index definition?
-
+Here we also see how the existing indices in the tourr package are inadequate for the detection of these type of dependence, the holes index taking maximum values before the final view and decreasing when moving into the special view. On the other hand, surprisingly the cmass index increases when moving into the special view, but the intermediate minimum makes it unsuitable as a projection pursuit index here.
 
 
 ```{r plannedtourpath}
@@ -567,7 +515,7 @@ ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
 
 Compare typical index values over the two tour paths. Notation: path 1 / 2 labels tour from V1-V2 to V3-V4 / V5-V6. Typically find broader distributions for small samples because of the large fluctuations in this case. Some indices show preferred behaviour, i.e. sharp peaks around low values for path 1, and very broad distributions leading up to maximum values for path 2. For other indices we can see the strong dependence of the index on sample size, the most extreme example is the skinny index.
 
-No clear interpretation without trace for comparison? See e.g. TIC for path2 pipe vs sine
+\textcolor{red}{Need better representation, in particular normalise TIC to upper limit for given sample size, adapt scales so sharp peaks don't dominate some of the plots.}
 
 ```{r indexDist, fig.width=6, fig.height=7, fig.cap="Comparing distributions of index values found in the interpolated tour paths 1 and 2 as described in the text."}
 fullResMelt1 <- fullResMelt %>% add_column(path="path1")
@@ -652,7 +600,7 @@ Given the behaviour of the various index measures under an interpolated tour pat
 
 ### Looking down the pipe
 
-Double challengind: fine structure + (coherent) noise
+\textcolor{red}{Double challenging: fine structure + (coherent) noise}
 
 As seen before (reference figure) MIC or TIC should be able to find the view down the pipe. The optimisation itself is however expected to be challenging because one has to be fairly close to the optimal projection to observe the increase in index value. We therefore suggest a two step procedure for the uncovering of such "small scale structures". The first step consists in "scouting" projections. Here we use the "search_better" optimisation available with the tourr package, with a standard search window $\alpha = 0.5$ and disabling the cooling (in practice this can be done by fixing the cooling parameter to $1$), together with a large number of tries (setting max.tries to 5000 here). The resulting search will quickly steer away from the most uninteresting projections, followed by a broad scan of the thus identified region. While the lack of cooling means that this will not converge towards the maximum, each step in this first search will increase the index value, thus it can be used to provide an informed starting plane that can be used in a second step where we use the "search_geodesic" optimization to improve the index further towards the maximum.
 The described procedure is CPU time intensive, however it is promising that we manage to uncover such small scale structure in the distribution. On the other hand no "guarantee" can be provided for uncovering the special view. Parameters for the scouting phase will need to be adapted to different examples, and with increasing number of dimensions it may be better to consider several runs with different starting projections.
@@ -660,10 +608,7 @@ This gives some indication on how to handle difficult datasets. As we will see b
 
 The results are shown below, first Fig. \ref{fig:pipeFirstRun} shows how the considered index values evolve in the scouting phase. Note that this is the interpolated path and there are small local maxima and minima along the index value, especially because we keep the step size in the guided tour large. We can see the clear maximum of the TIC index in the final projection, as well as clear minimum of the convex index that carries similar information On the other hand we see that MIC or the dcor2d index are not suitable for uncovering the special view here.
 
-UPDATE: highlight times corresponding to new basis planes by red vertical line, as we approach the special view higher index values of TIC are often found on interpolated bases, this is why generally we want cooling but here we are trying to find overall maximum, but instead have good chance of finding a plane close to the special view allowing optimisation in a second step
-By no means stable procedure, when changing seed we easily end up not finding special view but rather end up with plane that is not useful for further optimisation to identify pipe view.
-
-There is some issue still with search\_better not actually giving monotonically increasing results, my guess is it is because of rigid assignment of x and y axis, i.e. calculating index on starting plane, compare to randomly selected new planes, if new index > starting index and with step size = inf (default when using save history) this means we move to the new plane, but in the interpolation framework, i.e. may be rotated wrt new plane found by search\_better, and since now the distribution is the same, but x/y values are not, we get somewhat different values, this may result in somewhat smaller values than anticipated in the new starting plane, which may result in small drops rather than monotonic increase.
+\textcolor{red}{Sometimes index value decreases, because index is not rotationally invariant.}
 
 
 ```{r findpipe, results="hide"}
@@ -695,7 +640,7 @@ ggplot(pipeTourResMelt, aes(x=t, y=value)) +
   geom_vline(data=as.tibble(newBasisPipeTour), mapping=aes(xintercept=value), color="red")
 ```
 
-We next show in Fig \ref{fig:testpipe} (left) the final view corresponding to the highest index found in the TIC scouting phase. While this is clearly not the optimal view of the pipe feature, we can already identify the feature in the distribution, and we expect to be able to find the maximum when using this plane as a starting point of the geodesic optimisation. Indeed performing a standard guided tour with the TIC index and the identified starting plane efficiently identifies the optimal view shown in the right plot. In this case the optimisation quickly converges, following a smooth, monotonic increas of the TIC index. ((not shown because that is already full informtion basically))
+We next show in Fig \ref{fig:testpipe} (left) the final view corresponding to the highest index found in the TIC scouting phase. While this is clearly not the optimal view of the pipe feature, we can already identify the feature in the distribution, and we expect to be able to find the maximum when using this plane as a starting point of the geodesic optimisation. Indeed performing a standard guided tour with the TIC index and the identified starting plane efficiently identifies the optimal view shown in the right plot. In this case the optimisation quickly converges, following a smooth, monotonic increas of the TIC index.
 
 
 ```{r refinepipe, results="hide"}
@@ -725,7 +670,7 @@ grid.arrange(p1, p2, ncol=2)
 
 ### Finding sine waves
 
-We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from Fig 6 ((add proper ref)), we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}. Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Fig \ref{}
+We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from the planned tour we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}. Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Fig \ref{}
 
 
 ```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset.", results="hide"}
@@ -776,7 +721,7 @@ For further study we therefore remove m2 from the dataset. We first look at the 
 Given the observations from the grand tour display we expect a functional relation between some of the parameters, and we therefore optimise the "splines2d" index function. Note that all parameters are standardised to the range $[0,1]$ before running the optimisation.
 Show final view found from the guided tour, give corresponding projection matrix, make corresponding plot from combination of original parameters.
 
-```{r neutronStarEq,  results="hide"}
+```{r neutronStarEq,  results="hide", fig.height=3, fig.cap="Final view when optimising the splines2d index for the neutron star merger dataset, showing the functional dependence between the mass, radius and lambda parameter of one of the neutron stars."}
 set.seed(2018)
 nsD <- read_csv("data/samples.csv") 
 nsM <- nsD %>%
@@ -796,8 +741,10 @@ ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
 ```
 
 ```{r nseMatrix, echo=FALSE}
-knitr::kable(fProj ,  caption = "Matrix representation of best projection.")
+knitr::kable(fProj ,  caption = "Matrix representation of the final projection identified by the guided tour.")
 ```
+
+\textcolor{red}{should have function formatting projectino matrices for readable output.}
 
 The resulting projection clearly shows how the data selects a region that is well defined as a combination of several parameters. From the matrix representation we read off that parameters m1, L1 and R1 are important in this projection. Using the original (non-rescaled) data and taking into account the difference in scale between m1 and R1 we can reproduce a similar picture shown in Fig \ref{nsePlotOrig} (right), which we compare to the next closest bivariate plot shown on the left. It is clear that in this example additional information is found when considering general projections rather than focusing only on bivariate relations.
 
@@ -810,18 +757,18 @@ grid.arrange(p1, p2, p3, ncol=3)
 ```
 
 This is reflecting the dependence of the deformability parameter $\Lambda$ on the so-called compactness which is approximately proportional to $(m/R)^{-5}$ [@Abbott2018exr].
-QUESTION: what is relation between displaying as function of ratio or linear combination? can I see this from doing taylor expansion?
+\textcolor{red}{Move up, this is part of the data description, we get back what was put in.}
 
 ## Higher D
-The above example is using only a reduced set of the free parameters relevant to the physical interpretation. In general many additional nuissance parameters will also enter the fit, see e.g. @Smith:2016qas. We use a simulation study (simulating a binary black hole (BBH) merger event...need more info maybe, no reference but Rory offered to write short description) including the full set of nuissance parameters as a test case of larger parameter space in which we aim to detect structure. The dataset is summarised in \ref{fig:bbhSimulation} where we have removed a subset of less informative parameters to obtain a clear picture. Interesting correlations can be seen between the parameters "ra", "dec" and "time", where the first two describe the position of the BBH event in the sky, and the "time" being the merging time (in GPS units). Note in particular the relation between "dec" and "time" is not functional, which motivates us to use the TIC index for this example. Some other interesting patterns can also be identified, and we next optimise the index in a guided tour.
+The above example is using only a reduced set of the free parameters relevant to the physical interpretation. In general many additional nuissance parameters will also enter the fit, see e.g. @Smith:2016qas. We use a simulation study \textcolor{red}{simulating a binary black hole (BBH) merger event...need more info maybe, no reference but Rory offered to write short description} including the full set of nuissance parameters as a test case of larger parameter space in which we aim to detect structure. The dataset is summarised in \ref{fig:bbhSimulation} where we have removed a subset of less informative parameters to obtain a clear picture. Interesting correlations can be seen between the parameters "ra", "dec" and "time", where the first two describe the position of the BBH event in the sky, and the "time" being the merging time (in GPS units). Note in particular the relation between "dec" and "time" is not functional, which motivates us to use the TIC index for this example. Some other interesting patterns can also be identified, and we next optimise the index in a guided tour.
 
-```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300}
+```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300, fig.cap="Scatter plot matrix showing most of the variables included in the BBH dataset. Strong correlation between the parameters time, dec and ra can be observed."}
 bbhD <- read_csv("data/posterior_samples.csv")
 bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
 ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
 ```
 
-```{r bbhGuided, results="hide", fig.cap="Final view identified optimising the TIC index for the posterior obtained in the BBH merger simulation study."}
+```{r bbhGuided, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right)."}
 bbhM <- rescale(select(bbhD,-m2, -chi_eff))
 if(!file.exists("cache/bbhGuidedTIC.rda")){
   set.seed(2018)
@@ -863,7 +810,9 @@ p3 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
-Indeed the TIC index guided tour found an informative view between the three parameters time, ra and dec whithin the full datase (after once again removing the second mass parameter, see explanation above), which is not described by a function. We can approximate it by showing the sum of the rescaled ra and dec variable against time, or when using the original parameter values by approximate scaling, see Figure \ref{fig:bbhRes}, but clearly the view in Fig. \ref{fig:bbhGuided} has higher TIC score. ((interesting to show guided tour animation here? draw axes on final view?))
+Indeed the TIC index guided tour found an informative view between the three parameters time, ra and dec whithin the full datase (after once again removing the second mass parameter, see explanation above), which is not described by a function. We can approximate it by showing the sum of the rescaled ra and dec variable against time, or when using the original parameter values by approximate scaling, see Figure \ref{fig:bbhRes}, but clearly the view in Fig. \ref{fig:bbhGuided} has higher TIC score. 
+
+\textcolor{red}{Things to add here: comparison of final projection matrices for all three, comparison of index evolution between the three index functions over the TIC guided tour path, plotly animation of the guided tour (check with Nick S. about function to readily to this)}
 
 ```{r bbhRes, fig.cap="Approximating the final view found in the TIC guided tour optimisation by simple parameter combinations."}
 ggplot(as.tibble(bbhM), aes(time, ra+dec)) + geom_point()
@@ -901,17 +850,6 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 
 # Discussion
 
-# Apendix
-The following measures have been defined:
-
-* Outlying: Outliers are defined in non-parametric fashion via the edge length in the MST, where the 25% and 75% quantile edge length define a threshold value $w=q_{75}+1.5(q_{75}-q_{25})$ above which an edge is considered long. The outlying measure is then calculated as $c_{outlying} = \frac{\mathrm{Total\ length\ of\ long\ edges}}{\mathrm{Total\ length\ of\ all\ edges}}$. Note that outlying points are not considered in the calculation of the other measures.
-* Skewed: Skewness is defined via the distribution of edge length in the MST, $q_{skew}=\frac{q_{90}-q{50}}{q_{90}-q_{10}}$. This is inverted as $c_{skew}= 1-w(1-q_{skew})$ to account for binning effects that result in decreasing values of $q_{skew}$ with increasing n.
-* Sparse: A second measure based on the distribution of edge lenths, we define $c_{sparse} = w q_{90}$. It takes large values if points are concentrated in well separated parts of the plane, and low values if they are distributed approximately on a lattice.
-* Clumpy: To indicate the clustering of points the Clumpy measure is defined as $c_{clumpy}=\max\limits_{j}[1-\max\limits_{k}[\frac{length(e_k)}{length(e_j)}]]$ where we maximise the edge length $length(e_k)$ in the smaller of two subgraphs generated by removing a single edge $e_j$ from the MST. Note that $c_{clumpy}$ will take large values (close to one) if a long edge is separating clustered points connected by short edges.
-* Striated: We define an edge as striated if they have a large angle with one of the neighboring edges, concretely $cos(angle) < -0.75$, and the corresponding measure $c_{striate} = \frac{Number of striated edges}{Number of all edges}$. FIXME is this really correct? Maybe reason for discreet behaviour observed below..
-* Convex: The convex measure is defined as $c_{convex}= w\frac{area(A)}{area(H)}$ where $A$ is the alpha hull and $H$ the convex hull.
-* Skinny: The skinnyness of a polygon can be measured as the ratio of the perimeter to the area. We define $c_{skinny} = 1 -  \frac{\sqrt{4\pi area(A)}}{perimeter(A)}$, where the normalisation is chosen such that $c_{skinny} = 0$ for a circle, and values close to one for skinny polygons.
-* Stringy: need to check, should be $c_{stringy} = \frac{diameter(MST)}{length(MST)}$ where diameter is longest connected path, and length the total length (sum of all edges), i.e. we are measuring branch structure, no branches means $c_{stringy}=1$.
 
 
 # References
