@@ -298,12 +298,18 @@ sinData <- function(n, p){
 set.seed(1984)
 sphere100 <- sphereData(6, 100) %>% rescale() %>% as_tibble()
 sphere1000 <- sphereData(6, 1000) %>% rescale() %>% as_tibble()
+sphere100S <- scale(sphere100) %>% as_tibble()
+sphere1000S <- scale(sphere1000) %>% as_tibble()
 
 pipe100 <- pipeData(6, 100) %>% rescale() %>% as_tibble()
 pipe1000 <- pipeData(6,1000) %>% rescale() %>% as_tibble()
+pipe100S <- scale(pipe100) %>% as_tibble()
+pipe1000S <- scale(pipe1000) %>% as_tibble()
 
 sin100 <- sinData(6, 100) %>% rescale() %>% as_tibble()
 sin1000 <- sinData(6, 1000) %>% rescale() %>% as_tibble()
+sin100S <- scale(sin100) %>% as_tibble()
+sin1000S <- scale(sin1000) %>% as_tibble()
 ```
 
 To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of V6 (and V5 for the Pipe distribution) will be distinct from uninformed views of distributions 2 and 3.
@@ -363,7 +369,8 @@ We next compare the various index values for three views: V1 vs V2, V5 vs V6 and
 
 ```{r indexTable, echo=FALSE}
 i <- 1
-pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
+pLabels <- c("Sphere 100", "Sphere 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000",
+             "Sphere 100 S", "Sphere 1000 S", "Pipe 100 S", "Pipe 1000 S", "Sine 100 S", "Sine 1000 S")
 indexOverview <- tibble(convex=numeric(),
                skinny=numeric(),
                stringy=numeric(),
@@ -371,20 +378,23 @@ indexOverview <- tibble(convex=numeric(),
                splines2d=numeric(),
                MIC=numeric(),
                TIC=numeric(),
+               holes=numeric(),
                name=character(),
                vars=character())
-for(ds in list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000)){
-  ds <- as.tibble(rescale(ds))
+dsL <- list(sphere100, sphere1000, pipe100, pipe1000, sin100, sin1000,
+            sphere100S, sphere1000S, pipe100S, pipe1000S, sin100S, sin1000S)
+for(ds in dsL){
   for(vars in list(c("V1","V2"),c("V5","V6"),c("V1","V6"))){
     dprj <- as.matrix(select_(ds, vars[1], vars[2]))
     scagRes <- scagnostics(dprj)
     dcorRes <- dcor2d(dprj[,1], dprj[,2])
     splineRes <- splines2d(dprj[,1], dprj[,2])
     mineRes <- mine(dprj[,1], dprj[,2])
+    holesRes <- holes(dprj)
     indexOverview <- add_row(indexOverview, convex=scagRes[,"Convex"],
                     skinny=scagRes[,"Skinny"], stringy=scagRes[,"Stringy"],
                     dcor2d=dcorRes, splines2d=splineRes,
-                    MIC=mineRes$MIC, TIC=mineRes$TIC,
+                    MIC=mineRes$MIC, TIC=mineRes$TIC, holes=holesRes,
                     name=pLabels[i], vars=paste0(vars[1],"-",vars[2]))
   }
   i <- i+1
@@ -419,9 +429,8 @@ getProj <- function(df, tPath, nameStr, size){
     name=character(),
     size=numeric())
   n <- length(tPath)
-  df <- rescale(df)
   for (i in 1:n) {
-    dprj <- df %*% tPath[[i]]
+    dprj <- as.matrix(df) %*% tPath[[i]]
     scagRes <- scagnostics(dprj)
     dcorRes <- dcor2d(dprj[,1], dprj[,2])
     splineRes <- splines2d(dprj[,1], dprj[,2])
@@ -457,7 +466,13 @@ if(!file.exists("cache/V1V2toV3V4.rda")){
     rbind(getProj(sphere100, t1full, "sphere", 100)) %>%
     rbind(getProj(sphere1000, t1full, "sphere", 1000)) %>%
     rbind(getProj(pipe100, t1full, "pipe", 100)) %>%
-    rbind(getProj(pipe1000, t1full, "pipe", 1000))
+    rbind(getProj(pipe1000, t1full, "pipe", 1000)) %>%
+    rbind(getProj(sin100S, t1full, "sin-S", 100)) %>%
+    rbind(getProj(sin1000S, t1full, "sin-S", 1000)) %>%
+    rbind(getProj(sphere100S, t1full, "sphere-S", 100)) %>%
+    rbind(getProj(sphere1000S, t1full, "sphere-S", 1000)) %>%
+    rbind(getProj(pipe100S, t1full, "pipe-S", 100)) %>%
+    rbind(getProj(pipe1000S, t1full, "pipe-S", 1000))
   save(t1, t1full, fullRes, file = "cache/V1V2toV3V4.rda")
 } else {
   load("cache/V1V2toV3V4.rda")
@@ -465,9 +480,11 @@ if(!file.exists("cache/V1V2toV3V4.rda")){
 ```
 
 ```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="Short tour paths of uninformed views, moving from the projection onto V1-V2 to the projection onto V3-V4, for all considered datasets and index functions. Small samples (p=100) are shown in red, large samples (p=1000) in blue."}
-fullResMelt <- melt(fullRes, id=c("t", "name", "size"))
+fullResMelt <- melt(fullRes, id=c("t", "name", "size")) %>%
+  mutate(sphered = str_detect(name,"-")) %>%
+  mutate(name=str_replace(name,"-S",""))
 ggplot(fullResMelt, aes(x=t, y=value)) +
-  geom_line(aes(color=factor(size))) + 
+  geom_line(aes(color=factor(size), linetype = factor(sphered))) + 
   facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
   guides(color=FALSE)
 ```
@@ -497,7 +514,13 @@ if(!file.exists("cache/plannedtourpath.rda")){
     rbind(getProj(sphere100, t2full, "sphere", 100)) %>%
     rbind(getProj(sphere1000, t2full, "sphere", 1000)) %>%
     rbind(getProj(pipe100, t2full, "pipe", 100)) %>%
-    rbind(getProj(pipe1000, t2full, "pipe", 1000))
+    rbind(getProj(pipe1000, t2full, "pipe", 1000)) %>%
+    rbind(getProj(sin100S, t1full, "sin-S", 100)) %>%
+    rbind(getProj(sin1000S, t1full, "sin-S", 1000)) %>%
+    rbind(getProj(sphere100S, t1full, "sphere-S", 100)) %>%
+    rbind(getProj(sphere1000S, t1full, "sphere-S", 1000)) %>%
+    rbind(getProj(pipe100S, t1full, "pipe-S", 100)) %>%
+    rbind(getProj(pipe1000S, t1full, "pipe-S", 1000))
   save(t2, t2full, fullResPlanned, file = "cache/plannedtourpath.rda")
 } else {
   load("cache/plannedtourpath.rda")
@@ -505,9 +528,11 @@ if(!file.exists("cache/plannedtourpath.rda")){
 ```
 
 ```{r plannedtour, fig.width=6, fig.height=7, fig.cap="As Figure \ref{fig:plotV1V2toV3V4} but moving from the projection onto V1-V2 to the projection onto V5-V6, i.e. starting from random distribution view, and moving into the special view."}
-fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
+fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size")) %>%
+  mutate(sphered = str_detect(name,"-")) %>%
+  mutate(name=str_replace(name,"-S",""))
 ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
-  geom_line(aes(color=factor(size))) + 
+  geom_line(aes(color=factor(size),linetype = factor(sphered))) + 
   facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
   guides(color=FALSE)
 ```
