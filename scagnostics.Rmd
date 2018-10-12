@@ -515,19 +515,19 @@ if(!file.exists("cache/plannedtourpath.rda")){
     rbind(getProj(sphere1000, t2full, "sphere", 1000)) %>%
     rbind(getProj(pipe100, t2full, "pipe", 100)) %>%
     rbind(getProj(pipe1000, t2full, "pipe", 1000)) %>%
-    rbind(getProj(sin100S, t1full, "sin-S", 100)) %>%
-    rbind(getProj(sin1000S, t1full, "sin-S", 1000)) %>%
-    rbind(getProj(sphere100S, t1full, "sphere-S", 100)) %>%
-    rbind(getProj(sphere1000S, t1full, "sphere-S", 1000)) %>%
-    rbind(getProj(pipe100S, t1full, "pipe-S", 100)) %>%
-    rbind(getProj(pipe1000S, t1full, "pipe-S", 1000))
+    rbind(getProj(sin100S, t2full, "sin-S", 100)) %>%
+    rbind(getProj(sin1000S, t2full, "sin-S", 1000)) %>%
+    rbind(getProj(sphere100S, t2full, "sphere-S", 100)) %>%
+    rbind(getProj(sphere1000S, t2full, "sphere-S", 1000)) %>%
+    rbind(getProj(pipe100S, t2full, "pipe-S", 100)) %>%
+    rbind(getProj(pipe1000S, t2full, "pipe-S", 1000))
   save(t2, t2full, fullResPlanned, file = "cache/plannedtourpath.rda")
 } else {
   load("cache/plannedtourpath.rda")
 }
 ```
 
-```{r plannedtour, fig.width=6, fig.height=7, fig.cap="As Figure \ref{fig:plotV1V2toV3V4} but moving from the projection onto V1-V2 to the projection onto V5-V6, i.e. starting from random distribution view, and moving into the special view."}
+```{r plannedtour, fig.width=6, fig.height=7, fig.cap="As Figure \\ref{fig:plotV1V2toV3V4} but moving from the projection onto V1-V2 to the projection onto V5-V6, i.e. starting from random distribution view, and moving into the special view."}
 fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size")) %>%
   mutate(sphered = str_detect(name,"-")) %>%
   mutate(name=str_replace(name,"-S",""))
