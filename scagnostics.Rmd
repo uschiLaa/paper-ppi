@@ -741,21 +741,21 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 
 We now want to apply the developed tools to distributions from realistic physics application. Here we choose as an example to use posterior samples obtained when fitting source parameters to the observed gravitational wave signal GW170817 @PhysRevLett119161101. The fit details were described in @Abbott2018exr and the corresponding data is available online @ligoData.
 
-## Data description
-The model describes a neutron star merger and contains 6 free parameters, i.e. each neutron star is described by its mass and radius, and a so-called tidal deform ability parameter $\Lambda$. A posterior sample containing 2538 points is available @ligoData and can be used to constrain the parameters. Here we use the "Parametrized-EoS\_nomaxmass\_posterior\_samples.dat" dataset. For details about the modelling and statistical procedure see @Abbott2018exr. A common representation of posterior samples used for interpretation are so-called "corner plots", i.e. density displays for all 2-d parameter combinations as well as the 1-d profile, highlighting empirically evaluated regions of highest posterior density, which correspond to credibility regions at a given level. The information can similarly be presented in a scatter plot matrix using transparency to convey the density information. Since in the following we work with 2-d scatter plots we choose to show the data in this fashion, see Fig.
+## Example 1
+The model describes a neutron star merger and contains 6 free parameters, i.e. each neutron star is described by its mass $m$ and radius $R$, and a so-called tidal deform ability parameter $\Lambda$ which is a function of the mass and radius, approximately proportional to $(m/R)^{-5}$. A posterior sample containing 2538 points is available @ligoData and can be used to constrain the parameters. Here we use the "Parametrized-EoS\_nomaxmass\_posterior\_samples.dat" dataset and aim to recover the dependence between the three parameters of the better constrianed system out of a larger parameter set. For details about the modelling and statistical procedure see @Abbott2018exr. A common representation of posterior samples used for interpretation are so-called "corner plots", i.e. density displays for all 2-d parameter combinations as well as the 1-d profile, highlighting empirically evaluated regions of highest posterior density, which correspond to credibility regions at a given level. The information can similarly be presented in a scatter plot matrix using transparency to convey the density information. Since in the following we work with 2-d scatter plots we choose to show the data in this fashion, see Fig. \ref{fig:neutronStarSPLOM}.
 
-```{r neutronStarSPLOM, fig.height=8, fig.width=8}
+```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
 nsD <- read_csv("data/samples.csv") 
 ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
 ```
 
-We point out the following features seen from Fig. XX: the combination of the two mass parameters is well constrained (a consequence of how a particular combination, the "chirp mass" enters predictions), other parameters also show patterns of dependence, they are however less pronounces. We highlight the non-linear relation between the radius $R_1$ and $\Lambda$ parameter and the two-pronged structure of the radius $R_1$.
-For further study we therefore remove m2 from the dataset. We first look at the distribution in a grand tour display, where we use a scatter plot display combined with alpha transparency to study the density distribution in the 5-d parameter space. The grand tour indicates that the data points are found on a curved surface in the five dimensional space. This may stem from a non-linear relation between the parameters, which we will try to uncover using the above developed formalism for new guided tour index functions.
+The following features can be observed: the combination of the two mass parameters is well constrained (a consequence of how a particular combination, the "chirp mass" enters predictions), other parameters also show patterns of dependence, they are however less pronounces. We also see the non-linear relation between the radius $R_1$ and $\Lambda$ parameter $L1$ and the two-pronged disribution for the radius $R_1$.
+For further study we therefore remove the second mass $m2$ from the dataset.
+\textcolor{red}{Looking at the distribution in a grand tour display, using a scatter plot display combined with alpha transparency to study the density distribution in the 5-d parameter space, indicates that the data points are found on a curved surface in the five dimensional space. This stems from the non-linear relation between the parameters, which we will try to uncover using the above developed formalism for new guided tour index functions.}
 
-## Using the guided tour
+### Results
 
-Given the observations from the grand tour display we expect a functional relation between some of the parameters, and we therefore optimise the "splines2d" index function. Note that all parameters are standardised to the range $[0,1]$ before running the optimisation.
-Show final view found from the guided tour, give corresponding projection matrix, make corresponding plot from combination of original parameters.
+Since we expect a functional relation between some of the parameters, we optimise the "splines2d" index function. Note that all parameters are standardised to the range $[0,1]$ before running the optimisation, and we do not sphere the data for ease of interpretation of the results.
 
 ```{r neutronStarEq,  results="hide"}
 set.seed(2018)
@@ -775,14 +775,7 @@ fProj <- nseTourFull[[iLast]]
 dProj <- as.tibble(nsM %*% fProj)
 ```
 
-```{r nseMatrix, echo=FALSE}
-knitr::kable(fProj ,  caption = "Matrix representation of the final projection identified by the guided tour.")
-```
-
-\textcolor{red}{should have function formatting projectino matrices for readable output.}
-
-The resulting projection clearly shows how the data selects a region that is well defined as a combination of several parameters. From the matrix representation we read off that parameters m1, L1 and R1 are important in this projection. Using the original (non-rescaled) data and taking into account the difference in scale between m1 and R1 we can reproduce a similar picture shown in Fig \ref{fig:nsePlotOrig} (right), which we compare to the next closest bivariate plot shown on the left. It is clear that in this example additional information is found when considering general projections rather than focusing only on bivariate relations.
-
+The resulting projection shown in Fig \ref{fig:nsePlotOrig}(left) clearly recovers functional relations between some of the parameters. From the matrix representation we read off that parameters m1, L1 and R1 are important in this projection. Using the original (non-rescaled) data and taking into account the difference in scale between m1 and R1 we can reproduce a similar picture shown in Fig \ref{fig:nsePlotOrig} (middle), which we compare to the dependence of L1 on the ratio R1/m1 (right). For this example the linear combination can thus recover the approximate relation between these parameters.
 
 ```{r nsePlotOrig, fig.cap="Comparison of guided tour final view (left), approximation based on original parameters (middle) and expected relation based on analysis setup (right)."}
 p1 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
@@ -791,11 +784,14 @@ p3 <- ggplot(nsD, aes(R1/m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.rati
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
-This is reflecting the dependence of the deformability parameter $\Lambda$ on the so-called compactness which is approximately proportional to $(m/R)^{-5}$ [@Abbott2018exr].
-\textcolor{red}{Move up, this is part of the data description, we get back what was put in.}
 
-## Higher D
-The above example is using only a reduced set of the free parameters relevant to the physical interpretation. In general many additional nuissance parameters will also enter the fit, see e.g. @Smith:2016qas. We use a simulation study \textcolor{red}{simulating a binary black hole (BBH) merger event...need more info maybe, no reference but Rory offered to write short description} including the full set of nuissance parameters as a test case of larger parameter space in which we aim to detect structure. The dataset is summarised in \ref{fig:bbhSimulation} where we have removed a subset of less informative parameters to obtain a clear picture. Interesting correlations can be seen between the parameters "ra", "dec" and "time", where the first two describe the position of the BBH event in the sky, and the "time" being the merging time (in GPS units). Note in particular the relation between "dec" and "time" is not functional, which motivates us to use the TIC index for this example. Some other interesting patterns can also be identified, and we next optimise the index in a guided tour.
+## Example 2
+The above example is using only a reduced set of the free parameters relevant to the physical interpretation, and we already know the expected result by construction. In general many additional nuissance parameters will also enter the fit, see e.g. @Smith:2016qas. We use a simulation study \textcolor{red}{simulating a binary black hole (BBH) merger event...need more info maybe, no reference but Rory offered to write short description} including the full set of nuissance parameters as a test case of larger parameter space in which we aim to detect structure. The dataset is summarised in \ref{fig:bbhSimulation} where we have removed a subset of less informative parameters to obtain a clear picture. Interesting correlations can be seen between the parameters "ra", "dec" and "time", where the first two describe the position of the BBH event in the sky, and the "time" being the merging time (in GPS units). Note in particular the relation between "dec" and "time" is not functional, which motivates us to use the TIC index for this example. Some other interesting patterns can also be identified.
+\textcolor{red}{Question for Rory: is dependence between dec, time, ra built into prior distribution?}
+Show three results:
+ - given all variables, including nuissance, recover dec, time, ra from guided tour (TIC, splines, tried 1-convex but maybe another example is better? skinny?)
+ - removing those three, do we find interesting views?
+ - using smaller subset, find improved description when using more than 2 parameters
 
 ```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300, fig.cap="Scatter plot matrix showing most of the variables included in the BBH dataset. Strong correlation between the parameters time, dec and ra can be observed."}
 bbhD <- read_csv("data/posterior_samples.csv")
@@ -833,16 +829,76 @@ if(!file.exists("cache/bbhGuidedConvex.rda")){
 iLast <- length(bbhTourFull1)
 fProj1 <- bbhTourFull1[[iLast]]
 dProj <- as.tibble(bbhM %*% fProj1)
-p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
 iLast <- length(bbhTourFull2)
 fProj2 <- bbhTourFull2[[iLast]]
 dProj <- as.tibble(bbhM %*% fProj2)
-p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+p2 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
 iLast <- length(bbhTourFull3)
 fProj3 <- bbhTourFull3[[iLast]]
 dProj <- as.tibble(bbhM %*% fProj3)
-p3 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+p3 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
 grid.arrange(p1, p2, p3, ncol=3) 
+```
+
+```{r bbhGuided2, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right)."}
+bbhM2 <- rescale(select(bbhD,-m2, -chi_eff, -time, -dec, -ra))
+if(!file.exists("cache/bbhGuidedTIC2.rda")){
+  set.seed(2018)
+  bbhTour12 <- save_history(bbhM2, guided_tour(mineIndex("TIC")))
+  bbhTourFull12 <- as.list(interpolate(bbhTour12))
+  save(bbhTour12, bbhTourFull12, file = "cache/bbhGuidedTIC2.rda")
+} else {
+  load("cache/bbhGuidedTIC2.rda")
+}
+if(!file.exists("cache/bbhGuidedSpline2.rda")){
+  set.seed(2018)
+  bbhTour22 <- save_history(bbhM2, guided_tour(splineIndex()))
+  bbhTourFull22 <- as.list(interpolate(bbhTour22))
+  save(bbhTour22, bbhTourFull22, file = "cache/bbhGuidedSpline2.rda")
+} else {
+  load("cache/bbhGuidedSpline2.rda")
+}
+if(!file.exists("cache/bbhGuidedConvex2.rda")){
+  set.seed(2018)
+  bbhTour32 <- save_history(bbhM2, guided_tour(invConvexIndex()))
+  bbhTourFull32 <- as.list(interpolate(bbhTour32))
+  save(bbhTour32, bbhTourFull32, file = "cache/bbhGuidedConvex2.rda")
+} else {
+  load("cache/bbhGuidedConvex2.rda")
+}
+
+iLast <- length(bbhTourFull12)
+fProj1 <- bbhTourFull12[[iLast]]
+dProj <- as.tibble(bbhM2 %*% fProj1)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+iLast <- length(bbhTourFull22)
+fProj2 <- bbhTourFull22[[iLast]]
+dProj <- as.tibble(bbhM2 %*% fProj2)
+p2 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+iLast <- length(bbhTourFull32)
+fProj3 <- bbhTourFull32[[iLast]]
+dProj <- as.tibble(bbhM2 %*% fProj3)
+p3 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+grid.arrange(p1, p2, p3, ncol=3) 
+```
+
+```{r bbhGuided3, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right)."}
+bbhM3 <- rescale(select(bbhD, alpha, chi_tot, chi_p, ra, dec, distance))
+if(!file.exists("cache/bbhGuidedSpline3.rda")){
+  set.seed(2018)
+  bbhTour23 <- save_history(bbhM3, guided_tour(splineIndex()))
+  bbhTourFull23 <- as.list(interpolate(bbhTour23))
+  save(bbhTour23, bbhTourFull23, file = "cache/bbhGuidedSpline3.rda")
+} else {
+  load("cache/bbhGuidedSpline3.rda")
+}
+iLast <- length(bbhTourFull23)
+fProj2 <- bbhTourFull23[[iLast]]
+dProj <- as.tibble(bbhM3 %*% fProj2)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+p2 <- ggplot(as.tibble(bbhM3), aes(ra, dec)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+grid.arrange(p1, p2, ncol=2)
 ```
 
 Indeed the TIC index guided tour found an informative view between the three parameters time, ra and dec whithin the full datase (after once again removing the second mass parameter, see explanation above), which is not described by a function. We can approximate it by showing the sum of the rescaled ra and dec variable against time, or when using the original parameter values by approximate scaling, see Figure \ref{fig:bbhRes}, but clearly the view in Fig. \ref{fig:bbhGuided} has higher TIC score. 
