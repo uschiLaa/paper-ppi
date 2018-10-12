@@ -730,6 +730,14 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 # Application to physics data
 \label{sec:phys}
 
+<!--
+- First example
+    - Automatically find the functional relationship between three parameters
+- Second example
+    - Stronger relationship between already nonlinearly associated variables, when additional variable is incorporated
+    - 
+-->
+
 We now want to apply the developed tools to distributions from realistic physics application. Here we choose as an example to use posterior samples obtained when fitting source parameters to the observed gravitational wave signal GW170817 @PhysRevLett119161101. The fit details were described in @Abbott2018exr and the corresponding data is available online @ligoData.
 
 ## Data description
