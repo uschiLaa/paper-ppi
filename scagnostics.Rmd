@@ -784,6 +784,30 @@ p3 <- ggplot(nsD, aes(R1/m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.rati
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
+We now 
+
+
+```{r nseRemL1, fig.cap="Removing L1 and optimise again of the remaining parameters, where m2 remains removed from the set. Because of parameter correlations we can recover clear description of L2 as a function of the other parameters, despite m2 missing."}
+nsM2 <- nsD %>%
+  select(-m2, -L1) %>% # remove m2 to avoid finding well known correlation
+  rescale()
+if(!file.exists("cache/neutronRemL1.rda")){
+  set.seed(2018)
+  nseTour2 <- save_history(nsM2, guided_tour(splineIndex()))
+  save(nseTour2, file = "cache/neutronRemL1.rda")
+} else{
+  load("cache/neutronRemL1.rda")
+}
+tL <- as.list(nseTour2)
+iLast <- length(tL)
+fProj <- tL[[iLast]]
+dProj <- as.tibble(nsM2 %*% fProj)
+p1 <- ggplot(as.tibble(dProj), aes(V1, V2))+geom_point(alpha=0.1)+ theme(aspect.ratio=1)
+p2 <- ggplot(as.tibble(nsM2), aes(m1+R1+1.5*R2, L2)) + geom_point(alpha=0.1)+ theme(aspect.ratio=1)
+p3 <- ggplot(nsD, aes(R2/m2, L2))+ geom_point(alpha=0.1)+ theme(aspect.ratio=1)
+grid.arrange(p1, p2, p3, ncol=3)
+```
+
 
 ## Example 2
 The above example is using only a reduced set of the free parameters relevant to the physical interpretation, and we already know the expected result by construction. In general many additional nuissance parameters will also enter the fit, see e.g. @Smith:2016qas. We use a simulation study \textcolor{red}{simulating a binary black hole (BBH) merger event...need more info maybe, no reference but Rory offered to write short description} including the full set of nuissance parameters as a test case of larger parameter space in which we aim to detect structure. The dataset is summarised in \ref{fig:bbhSimulation} where we have removed a subset of less informative parameters to obtain a clear picture. Interesting correlations can be seen between the parameters "ra", "dec" and "time", where the first two describe the position of the BBH event in the sky, and the "time" being the merging time (in GPS units). Note in particular the relation between "dec" and "time" is not functional, which motivates us to use the TIC index for this example. Some other interesting patterns can also be identified.
