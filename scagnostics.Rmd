@@ -884,21 +884,55 @@ grid.arrange(p1, p2, p3, ncol=3)
 ```
 
 ```{r bbhGuided3, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right)."}
-bbhM3 <- rescale(select(bbhD, alpha, chi_tot, chi_p, ra, dec, distance))
+bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
+getResWithSeed <- function(s){
+  set.seed(s)
+  startM <- orthonormalise(matrix(runif(14),ncol = 2))
+  tourRes <- save_history(bbhM3, guided_tour(splineIndex()))
+}
+
 if(!file.exists("cache/bbhGuidedSpline3.rda")){
   set.seed(2018)
-  bbhTour23 <- save_history(bbhM3, guided_tour(splineIndex()))
-  bbhTourFull23 <- as.list(interpolate(bbhTour23))
-  save(bbhTour23, bbhTourFull23, file = "cache/bbhGuidedSpline3.rda")
+  seedVals <- sample(1:10000, 6)
+  bbhRes1 <- getResWithSeed(seedVals[1])
+  bbhRes2 <- getResWithSeed(seedVals[2])
+  bbhRes3 <- getResWithSeed(seedVals[3])
+  bbhRes4 <- getResWithSeed(seedVals[4])
+  bbhRes5 <- getResWithSeed(seedVals[5])
+  bbhRes6 <- getResWithSeed(seedVals[6])
+  save(bbhRes1, bbhRes2, bbhRes3, bbhRes4, bbhRes5, bbhRes6, file = "cache/bbhGuidedSpline3.rda")
 } else {
   load("cache/bbhGuidedSpline3.rda")
 }
-iLast <- length(bbhTourFull23)
-fProj2 <- bbhTourFull23[[iLast]]
-dProj <- as.tibble(bbhM3 %*% fProj2)
-p1 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
-p2 <- ggplot(as.tibble(bbhM3), aes(ra, dec)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
-grid.arrange(p1, p2, ncol=2)
+resList <- list(as.list(bbhRes1), as.list(bbhRes2), as.list(bbhRes3),
+                as.list(bbhRes4), as.list(bbhRes5), as.list(bbhRes6))
+pList <- list()
+i <- 1
+for (r in resList){
+  iLast <- length(r)
+  fProj <- r[[iLast]]
+  dProj <- as.tibble(bbhM3 %*% fProj)
+  pList[[i]] <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+  i <- i+1
+}
+grid.arrange(pList[[1]], pList[[2]], pList[[3]],pList[[4]], pList[[5]], pList[[6]], ncol=3)
+```
+
+```{r constructedExample, results="hide", fig.cap="Selecting subset of 6 parameters, for which spline index can be used to improve constraint on parameter combination wrt ra vs dec."}
+bbhC <- rescale(select(bbhD, m1, ra, chi_tot, alpha, distance, dec))
+if(!file.exists("cache/constructedExample.rda")){
+  set.seed(1999)
+  tC <- save_history(bbhC, guided_tour(splineIndex()))
+  save(tC, file = "cache/constructedExample.rda")
+} else {
+  load("cache/constructedExample.rda")
+}
+iL <- length(as.list(tC))
+dProj <- bbhC %*% as.list(tC)[[iL]]
+p1 <- ggplot(as.tibble(dProj), aes(V1, V2))+geom_point(alpha=0.02) + theme(aspect.ratio=1)
+p2 <- ggplot(as.tibble(bbhC),aes(dec-alpha/5, ra)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+p3 <- ggplot(as.tibble(bbhC),aes(dec, ra)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+grid.arrange(p1, p2, p3, ncol=3)
 ```
 
 Indeed the TIC index guided tour found an informative view between the three parameters time, ra and dec whithin the full datase (after once again removing the second mass parameter, see explanation above), which is not described by a function. We can approximate it by showing the sum of the rescaled ra and dec variable against time, or when using the original parameter values by approximate scaling, see Figure \ref{fig:bbhRes}, but clearly the view in Fig. \ref{fig:bbhGuided} has higher TIC score. 
