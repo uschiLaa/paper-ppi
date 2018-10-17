@@ -731,39 +731,59 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 # Application to physics data
 \label{sec:phys}
 
+This section describes the application of these projection pursuit indices to find two-dimensional structure in two multidimensional gravitational waves problems. 
+
+The first example shows 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. There are six parameters of physical interest (6D) with some known relationships. Projection pursuit is used to find the known relationships. 
+
+The second example shows data from @Smith:2016qas, generated from a simulation study of a binary black hole (BBH) merger event. (XXX More info needed.) There are 12 parameters (12-D), with multiple nuisance parameters. Projection pursuit uncovers several new relationships between parameters. 
+
+## Neutron star merger
+
+Figure \ref{fig:neutronStarSPLOM} shows the scatterplot matrix (with transparency) of the six parameters. (In astrophysics, scatterplot matrices are often called "corner plots" REF.) The diagonal shows a univariate density plot of each parameter, and the upper triangle of cells displays the correlation between variables. From this it can be seen that m1 and m2 are strongly, and slightly, nonlinearly associated. Between the other variables, some linear association (R1, R2), some nonlinear association (L1, L2, R1, R2),  heteroskedastic variance in most variables and some bimodality (R1, L1, L2, m1, m2). 
+
+The model describes a neutron star merger and contains 6 free parameters, with each neutron star described by its mass $m$ (m1, m2) and radius $R$ (R1, R2), and a so-called tidal deform ability parameter $\Lambda$ (L1, L2) which is a function of the mass and radius, approximately proportional to $(m/R)^{-5}$. 
+
+### Data pre-pocessing
+
+Because m1 and m2 are very strongly associated, m2 is dropped before doing PP. This relationship is obvious from the scatterplots of pairs of variables and does not need to be re-discovered by PP. 
+
+All variables are scaled to range between 0 and 1. The purpose is that range differences in individual variables should not affect the detection  of relationships between multiple variables. Standardising the range will still leave differences between the standard deviations of the variables, and for this problem this is preferred. Differences in the standard deviations can be important for keeping the non-linear relationships visible to PP.  
+
+### Applying PP
+
+With only five parameters, a reasonable start is to examine the 5D space using a grand tour. This quickly shows that the strong nonlinear relationships between the parameters. PP is then used to extract these relationships. The best index for this sort of problem is the splines2d, and it is fast to compute. 
+
+Figure \ref{fig:nsePlotOrig} shows the optimal projection found by splines2d, a reconstructed view obtained by manually combining parameters, and a plot of the known relationship between parameters. 
+
 <!--
-- First example
-    - Automatically find the functional relationship between three parameters
-- Second example
-    - Stronger relationship between already nonlinearly associated variables, when additional variable is incorporated
-    - 
+(left) clearly recovers functional relations between some of the parameters. From the matrix representation we read off that parameters m1, L1 and R1 are important in this projection. Using the original (non-rescaled) data and taking into account the difference in scale between m1 and R1 we can reproduce a similar picture shown in Fig \ref{fig:nsePlotOrig} (middle), which we compare to the dependence of L1 on the ratio R1/m1 (right). For this example the linear combination can thus recover the approximate relation between these parameters.
 -->
 
-We now want to apply the developed tools to distributions from realistic physics application. Here we choose as an example to use posterior samples obtained when fitting source parameters to the observed gravitational wave signal GW170817 @PhysRevLett119161101. The fit details were described in @Abbott2018exr and the corresponding data is available online @ligoData.
-
-## Example 1
-The model describes a neutron star merger and contains 6 free parameters, i.e. each neutron star is described by its mass $m$ and radius $R$, and a so-called tidal deform ability parameter $\Lambda$ which is a function of the mass and radius, approximately proportional to $(m/R)^{-5}$. A posterior sample containing 2538 points is available @ligoData and can be used to constrain the parameters. Here we use the "Parametrized-EoS\_nomaxmass\_posterior\_samples.dat" dataset and aim to recover the dependence between the three parameters of the better constrianed system out of a larger parameter set. For details about the modelling and statistical procedure see @Abbott2018exr. A common representation of posterior samples used for interpretation are so-called "corner plots", i.e. density displays for all 2-d parameter combinations as well as the 1-d profile, highlighting empirically evaluated regions of highest posterior density, which correspond to credibility regions at a given level. The information can similarly be presented in a scatter plot matrix using transparency to convey the density information. Since in the following we work with 2-d scatter plots we choose to show the data in this fashion, see Fig. \ref{fig:neutronStarSPLOM}.
+<!--
+ A posterior sample containing 2538 points is available @ligoData and can be used to constrain the parameters. Here we use the "Parametrized-EoS\_nomaxmass\_posterior\_samples.dat" dataset and aim to recover the dependence between the three parameters of the better constrained system out of a larger parameter set. For details about the modelling and statistical procedure see @Abbott2018exr. A common representation of posterior samples used for interpretation are so-called "corner plots", i.e. density displays for all 2-d parameter combinations as well as the 1-d profile, highlighting empirically evaluated regions of highest posterior density, which correspond to credibility regions at a given level. The information can similarly be presented in a scatter plot matrix using transparency to convey the density information. Since in the following we work with 2-d scatter plots we choose to show the data in this fashion, see Fig. \ref{fig:neutronStarSPLOM}.
+-->
 
 ```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
 nsD <- read_csv("data/samples.csv") 
 ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
 ```
 
-The following features can be observed: the combination of the two mass parameters is well constrained (a consequence of how a particular combination, the "chirp mass" enters predictions), other parameters also show patterns of dependence, they are however less pronounces. We also see the non-linear relation between the radius $R_1$ and $\Lambda$ parameter $L1$ and the two-pronged disribution for the radius $R_1$.
+<!-- The following features can be observed: the combination of the two mass parameters is well constrained (a consequence of how a particular combination, the "chirp mass" enters predictions), other parameters also show patterns of dependence, they are however less pronounces. We also see the non-linear relation between the radius $R_1$ and $\Lambda$ parameter $L1$ and the two-pronged disribution for the radius $R_1$.
 For further study we therefore remove the second mass $m2$ from the dataset.
 \textcolor{red}{Looking at the distribution in a grand tour display, using a scatter plot display combined with alpha transparency to study the density distribution in the 5-d parameter space, indicates that the data points are found on a curved surface in the five dimensional space. This stems from the non-linear relation between the parameters, which we will try to uncover using the above developed formalism for new guided tour index functions.}
+
 
 ### Results
 
 Since we expect a functional relation between some of the parameters, we optimise the "splines2d" index function. Note that all parameters are standardised to the range $[0,1]$ before running the optimisation, and we do not sphere the data for ease of interpretation of the results.
+--> 
 
 ```{r neutronStarEq,  results="hide"}
-set.seed(2018)
-nsD <- read_csv("data/samples.csv") 
 nsM <- nsD %>%
   select(-m2) %>% # remove m2 to avoid finding well known correlation
   rescale() # rescaling, this returns a matrix
 if(!file.exists("cache/neutronStarEq.rda")){
+  set.seed(2018)
   nseTour <- save_history(nsM, guided_tour(splineIndex()))
   nseTourFull <- as.list(interpolate(nseTour))
   save(nseTour, nseTourFull, file = "cache/neutronStarEq.rda")
@@ -775,16 +795,30 @@ fProj <- nseTourFull[[iLast]]
 dProj <- as.tibble(nsM %*% fProj)
 ```
 
-The resulting projection shown in Fig \ref{fig:nsePlotOrig}(left) clearly recovers functional relations between some of the parameters. From the matrix representation we read off that parameters m1, L1 and R1 are important in this projection. Using the original (non-rescaled) data and taking into account the difference in scale between m1 and R1 we can reproduce a similar picture shown in Fig \ref{fig:nsePlotOrig} (middle), which we compare to the dependence of L1 on the ratio R1/m1 (right). For this example the linear combination can thus recover the approximate relation between these parameters.
+```{r}
+theta <- seq(0, 2 * pi, length = 50)
+circ <- tibble(x=cos(theta), y=sin(theta))
+cntrx <- 0
+cntry <- 0.6
+sclx <- 0.1
+scly <- 0.1
+circ <- circ %>% 
+  mutate(x=x*sclx+cntrx, y=y*scly+cntry)
+colnames(fProj) <- c("PP1", "PP2")
+fProj <- as_tibble(fProj)
+```
 
 ```{r nsePlotOrig, fig.cap="Comparison of guided tour final view (left), approximation based on original parameters (middle) and expected relation based on analysis setup (right)."}
-p1 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1) + 
+  geom_path(data=circ, aes(x=x, y=y)) + 
+  xlim(-1.1, 0.5) + ylim(-0.2, 1.4) +
+  geom_segment(data=fProj, aes(x=cntrx, xend=PP1*sclx+cntrx, y=cntry, yend=PP2*scly+cntry))
 p2 <- ggplot(nsD, aes(R1-2*pi*m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
 p3 <- ggplot(nsD, aes(R1/m1, L1)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1)
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
-To further investigate the dataset we remove the $L1$ parameter and again use the spline index to find functional dependence between the remaining four parameters. For this example, because of the strong correlation between the various parameters, we recover the dependence of $L2$ on the mass and radius of the lighter neutron star, despite having removed its mass from the parameter set. In this setting $L2$ is best described as a function of all 3 parameters still considered, see Figure \ref{fig:nseRemL1}.
+To further investigate relationships between parameters, $L1$ is removed and PP with the splines2D is applied to the remaining four parameters. The dependence of $L2$ on the mass and radius of the lighter neutron star, is revealed (Figure \ref{fig:nseRemL1} left plot). A manual reconstruction shows this is a relationship between L2, R1, R2 and m1 (middle plot), but it is effectively the known relationship between L2, R2 and m2 (right plot) -- m2 is latently in the relationship though m1. 
 
 ```{r nseRemL1, fig.cap="Removing L1 and optimise again of the remaining parameters, where m2 remains removed from the set. Because of parameter correlations we can recover clear description of L2 as a function of the other parameters, despite m2 missing."}
 nsM2 <- nsD %>%
@@ -808,7 +842,8 @@ grid.arrange(p1, p2, p3, ncol=3)
 ```
 
 
-## Example 2
+## Black hole simulation
+
 The above example is using only a reduced set of the free parameters relevant to the physical interpretation, and we already know the expected result by construction. In general many additional nuissance parameters will also enter the fit, see e.g. @Smith:2016qas. We use a simulation study \textcolor{red}{simulating a binary black hole (BBH) merger event...need more info maybe, no reference but Rory offered to write short description} including the full set of nuissance parameters as a test case of larger parameter space in which we aim to detect structure. The dataset is summarised in \ref{fig:bbhSimulation} where we have removed a subset of less informative parameters to obtain a clear picture. Interesting correlations can be seen between the parameters "ra", "dec" and "time", where the first two describe the position of the BBH event in the sky, and the "time" being the merging time (in GPS units). Note in particular the relation between "dec" and "time" is not functional, which motivates us to use the TIC index for this example (drawback is however the run time, this data sample contains 10k points, making optimisation of the MINE index functions very inefficient). Some other interesting patterns can also be identified. (These patterns are representative of the likelihood function, since most priors are flat, or build such to capture growth with volume rahter than distance. This is still efficient thanks to special sampling techniques that allow jumps in parameter space.)
 
 As a first test we use the full dataset (with exception of $m2$ for the same reasons as stated in the first example), and use different index functions. Here we expect to recover some relation between the correlated variables dec, time and ra. We compare the final view using three different metrics in Fig. \ref{fig:bbhGuided}, showing the views with (local?) maximum of the TIC index (left) spines2d index (middle) and for comparison maximum of 1-convex (right). Indeed the TIC and spline index identify dec, time and ra parameters and show views of the 2-d band that is embedded in three dimensions \textcolor{red}{maybe having tour of those three dimensions would be helpful here}. Notably, the exact views differ based on the index function selected, optimising TIC is showing us the band "from the side", resulting in clearly non-functional dependence. On the other hand, the index based on the scagnostics member convex is too noisy to find any views of interest, and the final  view is essentially equal to the starting plane in this case. \textcolor{red}{different scagnostics member may be better suited, but I expect the result will be the same. might still be useful to try skinny instead of 1-convex?}.
