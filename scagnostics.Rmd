@@ -739,7 +739,7 @@ The second example shows data from @Smith:2016qas, generated from a simulation s
 
 ## Neutron star merger
 
-Figure \ref{fig:neutronStarSPLOM} shows the scatterplot matrix (with transparency) of the six parameters. (In astrophysics, scatterplot matrices are often called "corner plots" REF.) The diagonal shows a univariate density plot of each parameter, and the upper triangle of cells displays the correlation between variables. From this it can be seen that m1 and m2 are strongly, and slightly, nonlinearly associated. Between the other variables, some linear association (R1, R2), some nonlinear association (L1, L2, R1, R2),  heteroskedastic variance in most variables and some bimodality (R1, L1, L2, m1, m2). 
+Figure \ref{fig:neutronStarSPLOM} shows the scatterplot matrix (with transparency) of the six parameters. (In astrophysics, scatterplot matrices are often called "corner plots" [@corner].) The diagonal shows a univariate density plot of each parameter, and the upper triangle of cells displays the correlation between variables. From this it can be seen that m1 and m2 are strongly, and slightly, nonlinearly associated. Between the other variables, some linear association (R1, R2), some nonlinear association (L1, L2, R1, R2),  heteroskedastic variance in most variables and some bimodality (R1, L1, L2, m1, m2). 
 
 The model describes a neutron star merger and contains 6 free parameters, with each neutron star described by its mass $m$ (m1, m2) and radius $R$ (R1, R2), and a so-called tidal deform ability parameter $\Lambda$ (L1, L2) which is a function of the mass and radius, approximately proportional to $(m/R)^{-5}$. 
 
