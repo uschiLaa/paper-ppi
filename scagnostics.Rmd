@@ -53,6 +53,7 @@ opts_chunk$set(
   fig.show = 'hold', cache = FALSE, external = TRUE, dev = "pdf",
   fig.height = 5, fig.width = 8, out.width = "\\textwidth"
 )
+opts_knit$set(eval.after = "fig.cap") #so I can use chunck output in the caption
 ```
 
 # Introduction
@@ -853,6 +854,10 @@ We follow the same steps of data pre-processing as described above for the first
 
 As a first test we use the full dataset and compare results obtained with different index functions. Here we expect to recover the relation between the correlated variables dec, time and ra. We compare the final view using three different metrics in Figure \ref{fig:bbhGuided}, showing the views with (local?) maximum of the TIC index (left), spines2D index (middle) and for comparison the maximum of 1-convex (right). Indeed the TIC and spline index identify dec, time and ra parameters and show views of the 2-d band that is embedded in three dimensions \textcolor{red}{maybe having tour of those three dimensions would be helpful here}. Notably, the exact views differ based on the index function selected, optimising TIC is showing us the band "from the side". On the other hand, the index based on the scagnostics member convex is too noisy to find any views of interest, and the final  view is essentially equal to the starting plane in this case. All index values for the three final views are listed in Table \ref{tab:indexTableBBH}, where we see that indeed the splines2D index does not change between the first two views, while the TIC index is increased for the first view wrt the second. Finally the value of 1-convex is clearly larger for the first view as compared to the final view, but the optimisation did not succeed for this noisy index function.
 
+We next follow a similar strategy as above and remove the variables with the strongest association from the dataset to understand if additional structure is encoded in the distribution. Removing thus time, dec and ra variable from the input, we optimise again the TIC, splines2d and 1-convex index functions. The results are shown in Fig. \ref{fig:bbhGuided2}. In this case the TIC index (left) identifies a view presenting seemingly linear correlation, originating however from one well constrained direction orthogonal to the main distribution of points. This direction is defined by the chi\_tot and chi\_p variables, for which we can read off the strong correlation in Fig. \ref{fig:bbhSimulation}. This direction is also found by the splines2D index (middle), which in addition identified the bimodal structure in the data stemming from the degeneracy between two plausible values for theta\_jn. (Interestingly the hole index in two dimensions does not identify this view, but is expected to find it in a 1-d guided tour.) Finally, as shown on the right, 1-convex does not identify any views of interest here.
+
+We next investigate the dependence of the final result on the input starting plane. In particular if there are many local maxima the effect may be large, and many random starting planes may be needed to find a global maximum. To this end we first reduce the dataset dimensionality to include only two types of parameters: first, spin related parameters (i.e. alpha, theta\_jn, chi\_tot and chi\_p), and second position related parameters (i.e. ra, dec and distance). Note that this includes a number of variables for which we have established association and one dimensional structure above, i.e. ra and dec; chi\_tot and chi\_p; and theta\_jn. We generate a small set of random starting planes and optimise the splines2D index (it is prefered here over the TIC index as it is much more efficient to compute on large data sets). We compare six final views identified in this manner (i.e. differing only in randomly selected starting plane) in Fig. \ref{fig:bbhGuided3}. We note large variation in final views, only one of the six tries identified the view of ra vs dec. \textcolor{red}{list corresponding index values for each plot, maybe in the caption.}
+
 ```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300, fig.cap="Scatter plot matrix showing most of the variables included in the BBH dataset. Strong correlation between the parameters time, dec and ra can be observed."}
 bbhD <- read_csv("data/posterior_samples.csv")
 bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
@@ -920,8 +925,6 @@ knitr::kable(idxT,  caption = "Matrix of index values, for all three indices and
 ```
 
 
-We next follow a similar strategy as above and remove the variables with the strongest association from the dataset to understand if additional structure is encoded in the distribution. Removing thus time, dec and ra variable from the input, we optimise again the TIC, splines2d and 1-convex index functions. The results are shown in Fig. \ref{fig:bbhGuided2}. In this case the TIC index (left) identifies a view presenting seemingly linear correlation, originating however from one well constrained direction orthogonal to the main distribution of points. This direction is defined by the chi\_tot and chi\_p variables, for which we can read off the strong correlation in Fig. \ref{fig:bbhSimulation}. This direction is also found by the spline index (middle view), which in addition identified the bimodal structure in the data stemming from the degeneracy between two plausible values for theta\_jn. (Interestingly the hole index in two dimensions does not identify this view, but is expected to find it in a 1-d guided tour.) Finally, as shown on the right, 1-convex does not identify any views of interest here. 
-
 ```{r bbhGuided2, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right)."}
 bbhM2 <- rescale(select(bbhD,-m2, -chi_eff, -time, -dec, -ra))
 if(!file.exists("cache/bbhGuidedTIC2.rda")){
@@ -964,8 +967,7 @@ p3 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
-We next investigate the dependence of the final result on the input starting plane. In particular if there are many local maxima the effect may be large, and many random starting planes may be needed to find a global maximum. To this end we first reduce the dataset dimensionality to include only two types of parameters: first, spin related parameters (i.e. alpha, thetajn, chitot and chip), and second position related parameters (i.e. ra, dec and distance). Note that ra and dec are included here, for which we have established strong correlation above. We then generate a small set of random starting planes and optimise the splines index (note that it is prefered here over the TIC index as it is much more efficient to compute on large data sets). We compare six final views identified in this manner (i.e. differing only in randomly selected starting plane) in Fig. \ref{fig:bbhGuided3}. We note large variation in final views, only one of the six tries identified the view of ra vs dec. \textcolor{red}{list corresponding index values for each plot, maybe in the caption.}
-```{r bbhGuided3, results="hide", fig.cap="Final views identified in the dataset considering the seven dimensional parameter space (alpha, thetajn, chitot, chip, ra, dec, distance), differing only by randomly selected starting plane."}
+```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane. The correponding index values for the six views are: (", toString(format(idxL, digits=2)), ").")}
 bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
 getResWithSeed <- function(s){
   set.seed(s)
@@ -989,11 +991,13 @@ if(!file.exists("cache/bbhGuidedSpline3.rda")){
 resList <- list(as.list(bbhRes1), as.list(bbhRes2), as.list(bbhRes3),
                 as.list(bbhRes4), as.list(bbhRes5), as.list(bbhRes6))
 pList <- list()
+idxL <- NULL
 i <- 1
 for (r in resList){
   iLast <- length(r)
   fProj <- r[[iLast]]
   dProj <- as.tibble(bbhM3 %*% fProj)
+  idxL <- c(idxL, splines2d(dProj$V1, dProj$V2))
   pList[[i]] <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
   i <- i+1
 }
