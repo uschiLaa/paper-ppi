@@ -905,10 +905,8 @@ p3 <- ggplot(dProj, aes(V1,V2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
-
-
-
-```{r bbhGuided3, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right)."}
+We next investigate the dependence of the final result on the input starting plane. In particular if there are many local maxima the effect may be large, and many random starting planes may be needed to find a global maximum. To this end we first reduce the dataset dimensionality to include only two types of parameters: first, spin related parameters (i.e. alpha, thetajn, chitot and chip), and second position related parameters (i.e. ra, dec and distance). Note that ra and dec are included here, for which we have established strong correlation above. We then generate a small set of random starting planes and optimise the splines index (note that it is prefered here over the TIC index as it is much more efficient to compute on large data sets). We compare six final views identified in this manner (i.e. differing only in randomly selected starting plane) in Fig. \ref{fig:bbhGuided3}. We note large variation in final views, only one of the six tries identified the view of ra vs dec. \textcolor{red}{list corresponding index values for each plot, maybe in the caption.}
+```{r bbhGuided3, results="hide", fig.cap="Final views identified in the dataset considering the seven dimensional parameter space (alpha, thetajn, chitot, chip, ra, dec, distance), differing only by randomly selected starting plane."}
 bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
 getResWithSeed <- function(s){
   set.seed(s)
