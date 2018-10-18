@@ -885,7 +885,7 @@ bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
 ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
 ```
 
-```{r bbhGuided, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right)."}
+```{r bbhGuided, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right).", dev = "png", dpi=300}
 bbhM <- rescale(select(bbhD,-m2, -chi_eff))
 if(!file.exists("cache/bbhGuidedTIC.rda")){
   set.seed(2018)
@@ -970,7 +970,7 @@ knitr::kable(idxT,  caption = "Matrix of index values, for all three indices and
 ```
 
 
-```{r bbhGuided2, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right)."}
+```{r bbhGuided2, results="hide", fig.cap="Final views identified by the guided tour using the TIC index (left), the splines2d index (middle) or 1-convex (right).", dev = "png", dpi=300}
 bbhM2 <- rescale(select(bbhD,-m2, -chi_eff, -time, -dec, -ra))
 if(!file.exists("cache/bbhGuidedTIC2.rda")){
   set.seed(2018)
@@ -1036,7 +1036,7 @@ p3 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.rati
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
-```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane. The correponding index values for the six views are: (", toString(format(idxL, digits=2)), ").")}
+```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane. The correponding index values for the six views are: (", toString(format(idxL, digits=2)), ")."), dev = "png", dpi=300}
 bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
 getResWithSeed <- function(s){
   set.seed(s)
@@ -1089,7 +1089,7 @@ for (r in resList){
 grid.arrange(pList[[1]], pList[[2]], pList[[3]],pList[[4]], pList[[5]], pList[[6]], ncol=3)
 ```
 
-```{r constructedExample, results="hide", fig.cap="Selecting subset of 6 parameters, for which spline index can be used to improve constraint on parameter combination wrt ra vs dec."}
+```{r constructedExample, results="hide", fig.cap="Selecting subset of 6 parameters, for which spline index can be used to improve constraint on parameter combination wrt ra vs dec.", dev = "png", dpi=300}
 bbhC <- rescale(select(bbhD, m1, ra, chi_tot, alpha, distance, dec))
 if(!file.exists("cache/constructedExample.rda")){
   set.seed(1999)
