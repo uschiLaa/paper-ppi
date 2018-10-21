@@ -838,7 +838,7 @@ getAxes <- function(fProj, cntrx, cntry, sclx, scly){
 
 ```{r nsePlotOrig, fig.cap="Comparison of guided tour final view (left), approximation based on original parameters (middle) and expected relation based on analysis setup (right)."}
 p1 <- ggplot(dProj, aes(PP1, PP2)) + geom_point(alpha = 0.05) + theme(aspect.ratio=1) + 
-  geom_path(data=getCircle(0,0.6,0.32,0.22), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(0,0.6,0.32,0.22), aes(x=x, y=y), color="grey") + 
   xlim(-1.1, 0.5) + ylim(-0.2, 0.9) +
   geom_segment(data=getAxes(fProj, 0,0.6,0.32,0.22), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj, 0,0.6,0.32,0.22), aes(x=x2, y=y2, label=label), size=2.5)
@@ -869,7 +869,7 @@ colnames(dProj) <- c("PP1", "PP2")
 fProj <- as_tibble(fProj) %>%
   add_column(label=colnames(nsM2))
 p1 <- ggplot(as.tibble(dProj), aes(PP1, PP2))+geom_point(alpha=0.1)+ theme(aspect.ratio=1) + 
-  geom_path(data=getCircle(0.5,0.6,0.3,0.18), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(0.5,0.6,0.3,0.18), aes(x=x, y=y), color="grey") + 
   xlim(0, 1.5) + ylim(-0.1, 0.8) +
   geom_segment(data=getAxes(fProj, 0.5,0.6,0.3,0.18), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj, 0.5,0.6,0.3,0.18), aes(x=x2, y=y2, label=label), size=2.5)
@@ -937,7 +937,7 @@ colnames(dProj1) <- c("PP1", "PP2")
 fProj1 <- as_tibble(fProj1) %>%
   add_column(label=colnames(bbhM))
 p1 <- ggplot(dProj1, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1) + 
-  geom_path(data=getCircle(0.4,0.5,0.26,0.24), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(0.4,0.5,0.26,0.24), aes(x=x, y=y), color="grey") + 
   xlim(0.1, 1.4) + ylim(-0.3, 0.9) +
   geom_segment(data=getAxes(fProj1, 0.4,0.5,0.26,0.24), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj1, 0.4,0.5,0.26,0.24), aes(x=x2, y=y2, label=label), size=2.5) + ggtitle("a. TIC: 779.46")
@@ -949,7 +949,7 @@ colnames(dProj2) <- c("PP1", "PP2")
 fProj2 <- as_tibble(fProj2) %>%
   add_column(label=colnames(bbhM))
 p2 <- ggplot(dProj2, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1) + 
-  geom_path(data=getCircle(0.3,-1,0.24,0.22), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(0.3,-1,0.24,0.22), aes(x=x, y=y), color="grey") + 
   xlim(-0.1, 1.1) + ylim(-1.3, -0.2) +
   geom_segment(data=getAxes(fProj2,0.3,-1,0.24,0.22), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj2, 0.3,-1,0.24,0.22), aes(x=x2, y=y2, label=label), size=2.5) + ggtitle("b. splines2D: 0.97")
@@ -961,7 +961,7 @@ colnames(dProj3) <- c("PP1", "PP2")
 fProj3 <- as_tibble(fProj3) %>%
   add_column(label=colnames(bbhM))
 p3 <- ggplot(dProj3, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1) + 
-  geom_path(data=getCircle(0.75, 1, 0.3, 0.28), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(0.75, 1, 0.3, 0.28), aes(x=x, y=y), color="grey") + 
   xlim(-0.2, 1.3) + ylim(-0.1, 1.3) +
   geom_segment(data=getAxes(fProj3,0.75, 1, 0.3, 0.28), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj3, 0.75, 1, 0.3, 0.28), aes(x=x2, y=y2, label=label), size=2.5) + ggtitle("c. 1-convex: 0.50")
@@ -1028,7 +1028,7 @@ colnames(dProj) <- c("PP1", "PP2")
 fProj1 <- as_tibble(fProj1) %>%
   add_column(label=colnames(bbhM2))
 p1 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1) + 
-  geom_path(data=getCircle(1, 0, 0.34, 0.25), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(1, 0, 0.34, 0.25), aes(x=x, y=y), color="grey") + 
   xlim(-0.2, 1.5) + ylim(-0.25, 1) +
   geom_segment(data=getAxes(fProj1,1, 0, 0.34, 0.25), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj1, 1, 0, 0.34, 0.25), aes(x=x2, y=y2, label=label), size=2.5)
@@ -1040,7 +1040,7 @@ colnames(dProj) <- c("PP1", "PP2")
 fProj2 <- as_tibble(fProj2) %>%
   add_column(label=colnames(bbhM2))
 p2 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)+ 
-  geom_path(data=getCircle(0.75, 0, 0.25, 0.24), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(0.75, 0, 0.25, 0.24), aes(x=x, y=y), color="grey") + 
   xlim(-0.25, 1) + ylim(-0.9, 0.3) +
   geom_segment(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x2, y=y2, label=label), size=2.5)
@@ -1052,7 +1052,7 @@ colnames(dProj) <- c("PP1", "PP2")
 fProj3 <- as_tibble(fProj3) %>%
   add_column(label=colnames(bbhM2))
 p3 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)+ 
-  geom_path(data=getCircle(0, 1.25, 0.32, 0.32), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(0, 1.25, 0.32, 0.32), aes(x=x, y=y), color="grey") + 
   xlim(-0.4, 1.2) + ylim(0, 1.6) +
   geom_segment(data=getAxes(fProj3, 0, 1.25, 0.32, 0.32), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj3, 0, 1.25, 0.32, 0.32), aes(x=x2, y=y2, label=label), size=2.5)
@@ -1111,7 +1111,7 @@ for (r in resList){
     add_column(label=colnames(bbhM3))
   idxL <- c(idxL, splines2d(dProj$PP1, dProj$PP2))
   pList[[i]] <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)+ 
-  geom_path(data=getCircle(xcents[i],ycents[i],xscales[i],yscales[i]), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(xcents[i],ycents[i],xscales[i],yscales[i]), aes(x=x, y=y), color="grey") + 
   xlim(xmins[i], xmaxs[i]) + ylim(ymins[i], ymaxs[i]) +
   geom_segment(data=getAxes(fProj, xcents[i],ycents[i],xscales[i],yscales[i]), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj, xcents[i],ycents[i],xscales[i],yscales[i]), aes(x=x2, y=y2, label=label), size=2.5)
@@ -1137,7 +1137,7 @@ colnames(dProj) <- c("PP1", "PP2")
 fProj <- as_tibble(fProj) %>%
   add_column(label=colnames(bbhC))
 p1 <- ggplot(as.tibble(dProj), aes(PP1, PP2))+geom_point(alpha=0.02) + theme(aspect.ratio=1)+ 
-  geom_path(data=getCircle(-0.7, 0.6, 0.2, 0.24), aes(x=x, y=y)) + 
+  geom_path(data=getCircle(-0.7, 0.6, 0.2, 0.24), aes(x=x, y=y), color="grey") + 
   xlim(-0.9, 0.1) + ylim(-0.1, 1.1) +
   geom_segment(data=getAxes(fProj, -0.7, 0.6, 0.2, 0.24), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj, -0.7, 0.6, 0.2, 0.24), aes(x=x2, y=y2, label=label), size=2.5)
