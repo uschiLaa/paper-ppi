@@ -583,18 +583,21 @@ mineE <- function(x,y){
 }
 
 
-timeThis <- function(d, t, idx, pmax){ #d=data matrix, t=interpolated tour path, idx=index function, pmax=max number of projections
+timeThis <- function(d, t, idx, pmax, n, idxName){ #d=data matrix, t=interpolated tour path, idx=index function, pmax=max number of projections, n=sample size, idxName=str name of idx funciton
     i <- 1
-    tic.clearlog()
-    tic() #start timer
+    dfTimer = data.frame( t= numeric(), i=numeric(), n = numeric(), name=character())
     for(pMatrix in t){
       if(i>pmax) break
+      tic.clearlog()
+      tic() #start timer
       dProj <- d %*% pMatrix
       sgnst <- idx(dProj[,1],dProj[,2])
+      toc(log=TRUE,quiet=TRUE)
+      scTd <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+      dfTimer <- add_row(dfTimer, t=scTd, i=i, n= n, name=idxName)
       i = i+1
     }
-    toc(log=TRUE,quiet=TRUE)
-    scTd <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+    return(dfTimer)
 }
 
 ```
@@ -608,20 +611,20 @@ if(!file.exists("cache/timer.rda")){
     as.list()
 
   sizeL <- c(10, 100, 500, 1000, 5000, 10000)
-  n <- length(sizeL)
-  dfTimer = data.frame( n=rep(0, n), scagT=rep(0,n), dcorT=rep(0,n), splineT=rep(0,n), mineT=rep(0,n),
-                        mineeT=rep(0,n))
   t <- 1
+  dfTimer <- NULL
   for(sampleSize in sizeL){
     set.seed(sampleSize + 11) # new seed for each sample size
     if(sampleSize == 0) sampleSize = 10 # smallest considered sample has 10 points
     thisMatrix <-  sphereData(6, sampleSize) %>% rescale()
-    scagT <- timeThis(thisMatrix, grandTour100, scagnostics.default, 100)
-    dcorT <- timeThis(thisMatrix, grandTour100, dcor2d, 100)
-    splineT <- timeThis(thisMatrix, grandTour100, splines2d, 100)
-    mineT <- timeThis(thisMatrix, grandTour100, mine, 100)
-    mineeT <- timeThis(thisMatrix, grandTour100, mineE, 100)
-    dfTimer[t,] <- c(sampleSize, scagT, dcorT, splineT, mineT,mineeT)
+    scagT <- timeThis(thisMatrix, grandTour100, scagnostics.default, 100, sampleSize, "scagnostics")
+    dcorT <- timeThis(thisMatrix, grandTour100, dcor2d, 100, sampleSize, "dcor2D")
+    splineT <- timeThis(thisMatrix, grandTour100, splines2d, 100, sampleSize, "splines2D")
+    mineT <- timeThis(thisMatrix, grandTour100, mine, 100, sampleSize, "MINE")
+    mineeT <- timeThis(thisMatrix, grandTour100, mineE, 100, sampleSize, "MINE E")
+    dfTimerC <- list(scagT, dcorT, splineT, mineT,mineeT) %>%
+      reduce(rbind)
+    dfTimer <- rbind(dfTimer, dfTimerC)
     t <-  t+1
   }
   save(dfTimer, file = "cache/timer.rda")
@@ -629,8 +632,8 @@ if(!file.exists("cache/timer.rda")){
   load("cache/timer.rda")
 }
 
-timerMelt <- melt(dfTimer, id="n")
-ggplot(timerMelt, aes(x = n, y = value, color=variable)) + 
+#timerMelt <- melt(dfTimer, id="n")
+ggplot(dfTimer, aes(x = n, y = t, color=name)) + 
   geom_point() +
   scale_x_log10() +
   scale_y_log10() +
@@ -1067,7 +1070,7 @@ Fig. \ref{fig:bbhGuided3} shows six maxima obtained by different starts, for two
 
 Choosing a different subset of variables reveals something new. The subspace of m1, ra, chi\_tot, alpha, distance, dec produces a more refined view of Fig. \ref{fig:bbhGuided3} projection f. When alpha contributes in contrast to dec, the relationship between the points is almost perfectly on a curve. This is shown in Figure \ref{constructedExample}. Manually reconstructing this can be done by differencing the two parameters, in their original units. \textcolor{red}{This result is unexpected, it can be understood from ????? (Does it mean that knowing the precision angle gives more precise information about the location? Knowing ra uniquely determines dec-alpha rather than dec it seems.)}
 
-```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane. The correponding index values for the six views are: (", toString(format(idxL, digits=2)), ")."), dev = "png", dpi=300}
+```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane."), dev = "png", dpi=300}
 bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
 getResWithSeed <- function(s){
   set.seed(s)
@@ -1091,7 +1094,7 @@ if(!file.exists("cache/bbhGuidedSpline3.rda")){
 resList <- list(as.list(bbhRes1), as.list(bbhRes2), as.list(bbhRes3),
                 as.list(bbhRes4), as.list(bbhRes5), as.list(bbhRes6))
 pList <- list()
-idxL <- NULL
+idxV <- NULL
 i <- 1
 xmins <- c(-0.5,-0.5,-0.4,-0.9,-1,0.25)
 xmaxs <- c(0.75,0.75,0.8,0.4,0.25,1.5)
@@ -1101,6 +1104,7 @@ xscales <- c(0.25,0.25,0.24,0.26,0.25,0.25)
 yscales <- c(0.3,0.28,0.28,0.3,0.24,0.3)
 xcents <- c(0.25,-0.25,-0.1,0.1,-0.75,1.25)
 ycents <- c(0.4,-0.4,-0.4,-0.4,-0.75,0.5)
+titleL <- c("a: ","b: ","c: ","d: ","f: ","e: ")
 for (r in resList){
   iLast <- length(r)
   fProj <- r[[iLast]]
@@ -1109,15 +1113,16 @@ for (r in resList){
   colnames(dProj) <- c("PP1", "PP2")
   fProj <- as_tibble(fProj) %>%
     add_column(label=colnames(bbhM3))
-  idxL <- c(idxL, splines2d(dProj$PP1, dProj$PP2))
+  idxV <- splines2d(dProj$PP1, dProj$PP2)
   pList[[i]] <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)+ 
   geom_path(data=getCircle(xcents[i],ycents[i],xscales[i],yscales[i]), aes(x=x, y=y), color="grey") + 
   xlim(xmins[i], xmaxs[i]) + ylim(ymins[i], ymaxs[i]) +
   geom_segment(data=getAxes(fProj, xcents[i],ycents[i],xscales[i],yscales[i]), aes(x=x1, xend=x2, y=y1, yend=y2)) +
-  geom_text(data=getAxes(fProj, xcents[i],ycents[i],xscales[i],yscales[i]), aes(x=x2, y=y2, label=label), size=2.5)
+  geom_text(data=getAxes(fProj, xcents[i],ycents[i],xscales[i],yscales[i]), aes(x=x2, y=y2, label=label), size=2.5) +
+    ggtitle(paste0(titleL[i], toString(format(idxV, digits=2))))
   i <- i+1
 }
-grid.arrange(pList[[1]], pList[[2]], pList[[3]],pList[[4]], pList[[5]], pList[[6]], ncol=3)
+grid.arrange(pList[[1]], pList[[2]], pList[[3]],pList[[4]], pList[[6]], pList[[5]], ncol=3)
 ```
 
 ```{r constructedExample, results="hide", fig.cap="Selecting subset of 6 parameters, for which spline index can be used to improve constraint on parameter combination wrt ra vs dec.", dev = "png", dpi=300}
