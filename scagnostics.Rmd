@@ -1037,11 +1037,13 @@ colnames(fProj1) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj1 <- as_tibble(fProj1) %>%
   add_column(label=colnames(bbhM2))
+iv <- mine(dProj$PP1,dProj$PP2)["TIC"]
 p1 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1) + 
   geom_path(data=getCircle(1, 0, 0.34, 0.25), aes(x=x, y=y), color="grey") + 
   xlim(-0.2, 1.5) + ylim(-0.25, 1) +
   geom_segment(data=getAxes(fProj1,1, 0, 0.34, 0.25), aes(x=x1, xend=x2, y=y1, yend=y2)) +
-  geom_text(data=getAxes(fProj1, 1, 0, 0.34, 0.25), aes(x=x2, y=y2, label=label), size=2.5)
+  geom_text(data=getAxes(fProj1, 1, 0, 0.34, 0.25), aes(x=x2, y=y2, label=label), size=2.5) +
+  ggtitle(paste0("a, TIC: ", toString(format(iv, digits=2))))
 iLast <- length(bbhTourFull22)
 fProj2 <- bbhTourFull22[[iLast]]
 dProj <- as.tibble(bbhM2 %*% fProj2)
@@ -1049,11 +1051,13 @@ colnames(fProj2) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj2 <- as_tibble(fProj2) %>%
   add_column(label=colnames(bbhM2))
+iv <- splines2d(dProj$PP1,dProj$PP2)
 p2 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)+ 
   geom_path(data=getCircle(0.75, 0, 0.25, 0.24), aes(x=x, y=y), color="grey") + 
   xlim(-0.25, 1) + ylim(-0.9, 0.3) +
   geom_segment(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x1, xend=x2, y=y1, yend=y2)) +
-  geom_text(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x2, y=y2, label=label), size=2.5)
+  geom_text(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x2, y=y2, label=label), size=2.5) +
+  ggtitle(paste0("b, splines2D: ", toString(format(iv, digits=2))))
 iLast <- length(bbhTourFull32)
 fProj3 <- bbhTourFull32[[iLast]]
 dProj <- as.tibble(bbhM2 %*% fProj3)
@@ -1061,11 +1065,13 @@ colnames(fProj3) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj3 <- as_tibble(fProj3) %>%
   add_column(label=colnames(bbhM2))
+iv <- 1-scagnostics(as.matrix(dProj))[,"Convex"]
 p3 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)+ 
   geom_path(data=getCircle(0, 1.25, 0.32, 0.32), aes(x=x, y=y), color="grey") + 
   xlim(-0.4, 1.2) + ylim(0, 1.6) +
   geom_segment(data=getAxes(fProj3, 0, 1.25, 0.32, 0.32), aes(x=x1, xend=x2, y=y1, yend=y2)) +
-  geom_text(data=getAxes(fProj3, 0, 1.25, 0.32, 0.32), aes(x=x2, y=y2, label=label), size=2.5)
+  geom_text(data=getAxes(fProj3, 0, 1.25, 0.32, 0.32), aes(x=x2, y=y2, label=label), size=2.5) +
+  ggtitle(paste0("c, 1-convex: ", toString(format(iv, digits=2))))
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
