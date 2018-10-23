@@ -176,6 +176,7 @@ We can now define the following metrics:
     + Maximum Information Coefficient (MIC):
     \begin{equation}
     MIC(D) = \max_{xy<B(n)}\{M(D)_{x,y}\},
+    \label{eq:MIC}
     \end{equation}
     where by default $B(n) = n^{0.6}$
     + Total Information Coefficient (TIC), see @JMLRv1715308:
@@ -664,7 +665,12 @@ ggplot(dfTimer, aes(x = n, y = t, color=name)) +
 
 ## Index function parameters
 \label{sec:params}
-Some parameters must be fixed when using the index functions introduced in ...
+Some parameters must be fixed when using the index functions considered here, controlling trade-offs between noise and fine structure detection, and between computing time and precision.
+
+- Binning:
+    - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
+    - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points, see Equation \ref{eq:MIC}. The default is chosen such as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
+- Spline knots: for the splines2D measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
 
 ## Guided tour
 
