@@ -546,42 +546,49 @@ ggplot(allRes, aes(x=value)) +
 
 ## Rotation dependence
 \label{sec:rot}
-\textcolor{red}{testin rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$}
+\textcolor{red}{testing rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$}
 Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binnibng (and outlier removal?) here. Observe huge drops for some of the indexes! 
 ```{r rotationDep, fig.width=6, fig.height=7, fig.cap="Rotation dependence of the considered index functions tested on the sine 1000 dataset, by rotating the special view by an angle alpha."}
-sineM <- as.matrix(select(sin1000, V5, V6))
-sc <- tibble(
-    holes=numeric(),
-    cmass=numeric(),
-    convex=numeric(),
-    skinny=numeric(),
-    stringy=numeric(),
-    dcor2d=numeric(),
-    splines2d=numeric(),
-    MIC=numeric(),
-    TIC=numeric(),
-    alpha=numeric()
-)
-for (a in seq(0,2*pi, pi/20)){
-  rotM <- matrix(c(cos(a), sin(a), -sin(a), cos(a)), ncol = 2)
-  dprj <- sineM %*% rotM
-  scagRes <- scagnostics(dprj)
-  dcorRes <- dcor2d(dprj[,1], dprj[,2])
-  splineRes <- splines2d(dprj[,1], dprj[,2])
-  mineRes <- mine(dprj[,1], dprj[,2])
-  holesRes <- holes(dprj)
-  cmassRes <- cmass(dprj)
-  sc <- add_row(sc, holes=holesRes, cmass=cmassRes,
-                convex=scagRes[,"Convex"], skinny=scagRes[,"Skinny"],
-                stringy=scagRes[,"Stringy"], dcor2d=dcorRes,
-                splines2d=splineRes, MIC=mineRes$MIC,
-                TIC=mineRes$TIC, alpha=a)
+if(!file.exists("cache/rotationDep.rda")){
+  sineM <- as.matrix(select(sin1000, V5, V6))
+  sc <- tibble(
+      holes=numeric(),
+      cmass=numeric(),
+      convex=numeric(),
+      skinny=numeric(),
+      stringy=numeric(),
+      dcor2d=numeric(),
+      splines2d=numeric(),
+      MIC=numeric(),
+      TIC=numeric(),
+      alpha=numeric()
+  )
+  for (a in seq(0,2*pi, pi/100)){
+    rotM <- matrix(c(cos(a), sin(a), -sin(a), cos(a)), ncol = 2)
+    dprj <- sineM %*% rotM
+    scagRes <- scagnostics(dprj)
+    dcorRes <- dcor2d(dprj[,1], dprj[,2])
+    splineRes <- splines2d(dprj[,1], dprj[,2])
+    mineRes <- mine(dprj[,1], dprj[,2])
+    holesRes <- holes(dprj)
+    cmassRes <- cmass(dprj)
+    sc <- add_row(sc, holes=holesRes, cmass=cmassRes,
+                  convex=scagRes[,"Convex"], skinny=scagRes[,"Skinny"],
+                  stringy=scagRes[,"Stringy"], dcor2d=dcorRes,
+                  splines2d=splineRes, MIC=mineRes$MIC,
+                  TIC=mineRes$TIC, alpha=a)
   }
+  save(sc, file = "cache/rotationDep.rda")
+} else {
+  load("cache/rotationDep.rda")
+}
 
 scMelt <- melt(sc, id=c("alpha"))
 ggplot(scMelt, aes(x=alpha, y=value)) +
   geom_line() + 
-  facet_wrap(~variable, scales = "free_y", ncol = 1)
+  facet_wrap(~variable, scales = "free_y", ncol = 1) +
+  geom_blank(aes(y = 0)) +
+  geom_blank(aes(y = 1))
 ```
 
 
