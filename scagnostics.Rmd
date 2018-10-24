@@ -271,6 +271,12 @@ mineIndex <- function(mineIndex){
     return(mine(mat[,1], mat[,2])[[mineIndex]])
   }
 }
+
+mineIndexAlpha <- function(mineIndex, alpha){
+  function(mat){
+    return(mine(mat[,1], mat[,2], alpha=alpha)[[mineIndex]])
+  }
+}
 ```
 
 
@@ -678,6 +684,40 @@ Some parameters must be fixed when using the index functions considered here, co
     - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
     - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points, see Equation \ref{eq:MIC}. The default is chosen such as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
 - Spline knots: for the splines2D measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
+
+### Illustrative example
+A nice example can be constructed based on the RANDU dataset available in R. We use the MIC index and compare different parametrisations of the maximum binning by $\alpha$, where $B(n) = n^{\alpha}$. We compare in Figure \ref{fig:randuEx} the final view, index value and computing time obtained when optimising the MIC index with values $\alpha = 0.6, 0.7, 0.8$. Despite the low dimensionality, the small quint angle of the structure means that the identification of the maximum depends strongly on the starting conditions. Empirically we have found that using $\alpha = 0.7$ is most efficient in identifying the structure, while the default value $\alpha = 0.6$ is most likely to miss the structure given equal starting conditions.
+
+\textcolor{red}{Possible interpretation: 0.6 not allowing enough bins to accurately capture the structure, 0.7 good compromise, 0.8 becomes overly sensitive to noise}
+
+```{r randuEx, results="hide", fig.cap="Final view when optimising the MIC index in the RANDU dataset. Each plot lists the selected value of $\\alpha$, the time required by the optimisation in seconds and the MIC index value."}
+if(!file.exists("cache/randuEx.rda")){
+  pL <- list()
+  i <- 1
+  for (alpha in c( 0.6, 0.7, 0.8)){
+    set.seed(556677)
+    tic.clearlog()
+    tic() #start timer
+    tP <- save_history(randu, guided_tour(mineIndexAlpha("MIC", alpha)),max_bases = 100000)
+    toc(log=TRUE,quiet=TRUE)
+    optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+    imax <- length(as.list(tP))
+    fV <- as.tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
+    colnames(fV) <- c("PP1", "PP2")
+    idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
+    pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
+      ggtitle(paste(alpha, toString(format(optT, digits=2)), toString(format(idxV, digits=2)), sep = ", "))
+    i <- i+1
+  }
+  save(pL, file = "cache/randuEx.rda")
+} else {
+  load("cache/randuEx.rda")
+}
+grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
+```
+
+
+
 
 ## Guided tour
 
