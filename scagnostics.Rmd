@@ -228,7 +228,7 @@ To test the behaviour of the index functions we use three types of simulated dat
 3. $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function, labelled "sine"
 
 For each distribution we consider a small sample of $p=100$ and a large sample with $p=1000$.
-In the following we work with rescaled data where each direction has been centered and scaled to have variance equal to 1. This is neccessary for standard indices to be well defined, but does not impact the results when using the newly considered index functions.
+In the following we work with rescaled data where each direction has been centered and scaled to have variance equal to 1. This is neccessary for standard indices to be well defined, but does not impact the results when using the newly considered index functions. \textcolor{red}{not yet implemented for traces of guided tour paths I think...}
 
 To understand the potential for the various indices defined we use the following overview procedures on the simulated data sets:
 
@@ -416,9 +416,10 @@ knitr::kable(indexOverview,  caption = "Summary of index values.", digits=2)
 
 
 
-## Smoothness
+## Index traces over sequence of interpolated projections
 \label{sec:smooth}
-We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto V1-V2 to the projection onto V3-V4 and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views ((it is however curious to see the actual evolution, which seems not to depend on the underlying random distributions, but is clearely evolving over the path of the planned tour)). Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples (p=100), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples (p=1000) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
+### Random fluctuations
+We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto V1-V2 to the projection onto V3-V4 and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views. Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples (p=100), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples (p=1000) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
 
 <!-- index values shouldn't be affected by sample size, on average it should be
 same value. Maybe some need to be normalised by n. Something needs fixing here.
@@ -495,15 +496,14 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 ```
 
 
-## Transition
-We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6, which will also allow us to view the picture between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
+### Moving into informative projections
+We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6, which will also allow us to view the evolution between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
 We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour.
-Note that the various indices appear less noisy than for the grand tour shown before, but should note that the tour path here is shorter, and the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
+Various indices appear less noisy than seen in \ref{fig:plotV1V2toV3V4}, but note that the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
 
-TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full information of the characteristics is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view.
+TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full characteristic matrix is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view, in terms of the relative differences.
 
-Here we also see how the existing indices in the tourr package are inadequate for the detection of these type of dependence, the holes index taking maximum values before the final view and decreasing when moving into the special view. On the other hand, surprisingly the cmass index increases when moving into the special view, but the intermediate minimum makes it unsuitable as a projection pursuit index here.
-
+\textcolor{red}{Holes index or even pca could discover pipe as well...}
 
 ```{r plannedtourpath}
 if(!file.exists("cache/plannedtourpath.rda")){
@@ -554,7 +554,7 @@ ggplot(allRes, aes(x=value)) +
 ## Rotation dependence
 \label{sec:rot}
 \textcolor{red}{testing rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$}
-Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binnibng (and outlier removal?) here. Observe huge drops for some of the indexes! 
+Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binning (and outlier removal?) here. Observe huge drops for some of the indexes! 
 ```{r rotationDep, fig.width=6, fig.height=7, fig.cap="Rotation dependence of the considered index functions tested on the sine 1000 dataset, by rotating the special view by an angle alpha."}
 if(!file.exists("cache/rotationDep.rda")){
   sineM <- as.matrix(select(sin1000, V5, V6))
