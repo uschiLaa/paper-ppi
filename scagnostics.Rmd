@@ -214,10 +214,10 @@ There are a number of properties that a PPI should have, which are:
 
 
   - smoothness: the index function should evolve smoothly between nearby projections, i.e. on an interpolated path we expect to observe slow and consistent change in the index function. \textcolor{red}{maybe can relate this to consistency consition developed by P. Hall, but don't understand this at the moment. In addition this relates to questions of optimiser choice and efficiency.} We evaluate smoothness both for transitions between noise variables and when moving from noise variables to an informative view in Section \ref{sec:smooth}.
-    - distribution of index values: the distribution of index values when studying data points without structure should have a low variance, and be clearly separated from index values obtained when looking at structured data distributions. \textcolor{red}{I dont really understand this part. I think it can instead be related to the concept of squint angle \cite{barnett1981interpreting}.} We show examples in Section \ref{sec:dist}
+  - distribution of index values: the distribution of index values when studying data points without structure should have a low variance, and be clearly separated from index values obtained when looking at structured data distributions. \textcolor{red}{I dont really understand this part. I think it can instead be related to the concept of squint angle \cite{barnett1981interpreting}.} We show examples in Section \ref{sec:dist}
   - ability to find fine and broad structure: \textcolor{red}{there are two different considerations, one  that relates to the concept of squint angle discussed in \cite{posse95b}. On the other hand should also consider detection of "fine" structure vs noise, this would be controlled e.g. by the allowed number of bins for the MINE index functions, additionally this will impact computing times, i.e. trade accuracy for efficiency}. We address these questions in Section \ref{sec:params} with an illustrative example.
   - rotation invariance: in the tour there is an assumed degeneracy between all projections obtained when rotating within the projected space only, for 2-d projections it means that we cannot assing x- and y- axis without ambiguity. A projection pursuit index should therefore be invariant under rotation of the basis in the projection plane. By costruction this is not the case for most index functions defined above. \textcolor{red}{One way around could be profiling the function over all possible rotations in the plane, howevere computing time may be a major concern in this case. Other examples where rotation invariance is important include image recognition and texture classification, rotation angle may be built in parameter for summary calculation, e.g. https://doi.org/10.1016/S0146-664X(75)80008-6, other example is interpolating over angles when building NN, see e.g. https://arxiv.org/pdf/1805.12301.pdf)}. We illustrate the impact of non invariance in Section \ref{sec:rot}. \textcolor{red}{consider frame interpolation rather than plane interpolation, which will avoid issues of rotation when interpolating.}
-    - speed: the computation time is an important factor in particular when the guided tour is used to view the optimisation in real time. Note that longer computation times may be acceptable when first recording the optimisation and replaying the guided tour once the maximum has been identified. Computation times for some benchmark scenarios are compared in Section \ref{sec:timer}.
+  - speed: the computation time is an important factor in particular when the guided tour is used to view the optimisation in real time. Note that longer computation times may be acceptable when first recording the optimisation and replaying the guided tour once the maximum has been identified. Computation times for some benchmark scenarios are compared in Section \ref{sec:timer}.
     
 ##Simulation study
 
@@ -318,6 +318,25 @@ sinData <- function(n, p){
   dRet[vName] <- jitter(dRet[[vName]]) #adding noise
   return(dRet)
 }
+
+spiralData <- function(n, p){
+  i <- 1
+  a <- 0.1
+  b <- 0.1
+  dRet <- NULL
+  while(i <= p){
+    v <- rnorm(n-2)
+    theta <- abs(rnorm(1,0,2*pi))
+    r <- a + b * theta
+    x <- r * cos(theta)
+    y <- r * sin(theta)
+    v <- c(v, x, y)
+    dRet <- rbind(dRet, v)
+    i <- i+1
+  }
+  return(dRet)
+}
+
 ```
 
 <!-- I think you need to standardise the scale of the data -->
@@ -426,6 +445,7 @@ knitr::kable(indexOverview,  caption = "Summary of index values.", digits=2)
 
 ## Index traces over sequence of interpolated projections
 \label{sec:smooth}
+
 ### Random fluctuations
 We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto V1-V2 to the projection onto V3-V4 and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views. Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples (p=100), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples (p=1000) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
 
