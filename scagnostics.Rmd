@@ -95,7 +95,7 @@ The results of a fit have been generally interpreted in terms of combinations of
 Our visualisation tools complement these procedures providing a high dimensional picture which assists with the interpretation of the results,  serves as a check for other methods and possibly revealing new associations.
 -->
 
-[@Grimm2016] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines and distance correlation, that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see \cite{nason1992}, \cite{NIPS1997_1408}.}
+[@Grimm2016] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines and distance correlation, that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see discussion in \cite{huber1985,jones87}.}
 These indices are all available in R packages [@rref]: scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
 
 
@@ -119,8 +119,13 @@ Lower dimensional projections are highly sensitive to standardization performed 
 \textcolor{red}{for holes/cmass index they are only well defined when data is standardised, how about the other index functions?}
 \textcolor{red}{When keeping in mind the concrete example of posterior samples outliers should not be an issue, if extreme outliers are found one should probably investigate origin. Also noise only directions, e.g. nuissance parameters, are also not an issue as they contain no structure, see BBH example.}
 
+\textcolor{red}{\cite{jones87} discusses centering and sphering of the data points. Centering is needed if index is not translational invariant (should not be the case for any index considered here). Arguments for sphering are that scale effects should be extracted, we don't want to reproduce information already obtained by PCA. To my mind rescaling to an overall intervall is more appropriate here. Rotations between parameters should not affect the outcome, but will make interpretation more difficult. Standardising the variance will remove information about the posterior variance. Overall we are interested in strong association only, if these structures were affected by the standardisation procedure, it would most likely be unwelcome effects?}
+
+
 ## Optimization
 Given a PPI we are confronted with the task of finding the maximum over all possible $n$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuatins or a consequence of noisy index functions, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
+
+\textcolor{red}{\cite{posse95b} discusses the optimisation, in particular that for most index functions and optimisers results are too local, largely dependent on starting point. Fiedmans suggestion of hybrid steppind search + steepest-ascent still remains fairly local. \cite{posse90} suggested random search instead, which seems to perform better, but did not find pdf of that article, so not so sure what he actually does.}
 
 ## New index functions
 \label{sec:indexDef}
@@ -171,6 +176,7 @@ We can now define the following metrics:
     + Maximum Information Coefficient (MIC):
     \begin{equation}
     MIC(D) = \max_{xy<B(n)}\{M(D)_{x,y}\},
+    \label{eq:MIC}
     \end{equation}
     where by default $B(n) = n^{0.6}$
     + Total Information Coefficient (TIC), see @JMLRv1715308:
@@ -203,20 +209,27 @@ library(minerva) #MINE indices
 
 There are a number of properties that a PPI should have, which are:
 
-  - smoothness: the index function should evolve smoothly between nearby projections, i.e. on an interpolated path we expect to observe slow and consistent change in the index function. On the other hand if two similar projections produce very different index values, i.e. we observe sharp jumps when looking at the evolution of the index function, and in particular if those fluctuations dominate the overall evolution, the index is not suitable for projection pursuit.
-  - speed: the computation time is an important factor in particular when the guided tour is used to view the optimisation in real time. Note that longer computation times may be acceptable when first recording the optimisation and replaying the guided tour once the maximum has been identified.
-  - ability to find fine and broad structure: We consider a broad structure one that is roughly observable over a large angle around the optimal projection, it should in general be easy to identify and a good PPI should show smooth increase over a large number of projections as we are approaching the optimal view. On the other hand fine structures are difficult to identify as they are only visible close to the optimal view. This poses problems in particular for the optimization, but we may use index definitions to amplify larger index values while suppressing smaller ones, such that the optimization will be less sensitive to noise.
-  - distribution of index values: the distribution of index values when studying data points without structure should have a low variance, and be clearly separated from index values obtained when looking at structured data distributions.
-  - rotation invariance: in the tour there is an assumed degeneracy between all projections obtained when rotating within the projected space only, for 2-d projections it means that we cannot assing x- and y- axis without ambiguity. A projection pursuit index should therefore be invariant under rotation of the basis in the projection plane. By costruction this is not the case for most index functions defined above. (One way around could be profiling the function over all possible rotations in the plane, howevere computing time may be a major concern in this case.) (Other examples where rotation invariance is important include image recognition and texture classification, rotation angle may be built in parameter for summary calculation, e.g. https://doi.org/10.1016/S0146-664X(75)80008-6, other example is interpolating over angles when building NN, see e.g. https://arxiv.org/pdf/1805.12301.pdf)
-  
-The new indexes are examined with respect to these properties, and where they are less than adequate can suggest ways to improve them.
 
-##Simulated data
+\textcolor{red}{\cite{posse95b} lists five criteria: minimized by normal distribution, approximately affine invariant, consistent, resistent to features in the tail, fast computation. Comment that different index values for the same plane will make optimisation less efficient. \cite{jones87} moreover lists rotation and translation invariance (independence of choice of basis in the plane), and also mentions conditions for numeric optimisation, i.e. continuous and depending on optimisation methods also differentiable. Interesting: according to \cite{jones87} the original index proposed by Friedman and Tukey did not have property of rotation invariance.}
+
+
+  - smoothness: the index function should evolve smoothly between nearby projections, i.e. on an interpolated path we expect to observe slow and consistent change in the index function. \textcolor{red}{maybe can relate this to consistency consition developed by P. Hall, but don't understand this at the moment. In addition this relates to questions of optimiser choice and efficiency.} We evaluate smoothness both for transitions between noise variables and when moving from noise variables to an informative view in Section \ref{sec:smooth}.
+    - distribution of index values: the distribution of index values when studying data points without structure should have a low variance, and be clearly separated from index values obtained when looking at structured data distributions. \textcolor{red}{I dont really understand this part. I think it can instead be related to the concept of squint angle.} We show examples in Section \ref{sec:dist}
+  - ability to find fine and broad structure: \textcolor{red}{there are two different considerations, one  that relates to the concept of squint angle discussed in \cite{posse95b}. On the other hand should also consider detection of "fine" structure vs noise, this would be controlled e.g. by the allowed number of bins for the MINE index functions, additionally this will impact computing times, i.e. trade accuracy for efficiency}. We address these questions in Section \ref{sec:params} with an illustrative example.
+  - rotation invariance: in the tour there is an assumed degeneracy between all projections obtained when rotating within the projected space only, for 2-d projections it means that we cannot assing x- and y- axis without ambiguity. A projection pursuit index should therefore be invariant under rotation of the basis in the projection plane. By costruction this is not the case for most index functions defined above. \textcolor{red}{One way around could be profiling the function over all possible rotations in the plane, howevere computing time may be a major concern in this case. Other examples where rotation invariance is important include image recognition and texture classification, rotation angle may be built in parameter for summary calculation, e.g. https://doi.org/10.1016/S0146-664X(75)80008-6, other example is interpolating over angles when building NN, see e.g. https://arxiv.org/pdf/1805.12301.pdf)}. We illustrate the impact of non invariance in Section \ref{sec:rot}. \textcolor{red}{consider frame interpolation rather than plane interpolation, which will avoid issues of rotation when interpolating.}
+    - speed: the computation time is an important factor in particular when the guided tour is used to view the optimisation in real time. Note that longer computation times may be acceptable when first recording the optimisation and replaying the guided tour once the maximum has been identified. Computation times for some benchmark scenarios are compared in Section \ref{sec:timer}.
+    
+##Simulation study
+
+\textcolor{red}{\cite{posse95a} uses simulations with "strongly hidden structure", i.e. truncated Gaussian distributions with approximately identity covariance matrix, such that they don't appear in any of the principal component planes. In particular seems that spiral is hardest to identify based on results from Posse, maybe I can add this to my sphere dataset? or instead of it?}
+
+To test the behaviour of the index functions we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
 
 Three data simulations are used for examining the behaviour of the index functions. Each generates special structure in two variables, and the remaining variables are noise. 
 
 - structure to be found is 2D, scagnostics could find them, point is PP would find if in a combination of variables
 - structure is 2D, noise variables are different. 
+
 
 To understand the potential for the various indices defined we use the following overview procedures on the simulated data sets:
 
@@ -265,6 +278,12 @@ dcorIndex <- function(){
 mineIndex <- function(mineIndex){
   function(mat){
     return(mine(mat[,1], mat[,2])[[mineIndex]])
+  }
+}
+
+mineIndexAlpha <- function(mineIndex, alpha){
+  function(mat){
+    return(mine(mat[,1], mat[,2], alpha=alpha)[[mineIndex]])
   }
 }
 ```
@@ -405,8 +424,10 @@ knitr::kable(indexOverview,  caption = "Summary of index values.", digits=2)
 
 
 
-## Smoothness
-We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto V1-V2 to the projection onto V3-V4 and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views ((it is however curious to see the actual evolution, which seems not to depend on the underlying random distributions, but is clearely evolving over the path of the planned tour)). Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples (p=100), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples (p=1000) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
+## Index traces over sequence of interpolated projections
+\label{sec:smooth}
+### Random fluctuations
+We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto V1-V2 to the projection onto V3-V4 and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views. Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples (p=100), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples (p=1000) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
 
 <!-- index values shouldn't be affected by sample size, on average it should be
 same value. Maybe some need to be normalised by n. Something needs fixing here.
@@ -483,15 +504,14 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 ```
 
 
-## Transition
-We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6, which will also allow us to view the picture between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
+### Moving into informative projections
+We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6, which will also allow us to view the evolution between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
 We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour.
-Note that the various indices appear less noisy than for the grand tour shown before, but should note that the tour path here is shorter, and the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
+Various indices appear less noisy than seen in \ref{fig:plotV1V2toV3V4}, but note that the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
 
-TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full information of the characteristics is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view.
+TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full characteristic matrix is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view, in terms of the relative differences.
 
-Here we also see how the existing indices in the tourr package are inadequate for the detection of these type of dependence, the holes index taking maximum values before the final view and decreasing when moving into the special view. On the other hand, surprisingly the cmass index increases when moving into the special view, but the intermediate minimum makes it unsuitable as a projection pursuit index here.
-
+\textcolor{red}{Holes index or even pca could discover pipe as well...}
 
 ```{r plannedtourpath}
 if(!file.exists("cache/plannedtourpath.rda")){
@@ -524,7 +544,7 @@ ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
 
 
 ## Distributions of index values
-
+\label{sec:dist}
 Compare typical index values over the two tour paths. Notation: path 1 / 2 labels tour from V1-V2 to V3-V4 / V5-V6. Typically find broader distributions for small samples because of the large fluctuations in this case. Some indices show preferred behaviour, i.e. sharp peaks around low values for path 1, and very broad distributions leading up to maximum values for path 2. For other indices we can see the strong dependence of the index on sample size, the most extreme example is the skinny index.
 
 \textcolor{red}{Need better representation, in particular normalise TIC to upper limit for given sample size, adapt scales so sharp peaks don't dominate some of the plots.}
@@ -540,49 +560,60 @@ ggplot(allRes, aes(x=value)) +
 
 
 ## Rotation dependence
-\textcolor{red}{testin rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$}
-Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binnibng (and outlier removal?) here. Observe huge drops for some of the indexes! 
+\label{sec:rot}
+\textcolor{red}{testing rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$}
+Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binning (and outlier removal?) here. Observe huge drops for some of the indexes! 
 ```{r rotationDep, fig.width=6, fig.height=7, fig.cap="Rotation dependence of the considered index functions tested on the sine 1000 dataset, by rotating the special view by an angle alpha."}
-sineM <- as.matrix(select(sin1000, V5, V6))
-sc <- tibble(
-    holes=numeric(),
-    cmass=numeric(),
-    convex=numeric(),
-    skinny=numeric(),
-    stringy=numeric(),
-    dcor2d=numeric(),
-    splines2d=numeric(),
-    MIC=numeric(),
-    TIC=numeric(),
-    alpha=numeric()
-)
-for (a in seq(0,2*pi, pi/20)){
-  rotM <- matrix(c(cos(a), sin(a), -sin(a), cos(a)), ncol = 2)
-  dprj <- sineM %*% rotM
-  scagRes <- scagnostics(dprj)
-  dcorRes <- dcor2d(dprj[,1], dprj[,2])
-  splineRes <- splines2d(dprj[,1], dprj[,2])
-  mineRes <- mine(dprj[,1], dprj[,2])
-  holesRes <- holes(dprj)
-  cmassRes <- cmass(dprj)
-  sc <- add_row(sc, holes=holesRes, cmass=cmassRes,
-                convex=scagRes[,"Convex"], skinny=scagRes[,"Skinny"],
-                stringy=scagRes[,"Stringy"], dcor2d=dcorRes,
-                splines2d=splineRes, MIC=mineRes$MIC,
-                TIC=mineRes$TIC, alpha=a)
+if(!file.exists("cache/rotationDep.rda")){
+  sineM <- as.matrix(select(sin1000, V5, V6))
+  sc <- tibble(
+      holes=numeric(),
+      cmass=numeric(),
+      convex=numeric(),
+      skinny=numeric(),
+      stringy=numeric(),
+      dcor2d=numeric(),
+      splines2d=numeric(),
+      MIC=numeric(),
+      TIC=numeric(),
+      alpha=numeric()
+  )
+  for (a in seq(0,2*pi, pi/100)){
+    rotM <- matrix(c(cos(a), sin(a), -sin(a), cos(a)), ncol = 2)
+    dprj <- sineM %*% rotM
+    scagRes <- scagnostics(dprj)
+    dcorRes <- dcor2d(dprj[,1], dprj[,2])
+    splineRes <- splines2d(dprj[,1], dprj[,2])
+    mineRes <- mine(dprj[,1], dprj[,2])
+    holesRes <- holes(dprj)
+    cmassRes <- cmass(dprj)
+    sc <- add_row(sc, holes=holesRes, cmass=cmassRes,
+                  convex=scagRes[,"Convex"], skinny=scagRes[,"Skinny"],
+                  stringy=scagRes[,"Stringy"], dcor2d=dcorRes,
+                  splines2d=splineRes, MIC=mineRes$MIC,
+                  TIC=mineRes$TIC, alpha=a)
   }
+  save(sc, file = "cache/rotationDep.rda")
+} else {
+  load("cache/rotationDep.rda")
+}
 
 scMelt <- melt(sc, id=c("alpha"))
 ggplot(scMelt, aes(x=alpha, y=value)) +
   geom_line() + 
-  facet_wrap(~variable, scales = "free_y", ncol = 1)
+  facet_wrap(~variable, scales = "free_y", ncol = 1) +
+  geom_blank(aes(y = 0)) +
+  geom_blank(aes(y = 1))
 ```
 
 
 
 ## Note on calculation time
+\label{sec:timer}
 Computing time differs for each index, and depends strongly on the number of data points (as well as probably some dependence on distribution type), here we use as an example the 6-d sphere and calculate the computing time for different indices over 100 interpolated grand tour projections as a function of the sample size.
 We see that the evaluation of the spline index shows weak dependence on the sample size, making it the least efficient for very small data sets, but one of the fastest when considering large data sets. The situation is similar for calculating the scagnositics measures, which are however faster to compute on datasets of around 10 points. This is because the implementation is first binning the data points, which is fast compared to the evaluation that requires triangulation of the binned points. The distance correlation based measure exhibits strong increase with sample size, we note however that the implementation also allowes for evaluation on binned data points which we have not considered. Finally for the MINE family the computing time increases exponentially as can be expected from the dependence on the sample size, where we see that the improved $MIC_e$ algorithm is somewhat faster than the original implementation, see also @JMLRv1715308.
+
+\textcolor{red}{The plot is not perfect. I use alpha to fade out points, but cant find value that gives nice picture here. In addition the timer isnt precise enough to resolve timing for some indexes on small datasets, they are zeroes, appear on bottom of the log10 y axis.}
 
 ```{r getTimer}
 
@@ -640,13 +671,61 @@ if(!file.exists("cache/timer.rda")){
   load("cache/timer.rda")
 }
 
-#timerMelt <- melt(dfTimer, id="n")
+timerMeans <- dfTimer %>%
+  group_by(name, n) %>%
+  summarise(t=mean(t))
+
 ggplot(dfTimer, aes(x = n, y = t, color=name)) + 
-  geom_point() +
+  geom_point(alpha=0.05) +
+  geom_point(data=timerMeans) +
+  geom_line(data=timerMeans) +
   scale_x_log10() +
   scale_y_log10() +
   labs(x = "Sample Size", y = "Time [s]", color = "Index family")
 ```
+
+
+## Index function parameters
+\label{sec:params}
+Some parameters must be fixed when using the index functions considered here, controlling trade-offs between noise and fine structure detection, and between computing time and precision.
+
+- Binning:
+    - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
+    - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points, see Equation \ref{eq:MIC}. The default is chosen such as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
+- Spline knots: for the splines2D measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
+
+### Illustrative example
+A nice example can be constructed based on the RANDU dataset available in R. We use the MIC index and compare different parametrisations of the maximum binning by $\alpha$, where $B(n) = n^{\alpha}$. We compare in Figure \ref{fig:randuEx} the final view, index value and computing time obtained when optimising the MIC index with values $\alpha = 0.6, 0.7, 0.8$. Despite the low dimensionality, the small quint angle of the structure means that the identification of the maximum depends strongly on the starting conditions. Empirically we have found that using $\alpha = 0.7$ is most efficient in identifying the structure, while the default value $\alpha = 0.6$ is most likely to miss the structure given equal starting conditions.
+
+\textcolor{red}{Possible interpretation: 0.6 not allowing enough bins to accurately capture the structure, 0.7 good compromise, 0.8 becomes overly sensitive to noise}
+
+```{r randuEx, results="hide", fig.cap="Final view when optimising the MIC index in the RANDU dataset. Each plot lists the selected value of $\\alpha$, the time required by the optimisation in seconds and the MIC index value."}
+if(!file.exists("cache/randuEx.rda")){
+  pL <- list()
+  i <- 1
+  for (alpha in c( 0.6, 0.7, 0.8)){
+    set.seed(556677)
+    tic.clearlog()
+    tic() #start timer
+    tP <- save_history(randu, guided_tour(mineIndexAlpha("MIC", alpha)),max_bases = 100000)
+    toc(log=TRUE,quiet=TRUE)
+    optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+    imax <- length(as.list(tP))
+    fV <- as.tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
+    colnames(fV) <- c("PP1", "PP2")
+    idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
+    pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
+      ggtitle(paste(alpha, toString(format(optT, digits=2)), toString(format(idxV, digits=2)), sep = ", "))
+    i <- i+1
+  }
+  save(pL, file = "cache/randuEx.rda")
+} else {
+  load("cache/randuEx.rda")
+}
+grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
+```
+
+
 
 
 ## Guided tour
@@ -1038,11 +1117,13 @@ colnames(fProj1) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj1 <- as_tibble(fProj1) %>%
   add_column(label=colnames(bbhM2))
+iv <- mine(dProj$PP1,dProj$PP2)["TIC"]
 p1 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1) + 
   geom_path(data=getCircle(1, 0, 0.34, 0.25), aes(x=x, y=y), color="grey") + 
   xlim(-0.2, 1.5) + ylim(-0.25, 1) +
   geom_segment(data=getAxes(fProj1,1, 0, 0.34, 0.25), aes(x=x1, xend=x2, y=y1, yend=y2)) +
-  geom_text(data=getAxes(fProj1, 1, 0, 0.34, 0.25), aes(x=x2, y=y2, label=label), size=2.5)
+  geom_text(data=getAxes(fProj1, 1, 0, 0.34, 0.25), aes(x=x2, y=y2, label=label), size=2.5) +
+  ggtitle(paste0("a, TIC: ", toString(format(iv, digits=2))))
 iLast <- length(bbhTourFull22)
 fProj2 <- bbhTourFull22[[iLast]]
 dProj <- as.tibble(bbhM2 %*% fProj2)
@@ -1050,11 +1131,13 @@ colnames(fProj2) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj2 <- as_tibble(fProj2) %>%
   add_column(label=colnames(bbhM2))
+iv <- splines2d(dProj$PP1,dProj$PP2)
 p2 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)+ 
   geom_path(data=getCircle(0.75, 0, 0.25, 0.24), aes(x=x, y=y), color="grey") + 
   xlim(-0.25, 1) + ylim(-0.9, 0.3) +
   geom_segment(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x1, xend=x2, y=y1, yend=y2)) +
-  geom_text(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x2, y=y2, label=label), size=2.5)
+  geom_text(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x2, y=y2, label=label), size=2.5) +
+  ggtitle(paste0("b, splines2D: ", toString(format(iv, digits=2))))
 iLast <- length(bbhTourFull32)
 fProj3 <- bbhTourFull32[[iLast]]
 dProj <- as.tibble(bbhM2 %*% fProj3)
@@ -1062,11 +1145,13 @@ colnames(fProj3) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj3 <- as_tibble(fProj3) %>%
   add_column(label=colnames(bbhM2))
+iv <- 1-scagnostics(as.matrix(dProj))[,"Convex"]
 p3 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)+ 
   geom_path(data=getCircle(0, 1.25, 0.32, 0.32), aes(x=x, y=y), color="grey") + 
   xlim(-0.4, 1.2) + ylim(0, 1.6) +
   geom_segment(data=getAxes(fProj3, 0, 1.25, 0.32, 0.32), aes(x=x1, xend=x2, y=y1, yend=y2)) +
-  geom_text(data=getAxes(fProj3, 0, 1.25, 0.32, 0.32), aes(x=x2, y=y2, label=label), size=2.5)
+  geom_text(data=getAxes(fProj3, 0, 1.25, 0.32, 0.32), aes(x=x2, y=y2, label=label), size=2.5) +
+  ggtitle(paste0("c, 1-convex: ", toString(format(iv, digits=2))))
 grid.arrange(p1, p2, p3, ncol=3) 
 ```
 
