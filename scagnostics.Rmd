@@ -112,7 +112,7 @@ Explain here how to construct the pp index
 - Illustration of what is already available in tourr
 - New index explanations
 -->
-A projection pursuit index (ppi) is a scalar function $f$ defined on an $n$-dimensional data distribution. Typically the definition is such that larger values of $f$ indicate more interesting distribution, and therefore maximising $f$ over all possible $n$ dimensional projections of a data set with $p>n$ parameters will find the most interesting projections. As most indices characterise deviations from a normal distribution, one would first map the empiric data distribution onto a density for which such deviations can then be defined in different ways, see e.g. @CBC93. When departing from the idea of characterising differences to the normal distribution it may however be preferred to work directly with the empirical data distribution and instead characterise it by measures based on e.g. the minimal spanning tree or the mutual information.
+A projection pursuit index (PPI) is a scalar function $f$ defined on an $n$-dimensional data distribution. Typically the definition is such that larger values of $f$ indicate more interesting distribution, and therefore maximising $f$ over all possible $n$ dimensional projections of a data set with $p>n$ parameters will find the most interesting projections. As most indices characterise deviations from a normal distribution, one would first map the empiric data distribution onto a density for which such deviations can then be defined in different ways, see e.g. @CBC93. When departing from the idea of characterising differences to the normal distribution it may however be preferred to work directly with the empirical data distribution and instead characterise it by measures based on e.g. the minimal spanning tree or the mutual information.
 
 ## Standardization
 Lower dimensional projections are highly sensitive to standardization performed on the original distribution. We want to avoid e.g.  highlighting directions based only on different scales, or artifically extending the parameter range by including outliers, which may result in seemingly linear behaviour for most points. Methods to consider include rescaling of individual directions to a common interval (e.g. to fall between $[0,1]$), sphering, outlier removal or transformation to a logarithmic scale. The method(s) of choice should be informed by the distributions found in the data set as well as aims of the analysis. \textcolor{red}{particular challenges: noise only directions, identification of outliers?}
@@ -123,7 +123,7 @@ Lower dimensional projections are highly sensitive to standardization performed 
 
 
 ## Optimization
-Given a ppi we are confronted with the task of finding the maximum over all possible $n$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuatins or a consequence of noisy index functions, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
+Given a PPI we are confronted with the task of finding the maximum over all possible $n$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuatins or a consequence of noisy index functions, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
 
 \textcolor{red}{\cite{posse95b} discusses the optimisation, in particular that for most index functions and optimisers results are too local, largely dependent on starting point. Fiedmans suggestion of hybrid steppind search + steepest-ascent still remains fairly local. \cite{posse90} suggested random search instead, which seems to perform better, but did not find pdf of that article, so not so sure what he actually does.}
 
@@ -206,7 +206,9 @@ library(minerva) #MINE indices
 
 # Investigation of indices
 \label{sec:investigate}
-We now examine the indices listed in Section \ref{sec:indexDef} to test which of them are suitable as projection pursuit measures, and how we may modify them for improved performance. We start by considering the relevant criteria:
+
+There are a number of properties that a PPI should have, which are:
+
 
 \textcolor{red}{\cite{posse95b} lists five criteria: minimized by normal distribution, approximately affine invariant, consistent, resistent to features in the tail, fast computation. Comment that different index values for the same plane will make optimisation less efficient. \cite{jones87} moreover lists rotation and translation invariance (independence of choice of basis in the plane), and also mentions conditions for numeric optimisation, i.e. continuous and depending on optimisation methods also differentiable. Interesting: according to \cite{jones87} the original index proposed by Friedman and Tukey did not have property of rotation invariance.}
 
@@ -223,12 +225,11 @@ We now examine the indices listed in Section \ref{sec:indexDef} to test which of
 
 To test the behaviour of the index functions we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
 
-1. $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
-2. $p$ points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution, labelled "pipe"
-3. $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function, labelled "sine"
+Three data simulations are used for examining the behaviour of the index functions. Each generates special structure in two variables, and the remaining variables are noise. 
 
-For each distribution we consider a small sample of $p=100$ and a large sample with $p=1000$.
-In the following we work with rescaled data where each direction has been centered and scaled to have variance equal to 1. This is neccessary for standard indices to be well defined, but does not impact the results when using the newly considered index functions. \textcolor{red}{not yet implemented for traces of guided tour paths I think...}
+- structure to be found is 2D, scagnostics could find them, point is PP would find if in a combination of variables
+- structure is 2D, noise variables are different. 
+
 
 To understand the potential for the various indices defined we use the following overview procedures on the simulated data sets:
 
@@ -238,6 +239,13 @@ To understand the potential for the various indices defined we use the following
   
 ###Dataset overview
 
+we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
+
+- sphere:  $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
+- pipe: $p$ points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution, labelled "pipe"
+- sine:  $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function, labelled "sine"
+
+For each distribution we consider a small sample of $p=100$ and a large sample with $p=1000$.
 
 ```{r util}
 #defining index functions to be used with the tour
