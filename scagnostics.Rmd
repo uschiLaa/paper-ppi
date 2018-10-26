@@ -853,21 +853,7 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 
 ## Summary
 
-Our results can be summarised by comparing 
-
-- scagnostics indices:
-    - advantages: scaling with larger datasets thanks to binning, set of index functions covering different types of interesting structures
-    - disadvantage: noisy, requires good optimisation algorithm, stringy too noisy to be used as index
-- splines2D:
-    - advantages: fast to compute, also considering scaling with larger data sets, efficient in detecting functional relations, typically smooth behaviour (but we have seen some exceptions)
-    - disadvantage: not general, highly not rotation invariant
-- dcor2D:
-    - advantages: smoothly changing, sensitive to general structure
-    - disadvantage: slow if computed without binning, large sensitivity to noise compared to MIC/TIC (example: low values obtained for the circle view of the pipe), sensitive to rotation
-    - NOTE: I have not tested this much, should probably add binned version to timing plot
-- MINE (MIC, TIC):
-    - advantages: general, good discrimination even with noisy structures
-    - disadvantages: slow to compute, noisy for small datasets, TIC sensitive to rotation
+Our results can be summarised by evaluating and comparing the advantages and disadvanteges of each index function according to the criteria presented above. An overview is given in Table \ref{tab:summary}. The first three entries are from the scagnostics family. The advantages are good scaling of computing time with sample size and that the set of index functions covers general signatures (the same is however not true for each single index viewed on its own). On the other hand we have found that they are typically too noisy making optimisation of the function challenging. In particular the stringy index cannot be used with current optimisers. The index functions from @mbgraphic share similar behaviour as they are both found to evolve fairly smoothly between interpolated projections, but have been shown to be strongly rotation dependent. The splines2D index is fast to calculate and found to be the most efficient method for identifying functional dependence. We have only considered the non-binned implementation of dcor2D which is slow to calculate on large datasets. While this index is in principle general, we have found it to be too sensitive to noise to be applicable in most realistic examples. Finally the MINE indexes are found to be smooth only for large datasets, with some rotation dependence observed for the TIC index. While these indexes are slow to compute especially on large datasets, we have found them to be the most general, allowing good discrimination even with noisy structures.
 
 \begin{table}
 \begin{center}
