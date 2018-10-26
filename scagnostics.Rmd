@@ -216,30 +216,29 @@ There are a number of properties that a PPI should have, which are:
   - smoothness: the index function should evolve smoothly between nearby projections, i.e. on an interpolated path we expect to observe slow and consistent change in the index function. \textcolor{red}{maybe can relate this to consistency consition developed by P. Hall, but don't understand this at the moment. In addition this relates to questions of optimiser choice and efficiency.} We evaluate smoothness both for transitions between noise variables and when moving from noise variables to an informative view in Section \ref{sec:smooth}.
   - distribution of index values: the distribution of index values when studying data points without structure should have a low variance, and be clearly separated from index values obtained when looking at structured data distributions. \textcolor{red}{I dont really understand this part. I think it can instead be related to the concept of squint angle \cite{barnett1981interpreting}.} We show examples in Section \ref{sec:dist}
   - ability to find fine and broad structure: \textcolor{red}{there are two different considerations, one  that relates to the concept of squint angle discussed in \cite{posse95b}. On the other hand should also consider detection of "fine" structure vs noise, this would be controlled e.g. by the allowed number of bins for the MINE index functions, additionally this will impact computing times, i.e. trade accuracy for efficiency}. We address these questions in Section \ref{sec:params} with an illustrative example.
-  - rotation invariance: in the tour there is an assumed degeneracy between all projections obtained when rotating within the projected space only, for 2-d projections it means that we cannot assing x- and y- axis without ambiguity. A projection pursuit index should therefore be invariant under rotation of the basis in the projection plane. By costruction this is not the case for most index functions defined above. \textcolor{red}{One way around could be profiling the function over all possible rotations in the plane, howevere computing time may be a major concern in this case. Other examples where rotation invariance is important include image recognition and texture classification, rotation angle may be built in parameter for summary calculation, e.g. https://doi.org/10.1016/S0146-664X(75)80008-6, other example is interpolating over angles when building NN, see e.g. https://arxiv.org/pdf/1805.12301.pdf)}. We illustrate the impact of non invariance in Section \ref{sec:rot}. \textcolor{red}{consider frame interpolation rather than plane interpolation, which will avoid issues of rotation when interpolating.}
+  - rotation invariance: in the tour there is an assumed degeneracy between all projections obtained when rotating within the projected space only, for 2-d projections it means that we cannot assing x- and y- axis without ambiguity. A projection pursuit index should therefore be invariant under rotation of the basis in the projection plane. By costruction this is not the case for most index functions defined above. We illustrate the impact of non invariance in Section \ref{sec:rot}. \textcolor{red}{consider frame interpolation rather than plane interpolation, which will avoid issues of rotation when interpolating, reamining issue would be optimisation efficiency.}
   - speed: the computation time is an important factor in particular when the guided tour is used to view the optimisation in real time. Note that longer computation times may be acceptable when first recording the optimisation and replaying the guided tour once the maximum has been identified. Computation times for some benchmark scenarios are compared in Section \ref{sec:timer}.
     
 ##Simulation study
 
-\textcolor{red}{\cite{posse95a} uses simulations with "strongly hidden structure", i.e. truncated Gaussian distributions with approximately identity covariance matrix, such that they don't appear in any of the principal component planes. In particular seems that spiral is hardest to identify based on results from Posse, maybe I can add this to my sphere dataset? or instead of it?}
-
-To test the behaviour of the index functions we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
-
-Three data simulations are used for examining the behaviour of the index functions. Each generates special structure in two variables, and the remaining variables are noise. 
-
-- structure to be found is 2D, scagnostics could find them, point is PP would find if in a combination of variables
-- structure is 2D, noise variables are different. 
-
+Three data simulations are used for examining the behaviour of the index functions. Each generates special structure in two variables, and the remaining variables are noise. This construction means that variable selection would be sufficient for the identification of the structure. We use this setup for simplicity, and since all variable combinations are treated equally in the PP it does not affect our conclusions about the ability of identifying the structure in arbitrary linear combinations of variables.
 
 To understand the potential for the various indices defined we use the following overview procedures on the simulated data sets:
 
-- index values for pair of variables, explicitly comparing the uninformative and special view of each dataset, as well as discussing the dependence on the sample size
-- tour between pairs of variables, considering a planned tour that moves from the $x_1 - x_2$ view either to the $x_3 - x_4$ view (no special structure encountered over the full path) or to the $x_5 - x_6$ (moving from uninformed to special view)
-- optimisation path, starting from $x_1 - x_2$, how can we use the available index functions and optimisation algorithms to identify the special view
+- index values for pair of variables, explicitly comparing the uninformative and special view of each dataset, as well as discussing the dependence on the sample size, see Section \ref{sec:dataOv}
+- tour between pairs of variables, considering a planned tour that moves from the $V_1 - V_2$ view either to the $V_3 - V_4$ view (no special structure encountered over the full path) or to the $V_5 - V_6$ (moving from uninformed to special view), see Section \ref{sec:smooth}
+- optimisation path, starting from $V_1 - V_2$, how can we use the available index functions and optimisation algorithms to identify the special view, see Section \ref{sec:guided}
+- rotating a dataset with functional dependence to evaluate the rotation dependence of the index functions, see Section \ref{sec:rot}
+- benchmarking the computing time in Section \ref{sec:timer}
+
+\textcolor{red}{\cite{posse95a} uses simulations with "strongly hidden structure", i.e. truncated Gaussian distributions with approximately identity covariance matrix, such that they don't appear in any of the principal component planes. In particular seems that spiral is hardest to identify based on results from Posse, maybe I can add this to my sphere dataset? or instead of it?}
+
+
   
 ###Dataset overview
+\label{sec:dataOv}
 
-we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
+To test the behaviour of the index functions we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
 
 - sphere:  $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
 - pipe: $p$ points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution, labelled "pipe"
@@ -749,6 +748,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
 
 
 ## Guided tour
+\label{sec:guided}
 
 Given the behaviour of the various index measures under an interpolated tour path we next try to use the tourr implementation of the guided tour together with selected index functions to uncover the special views in datasets 2 and 3 with 1000 datapoints.
 
