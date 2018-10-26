@@ -207,10 +207,7 @@ library(minerva) #MINE indices
 # Investigation of indices
 \label{sec:investigate}
 
-There are a number of properties that a PPI should have, which are:
-
-
-\textcolor{red}{\cite{posse95b} lists five criteria: minimized by normal distribution, approximately affine invariant, consistent, resistent to features in the tail, fast computation. Comment that different index values for the same plane will make optimisation less efficient. \cite{jones87} moreover lists rotation and translation invariance (independence of choice of basis in the plane), and also mentions conditions for numeric optimisation, i.e. continuous and depending on optimisation methods also differentiable. Interesting: according to \cite{jones87} the original index proposed by Friedman and Tukey did not have property of rotation invariance.}
+A useful projection pursuit index needs to have several properties. This has been discussed in several seminal papers (\cite{diaconis84}, \cite{huber85}, \cite{jones87}, \cite{posse95b}). The PPI should be  minimized by the normal distribution, because this is not interesting from a data exploration perspective. If all projections are normally distributed, good modeling tools already exist. A PPI should be approximately affine invariant, regardless how the projection is rotated the index value should be the same, and the scale of each variable shouldn't affect the index value. Interestingly the original index proposed by \cite{FT74} was not rotationally invariant. A consistent index means that small perturbations to the sample do not dramatically change the index value. This is particularly important to making optimisation feasible, small angles between projections correspond to small perturbations of the sample, and thus shold be small changes to index value. \cite{posse95b} suggests that indexes should be resistant to features in a tail of the distribution, but this is debatable because one departure from normality that is interesting to detect are anomalous observations. Some PPI are designed precisely for these reasons. Lastly, because we need to compute the PPI over many projections, it needs to be fast to compute. These form the basis of the crteria upon which the scagnostic indexes, and the several alternative indexes are examined:
 
 
   - smoothness: the index function should evolve smoothly between nearby projections, i.e. on an interpolated path we expect to observe slow and consistent change in the index function. \textcolor{red}{maybe can relate this to consistency consition developed by P. Hall, but don't understand this at the moment. In addition this relates to questions of optimiser choice and efficiency.} We evaluate smoothness both for transitions between noise variables and when moving from noise variables to an informative view in Section \ref{sec:smooth}.
@@ -219,7 +216,7 @@ There are a number of properties that a PPI should have, which are:
   - rotation invariance: in the tour there is an assumed degeneracy between all projections obtained when rotating within the projected space only, for 2-d projections it means that we cannot assing x- and y- axis without ambiguity. A projection pursuit index should therefore be invariant under rotation of the basis in the projection plane. By costruction this is not the case for most index functions defined above. We illustrate the impact of non invariance in Section \ref{sec:rot}. \textcolor{red}{consider frame interpolation rather than plane interpolation, which will avoid issues of rotation when interpolating, reamining issue would be optimisation efficiency.}
   - speed: the computation time is an important factor in particular when the guided tour is used to view the optimisation in real time. Note that longer computation times may be acceptable when first recording the optimisation and replaying the guided tour once the maximum has been identified. Computation times for some benchmark scenarios are compared in Section \ref{sec:timer}.
     
-##Simulation study
+## Simulation study
 
 Three data simulations are used for examining the behaviour of the index functions. Each generates special structure in two variables, and the remaining variables are noise. This construction means that variable selection would be sufficient for the identification of the structure. We use this setup for simplicity, and since all variable combinations are treated equally in the PP it does not affect our conclusions about the ability of identifying the structure in arbitrary linear combinations of variables.
 
@@ -235,7 +232,7 @@ To understand the potential for the various indices defined we use the following
 
 
   
-###Dataset overview
+### Dataset overview
 \label{sec:dataOv}
 
 To test the behaviour of the index functions we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
