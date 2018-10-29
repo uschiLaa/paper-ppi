@@ -881,18 +881,18 @@ Our results can be summarised by evaluating and comparing the advantages and dis
 \begin{center}
 \caption{Summary}
 \label{tab:summary}
-\begin{tabular}{|l|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|c|c|c|}
 \hline
-Index & smooth & rotation invariant & fast & general \\
+Index & smooth & squintability & flexible & rotation invariant & speed \\
 \hline
-Convex & ! & ! & \checkmark & ! \\
-Skinny & ! & ! & \checkmark & ! \\
-Stringy & $\times$ & ! & \checkmark & ! \\
+Convex & ! & ! & ! & ! & \checkmark \\
+Skinny & ! & !& ! & ! & \checkmark \\
+Stringy & $\times$ & $\times$ & ! & ! & \checkmark \\
 \hline
-splines2D & \checkmark & $\times$ & \checkmark & ! \\
-dcor2D & \checkmark & $\times$ & ! & ! \\
+splines2D & \checkmark & \checkmark & ! & $\times$ & \checkmark \\
+dcor2D & \checkmark & \checkmark & ! & $\times$ & ! \\
 \hline
-MINE & ! & ! & ! & \checkmark\\
+MINE & ! & \checkmark  & \checkmark & ! & ! \\
 \hline
 \end{tabular}
 \end{center}
