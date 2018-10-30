@@ -297,6 +297,12 @@ mineIndex <- function(mineIndex){
   }
 }
 
+mineIndexE <- function(mineIndex){
+  function(mat){
+    return(mine(mat[,1], mat[,2], est = "mic_e")[[mineIndex]])
+  }
+}
+
 mineIndexAlpha <- function(mineIndex, alpha){
   function(mat){
     return(mine(mat[,1], mat[,2], alpha=alpha)[[mineIndex]])
@@ -791,7 +797,7 @@ The results are shown below, first Fig. \ref{fig:pipeFirstRun} shows how the con
 ```{r findpipe, results="hide"}
 if(!file.exists("cache/findpipe.rda")){
   set.seed(1984)
-  pipeResc <- rescale(pipe1000) 
+  pipeResc <- as.matrix(pipe1000) 
   pipeTour <- save_history(pipeResc,
                           guided_tour(mineIndex("TIC"), search_f = tourr:::search_better,
                                      cooling=1, alpha = 0.5, max.tries = 5000))
@@ -853,7 +859,7 @@ We next work with distribution 3 and aim to identify the view showing functional
 ```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset.", results="hide"}
 set.seed(2018)
 if(!file.exists("cache/findsine.rda")){
-  sineResc <- rescale(sin1000)
+  sineResc <- as.matrix(sin1000)
   sineTour <- save_history(sineResc,
                           guided_tour(splineIndex()))
   sineTourFull <- as.list(interpolate(sineTour))
@@ -873,6 +879,38 @@ iLast <- length(sineTourFull)
 fProj <- sineTourFull[[iLast]]
 dProj <- as.tibble(sineResc %*% fProj)
 ggplot(dProj, aes(V1,V2)) + geom_point()
+```
+
+### Spiral detection
+
+\textcolor{red}{can use skinny to find sprial in 3 dimensions, but not higher, scouting method does not work because of large rotation dependence, maybe make it study of guided tour success vs number of parameters entering? e.g. given n starting planes how many times was view in plane V5-V6 identified as function of number of dimensions and index used?}
+
+\textcolor{red}{what about role of optimisation here? search_better not working because rotation in plane makes index drop randomly, geodesic search does not work because (my guess) it picks directions based on being most promising on small step size tests, maybe need to modify code to pass step size as argument, search directions based on larger step size may result in improved scouting run? (but may also give same issues of rotation dependence) -- tried but didnt really work...}
+
+```{r findspiral, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the skinny index for the Sprial 1000 dataset.", results="hide"}
+#getResWithSeed <- function(s){
+#  set.seed(s)
+#  startM <- orthonormalise(matrix(runif(12),ncol = 2))
+#  tourRes <- save_history(spiralResc, guided_tour(scagIndex("Skinny")), max_bases = 10000)
+#}
+#set.seed(202020)
+#if(!file.exists("cache/findsine.rda")){
+#  spiralResc <- as.matrix(spiral1000)
+
+#spiralTour <- save_history(spiralResc, guided_tour(scagIndex("Skinny"), max.tries = 100, n=10, stepS=0.5), max_bases = 10000)
+  #spiralTour <- save_history(spiralResc,guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better,
+  #                                   alpha = 0.5, max.tries = 500), max_bases = 10000)
+  #spiralTourFull <- as.list(interpolate(spiralTour))
+  #spiralTourRes <- getProj(spiral1000, spiralTourFull, "Spiral", 1000)
+  #spiralTourResMelt <- melt(spiralTourRes, id=c("t", "name", "size"))
+#  save(spiralResc, spiralTour, spiralTourFull, spiralTourRes, spiralTourResMelt,
+#       file = "cache/findspiral.rda")
+#} else {
+#  load("cache/findsine.rda")
+#}
+#ggplot(spiralTourResMelt, aes(x=t, y=value)) +
+#  geom_line() + 
+#  facet_wrap(~variable, ncol=1, scales = "free_y")
 ```
 
 
