@@ -430,7 +430,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
              ncol=2)
 ```
 
-We next compare the various index values for three views: $x_1$ vs $x_2$, $x_5$ vs $x_6$ and $x_1$ vs $x_6$ (capturing differences from the different distribution in $x_6$). For the Spiral distribution the scagnostics indices skinny and stringy are large and close to their theoretic maximum for the special view. On the other hand while dcor2d is larger is also increased for the special view, the value is far from the theoretic maximum and larger values may be found from random fluctuations in other views (CHECK!). MIC and TIC are also found to be sensitive to the spiral distribution. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fictional dependence.
+We next compare the various index values for three views: $x_1$ vs $x_2$, $x_5$ vs $x_6$ and $x_1$ vs $x_6$ (capturing differences from the different distribution in $x_6$). For the Spiral distribution the scagnostics indices skinny and stringy are large and close to their theoretic maximum for the special view. On the other hand while dcor2d is larger is also increased for the special view, the value is far from the theoretic maximum and larger values may be found in other views. MIC and TIC are also found to be sensitive to the spiral distribution. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fictional dependence.
 
 ```{r indexTable, echo=FALSE}
 i <- 1
@@ -945,7 +945,7 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 #set.seed(202020)
 #if(!file.exists("cache/findsine.rda")){
 #  spiralResc <- as.matrix(spiral1000)
-#spiralTour <- save_history(spiralResc, guided_tour(cmass))
+#spiralTour <- save_history(spiralResc, guided_tour(dcorIndex()))
 #spiralTour <- save_history(spiralResc, guided_tour(scagIndex("Skinny"), max.tries = 100, n=10, stepS=0.5), max_bases = 10000)
   #spiralTour <- save_history(spiralResc,guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better,
   #                                   alpha = 0.5, max.tries = 500), max_bases = 10000)
@@ -960,6 +960,9 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 #ggplot(spiralTourResMelt, aes(x=t, y=value)) +
 #  geom_line() + 
 #  facet_wrap(~variable, ncol=1, scales = "free_y")
+#iL <- length(as.list(spiralTour))
+#dProj <- spiralResc %*% as.list(spiralTour)[[iL]]
+#ggplot(as.tibble(dProj), aes(V1, V2)) + geom_point()
 ```
 
 
