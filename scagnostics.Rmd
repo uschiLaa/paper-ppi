@@ -272,6 +272,13 @@ scagIndex <- function(scagType){
   }
 }
 
+scagIndexNbin <- function(scagType, n){
+  function(mat){
+    sR <- scagnostics.default(mat[,1], mat[,2], bins = n)$s
+    return(sR[scagType])
+  }
+}
+
 invConvexIndex <- function(){
   function(mat){
     sR <- scagnostics.default(mat[,1],mat[,2])$s
@@ -740,6 +747,55 @@ Some parameters must be fixed when using the index functions considered here, co
     - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points, see Equation \ref{eq:MIC}. The default is chosen such as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
 - Spline knots: for the splines2D measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
 
+### Scagnostics binning
+The implementation of scagnostics will always perform a binning step first, before evaluating the measures. The binning will introduce random fluctuations on interpolated tour paths, but we may also consider using it to reduce fluctuations from the discreteness inherent to the index definitions, see in particular the definition of the stringy index. This needs some care however as different values may be preferred for different structures and depending on which index is being considered. Moreover, choosing a binning that is too rough may result in loss of discrimination power as structures can no longer be resolved. As an example we compare in Figure \ref{fig:sprialScagBinning} the scagnostics index traces for the Spiral 1000 dataset when moving from V1-V2 to V5-V6, for three values of the bins parameter entering the hexagonal binning procedure. We find indeed that different values may be preferred depending on the index considered, with the default bins=50 being the better choice for the convex and skinny index, while bins=20 may work better for the stringy index. Note that neither choice results in smooth curves for any of the indexes considered here.
+
+```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example. For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detedction being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice."}
+getScagComp <- function(df, tPath){
+  sc <- tibble(
+    convex10=numeric(),
+    skinny10=numeric(),
+    stringy10=numeric(),
+    convex20=numeric(),
+    skinny20=numeric(),
+    stringy20=numeric(),
+    convex50=numeric(),
+    skinny50=numeric(),
+    stringy50=numeric(),
+    t=numeric())
+  n <- length(tPath)
+  for (i in 1:n) {
+    dprj <- as.matrix(df) %*% tPath[[i]]
+    scagRes10 <- scagnostics.default(dprj[,1], dprj[,2], bins=10)$s
+    scagRes20 <- scagnostics.default(dprj[,1], dprj[,2], bins=20)$s
+    scagRes50 <- scagnostics.default(dprj[,1], dprj[,2], bins=50)$s
+    sc <- add_row(sc,
+                  convex10=scagRes10["Convex"], skinny10=scagRes10["Skinny"],
+                  stringy10=scagRes10["Stringy"],
+                  convex20=scagRes20["Convex"], skinny20=scagRes20["Skinny"],
+                  stringy20=scagRes20["Stringy"],
+                  convex50=scagRes50["Convex"], skinny50=scagRes50["Skinny"],
+                  stringy50=scagRes50["Stringy"],
+                  t=i)
+  }
+  
+  return(sc)
+}
+if(!file.exists("cache/spiralScagBinning.rda")){
+  scagBinningDf <- getScagComp(spiral1000, t2full)
+  scagMelt <- melt(scagBinningDf, id=c("t")) %>%
+    mutate(nbin = as.numeric(str_sub(variable, start = -2))) %>%
+    mutate(idx = str_sub(variable, end = -3))
+  save(scagBinningDf, scagMelt, file = "cache/spiralScagBinning.rda")
+} else {
+  load("cache/spiralScagBinning.rda")
+}
+ggplot(scagMelt, aes(x=t, y=value)) +
+  geom_line(aes(color=factor(nbin))) + 
+  facet_wrap(~idx, ncol=1, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
+
+```
+
 ### Illustrative example
 A nice example can be constructed based on the RANDU dataset available in R. We use the MIC index and compare different parametrisations of the maximum binning by $\alpha$, where $B(n) = n^{\alpha}$. We compare in Figure \ref{fig:randuEx} the final view, index value and computing time obtained when optimising the MIC index with values $\alpha = 0.6, 0.7, 0.8$. Despite the low dimensionality, the small quint angle of the structure means that the identification of the maximum depends strongly on the starting conditions. Empirically we have found that using $\alpha = 0.7$ is most efficient in identifying the structure, while the default value $\alpha = 0.6$ is most likely to miss the structure given equal starting conditions.
 
@@ -885,7 +941,7 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 
 \textcolor{red}{can use skinny to find sprial in 3 dimensions, but not higher, scouting method does not work because of large rotation dependence, maybe make it study of guided tour success vs number of parameters entering? e.g. given n starting planes how many times was view in plane V5-V6 identified as function of number of dimensions and index used?}
 
-\textcolor{red}{what about role of optimisation here? search_better not working because rotation in plane makes index drop randomly, geodesic search does not work because (my guess) it picks directions based on being most promising on small step size tests, maybe need to modify code to pass step size as argument, search directions based on larger step size may result in improved scouting run? (but may also give same issues of rotation dependence) -- tried but didnt really work...}
+\textcolor{red}{what about role of optimisation here? search\_better not working because rotation in plane makes index drop randomly, geodesic search does not work because (my guess) it picks directions based on being most promising on small step size tests, maybe need to modify code to pass step size as argument, search directions based on larger step size may result in improved scouting run? (but may also give same issues of rotation dependence) ... tried  but didnt really work...}
 
 ```{r findspiral, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the skinny index for the Sprial 1000 dataset.", results="hide"}
 #getResWithSeed <- function(s){
@@ -896,7 +952,7 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 #set.seed(202020)
 #if(!file.exists("cache/findsine.rda")){
 #  spiralResc <- as.matrix(spiral1000)
-
+#spiralTour <- save_history(spiralResc, guided_tour(cmass))
 #spiralTour <- save_history(spiralResc, guided_tour(scagIndex("Skinny"), max.tries = 100, n=10, stepS=0.5), max_bases = 10000)
   #spiralTour <- save_history(spiralResc,guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better,
   #                                   alpha = 0.5, max.tries = 500), max_bases = 10000)
