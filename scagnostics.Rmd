@@ -970,6 +970,17 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 ```
 
 
+## Possible modifications
+
+Big issues: smoothness, rotation invariance
+
+### Smoothing
+
+Focusing on scagnostics indices, for which the biggest issues with noisy transitions have been observed. Smoothing can be performed by interpolation, or averaging similar views. For example we can use jittering, or we can use tour functionalities to find a set of randomly selected projections within a small angle of the current view. In this way we can generate a number of similar views. We can then select the mean value, or to avoid large pulls from sharp peaks, we can remove the most extreme values and then calulate the mean from the remaining evaluations.
+
+
+### Rotation invariance
+Do we want to say anything here? big issue for splines2D measure, but also scagnostics
 
 ## Summary
 
