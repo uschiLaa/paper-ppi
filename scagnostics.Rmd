@@ -988,20 +988,20 @@ Our results can be summarised by evaluating and comparing the advantages and dis
 
 \begin{table}
 \begin{center}
-\caption{Summary of findings, showing to what extend the considered index functions pass the criteria for a good PPI. Checkmark symbols good behaviour, exclamation mark symbols some issues while cross symbols failure on the corresponding criteria. Each index has particular strengths and drawbacks and selection must be guided by the considered example, see text for details.}
+\caption{Summary of findings, showing to what extend the considered index functions pass the criteria for a good PPI. "\checkmark" symbols good behaviour, "$\cdot$" symbols some issues while "$\times$" symbols failure on the corresponding criteria. Each index has particular strengths and drawbacks and selection must be guided by the considered example, see text for details.}
 \label{tab:summary}
 \begin{tabular}{|l|c|c|c|c|c|c|}
 \hline
 Index & smooth & squintability & flexible & rotation invariant & speed \\
 \hline
-Convex & ! & ! & ! & ! & \checkmark \\
-Skinny & ! & !& ! & ! & \checkmark \\
-Stringy & $\times$ & $\times$ & ! & ! & \checkmark \\
+Convex & $\cdot$ & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
+Skinny & $\cdot$ & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
+Stringy & $\times$ & $\times$ & $\cdot$ & $\cdot$ & \checkmark \\
 \hline
-splines2D & \checkmark & \checkmark & ! & $\times$ & \checkmark \\
-dcor2D & \checkmark & \checkmark & ! & $\times$ & ! \\
+splines2D & \checkmark & \checkmark & $\cdot$ & $\times$ & \checkmark \\
+dcor2D & \checkmark & \checkmark & $\cdot$ & $\times$ & $\cdot$ \\
 \hline
-MINE & ! & \checkmark  & \checkmark & ! & ! \\
+MINE & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
 \hline
 \end{tabular}
 \end{center}
