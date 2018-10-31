@@ -234,7 +234,7 @@ Three families of data simulations are used for examining the behaviour of the i
 
 - **pipe**: $p$ points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution, labelled "pipe"
 - **sine**:  $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function, labelled "sine"
-- **sphere**:  $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
+- **spiral**:  $p$ points where $n-2$ points are independently drawn from a normal distribution, and dirction $n-1$ and $n$ have points selected on an Archimedean spiral, i.e. $r = a + b \theta$, with $a=b=0.1$ and we sample angles $\theta$ from a normal distribution with mean 0 and variance $2\pi$ and taking the absolute for well defined spiral shape with higher density at smaller radius.
 
 Two samples sizes are also used: $p=100$ (small) and $p=1000$ (large).
 
