@@ -73,7 +73,7 @@ Organisation of this section:
 - section needs shortening
 -->
 
-The term "projection pursuit" was coined by @ff74 to describe a procedure for searching high (say $p-$)dimensional data for "interesting" low-dimensional projections ($k=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $k$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $k$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not found by methods such as principal component analysis.
+The term "projection pursuit" was coined by @FT74 to describe a procedure for searching high (say $p-$)dimensional data for "interesting" low-dimensional projections ($d=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $d$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $d$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not found by methods such as principal component analysis.
 
 A large number of projection pursuit indices have been developed, to detect departure from multivariate normal, which includes clusters or outliers or separations between known groups (e.g. @f87, @CBC92, @lckl2005, @AHC02, @CEM:CEM2568, @JS87, @5508437).  Less work has been done on indexes to find nonlinear dependence between variables. 
 
@@ -84,7 +84,7 @@ XXX Need to add something here about the guided tour
 
 A related topic is variable selection. With high-dimensional data, even plotting all pairs can be daunting, so "scagnostics" [@scag] [@WW08] have been developed to find the most interesting pairs of variables. There are 8 scagnostics, vividly named: "Outlying", "Skewed", "Sparse", "Clumpy", "Striated", "Convex", "Skinny" and "Stringy". Our question is whether these can be extended into projection pursuit indexes that can be used to find two-dimensional projections of high-dimensional data with unusual features. 
 
-Our motivation is based on applications in physics, to aid the interpretation of model fits on experimental results. Consider a physical model with a set of $m$ free parameters, that cannot be measured directly and are determined by fitting a set of $p$ experimental observations, for which predictions can be calculated when fixing all $m$ parameters. Note here, that while we often have analytic expressions for the predictions, this is not always the case and we may have to rely on numerical computation. Moreover, a single prediction can be a complicated function of all free parameters. In addition, we often deal with large number of observations, $p \sim 100-1000$ as well as sizable parameter spaces $m \sim 10$. The results of a fit are generally interpreted using combinations of variables selected by intuition and prior knowledge. But this begs the question, whether important associations are missed because tools to search are not available.
+Our motivation is based on applications in physics, to aid the interpretation of model fits on experimental results. Consider a physical model with a set of $p$ free parameters, that cannot be measured directly and are determined by fitting a set of $n$ experimental observations, for which predictions can be calculated when fixing all $p$ parameters. Note here, that while we often have analytic expressions for the predictions, this is not always the case and we may have to rely on numerical computation. Moreover, a single prediction can be a complicated function of all free parameters. In addition, we often deal with large number of observations, $n \sim 100-1000$ as well as sizable parameter spaces $p \sim 10$. The results of a fit are generally interpreted using combinations of variables selected by intuition and prior knowledge. But this begs the question, whether important associations are missed because tools to search are not available.
 
 <!--
 Suggestion German:
@@ -96,7 +96,7 @@ The results of a fit have been generally interpreted in terms of combinations of
 Our visualisation tools complement these procedures providing a high dimensional picture which assists with the interpretation of the results,  serves as a check for other methods and possibly revealing new associations.
 -->
 
-[@Grimm2016] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines and distance correlation, that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see discussion in \cite{huber1985,jones87}.}
+[@Grimm2016] explored the behaviour of scagnostics for selecting variables, and proposed two more, based on smoothing splines and distance correlation, that have some nicer properties. In addition the availability of another two indices based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518] round out our collection of metrics. \footnote{It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see discussion in \cite{huber85,jones87}.}
 These indices are all available in R packages [@rref]: scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
 
 The paper investigates the behaviour of these newly-defined indexes. Section \ref{sec:construct} discusses index construction, and how they fit into the guided tour. Section \ref{sec:investigate} investigates the behaviour of the indexes, particularly in relation to optimisation. The new guided tour methods are applied to an example where the posterior distributions from physics models (Section \ref{sec:phys}) are explored.
@@ -112,7 +112,7 @@ Explain here how to construct the pp index
 - Illustration of what is already available in tourr
 - New index explanations
 -->
-A projection pursuit index (PPI) is a scalar function $f$ defined on an $n$-dimensional data distribution. Typically the definition is such that larger values of $f$ indicate more interesting distribution, and therefore maximising $f$ over all possible $n$ dimensional projections of a data set with $p>n$ parameters will find the most interesting projections. As most indices characterise deviations from a normal distribution, one would first map the empiric data distribution onto a density for which such deviations can then be defined in different ways, see e.g. @CBC93. When departing from the idea of characterising differences to the normal distribution it may however be preferred to work directly with the empirical data distribution and instead characterise it by measures based on e.g. the minimal spanning tree or the mutual information.
+A projection pursuit index (PPI) is a scalar function $f$ defined on an $d$-dimensional data distribution. Typically the definition is such that larger values of $f$ indicate more interesting distribution, and therefore maximising $f$ over all possible $d$ dimensional projections of a data set with $p>d$ parameters will find the most interesting projections. As most indices characterise deviations from a normal distribution, one would first map the empiric data distribution onto a density for which such deviations can then be defined in different ways, see e.g. @CBC93. When departing from the idea of characterising differences to the normal distribution it may however be preferred to work directly with the empirical data distribution and instead characterise it by measures based on e.g. the minimal spanning tree or the mutual information.
 
 ## Standardization
 Lower dimensional projections are highly sensitive to standardization performed on the original distribution. We want to avoid e.g.  highlighting directions based only on different scales, or artifically extending the parameter range by including outliers, which may result in seemingly linear behaviour for most points. Methods to consider include rescaling of individual directions to a common interval (e.g. to fall between $[0,1]$), sphering, outlier removal or transformation to a logarithmic scale. The method(s) of choice should be informed by the distributions found in the data set as well as aims of the analysis. \textcolor{red}{particular challenges: noise only directions, identification of outliers?}
@@ -123,13 +123,13 @@ Lower dimensional projections are highly sensitive to standardization performed 
 
 
 ## Optimization
-Given a PPI we are confronted with the task of finding the maximum over all possible $n$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuatins or a consequence of noisy index functions, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
+Given a PPI we are confronted with the task of finding the maximum over all possible $d$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuatins or a consequence of noisy index functions, and @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimisation for the identification of the maximum. On the other hand the global maximum may not be the only projection of interest, and one may want to observe the selected views in the context of the full distribution rather than a static view. These issues are addressed when combining projection pursuit with the grand tour [@CBCH94]. In this case the properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshoothing and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible alogrithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. In addition the tourr package provides the \texttt{search\_geodesic} search function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
 
 \textcolor{red}{\cite{posse95b} discusses the optimisation, in particular that for most index functions and optimisers results are too local, largely dependent on starting point. Fiedmans suggestion of hybrid steppind search + steepest-ascent still remains fairly local. \cite{posse90} suggested random search instead, which seems to perform better, but did not find pdf of that article, so not so sure what he actually does.}
 
 ## New index functions
 \label{sec:indexDef}
-Focusing now on $n=2$ dimensional projections, we aim to identify projections that reveal interesting structures or correlations between combinations of variables. We therefore draw on index functions that have been developped for the selection of variable pairs that show interesting features in a scatter plot, but we generalise the notion such that instead of variable pairs we consider any $2$ dimensional projection of the multivariate data distribution. It means that we consider the projection axes as input to the index functions, which will thus score the interestingness of the given projection. What we are optimising over are then the entries of the $p\times2$ dimensional projection matrix, considering that they obey orthonormality conditions.
+Focusing now on $d=2$ dimensional projections, we aim to identify projections that reveal interesting structures or correlations between combinations of variables. We therefore draw on index functions that have been developped for the selection of variable pairs that show interesting features in a scatter plot, but we generalise the notion such that instead of variable pairs we consider any $2$ dimensional projection of the multivariate data distribution. It means that we consider the projection axes as input to the index functions, which will thus score the interestingness of the given projection. What we are optimising over are then the entries of the $p\times2$ dimensional projection matrix, considering that they obey orthonormality conditions.
 Concretely here we consider the following types of index functions:\footnote{We note that all descriptions are idealized, while in practice approximations and binning are used to obtain reasonable computing time, we refer to original references and package documentation for details.}
 
 * From the scagnostics family select those best suited to detect shapes, with definitions given below. They are defined to take values between [0,1]. \textcolor{red}{The definition of these should be rotation invariant, however, some small dependence is introduced via the hex binning that is done before calculating the scagnostics indexes.}
@@ -213,14 +213,14 @@ A useful projection pursuit index needs to have several properties. This has bee
 <!-- 
   should evolve smoothly between nearby projections, i.e. on an interpolated path we expect to observe slow and consistent change in the index function. \textcolor{red}{maybe can relate this to consistency consition developed by P. Hall, but don't understand this at the moment. In addition this relates to questions of optimiser choice and efficiency.} We evaluate smoothness both for transitions between noise variables and when moving from noise variables to an informative view in Section \ref{sec:smooth}.
 -->
-- **squintability**: \cite{barnett1981interpreting} introduced the idea of squint angle to indicate resolution of structure in the data. Fine structure like the parallel planes in the infamous RANDU data \ref{randu} has a small squint angle because you have to be very close to the optimal projection plane to be able to see the structure. Structures with small squint angle are difficult to find, because the optmisation algorithm needs to get very close to begin hill-climbing to the optimum. The analyst doesn't have control over the data structure, but does have control over the PPI. Squintability is about the shape of the PPI over all projections. It should have smooth low values for noise projections and a clearly larger value, ideally with a big squint angle, for structured projections. The optimiser should be able to clearly see the optimal projections as different from noise. To examine squintability, the PPI values are examined on interpolated tour paths between a noise projection and a distant structured projection. 
+- **squintability**: \cite{barnett1981interpreting} introduced the idea of squint angle to indicate resolution of structure in the data. Fine structure like the parallel planes in the infamous RANDU data \cite{compaqFortran} (FIXME this is fortran reference, could not find one for the dataset) has a small squint angle because you have to be very close to the optimal projection plane to be able to see the structure. Structures with small squint angle are difficult to find, because the optmisation algorithm needs to get very close to begin hill-climbing to the optimum. The analyst doesn't have control over the data structure, but does have control over the PPI. Squintability is about the shape of the PPI over all projections. It should have smooth low values for noise projections and a clearly larger value, ideally with a big squint angle, for structured projections. The optimiser should be able to clearly see the optimal projections as different from noise. To examine squintability, the PPI values are examined on interpolated tour paths between a noise projection and a distant structured projection. 
 <!--
 distribution of index values: the distribution of index values when studying data points without structure should have a low variance, and be clearly separated from index values obtained when looking at structured data distributions. \textcolor{red}{I dont really understand this part. I think it can instead be related to the concept of squint angle \cite{barnett1981interpreting}.} We show examples in Section \ref{sec:dist}
 -->
 - **flexibility**: An analyst can have a toolbox of indices that may cover the range of fine and broad structure, which underlies the scagnostics suite. Early indexes, based on density estimation could be programmed to detect fine or large structure by varying the binwidth. This is examined by using a range of structure in the simulated data examples. 
 <!--
 ability to find fine and broad structure: \textcolor{red}{there are two different considerations, one  that relates to the concept of squint angle discussed in \cite{posse95b}. On the other hand should also consider detection of "fine" structure vs noise, this would be controlled e.g. by the allowed number of bins for the MINE index functions, additionally this will impact computing times, i.e. trade accuracy for efficiency}. We address these questions in Section \ref{sec:params} with an illustrative example.-->
-- **rotation invariance**: The orientation of structure within a projection plane should not change the index value. This is especially important when using the projection pursuit guided tour, because the tour path is defined between planes, along a geodesic path, not bases within planes. If a particular orientation is more optimal, this will get lost as the projection shown pays no attention to orientation. \cite{bujaXXX} describes alternative interpolation paths based on Givens and Householder rotations which progress from basis to basis. It may be possible to ignore rotation invariance with these interpolations but there isn't a current implementation, primarily because the within-plane spin that is generated is distracting from a visualisation perspective. Rotation invariance is checked for the proposed PPIs by rotating the structured projection, within the plane. <!--
+- **rotation invariance**: The orientation of structure within a projection plane should not change the index value. This is especially important when using the projection pursuit guided tour, because the tour path is defined between planes, along a geodesic path, not bases within planes. If a particular orientation is more optimal, this will get lost as the projection shown pays no attention to orientation. \cite{Buja2004ComputationalMF} describes alternative interpolation paths based on Givens and Householder rotations which progress from basis to basis. It may be possible to ignore rotation invariance with these interpolations but there isn't a current implementation, primarily because the within-plane spin that is generated is distracting from a visualisation perspective. Rotation invariance is checked for the proposed PPIs by rotating the structured projection, within the plane. <!--
 in the tour there is an assumed degeneracy between all projections obtained when rotating within the projected space only, for 2-d projections it means that we cannot assing x- and y- axis without ambiguity. A projection pursuit index should therefore be invariant under rotation of the basis in the projection plane. By construction this is not the case for most index functions defined above. We illustrate the impact of non invariance in Section \ref{sec:rot}. \textcolor{red}{consider frame interpolation rather than plane interpolation, which will avoid issues of rotation when interpolating, reamining issue would be optimisation efficiency.}
 -->
 - **speed**: Being fast to compute allows the index to be used in real-time in a guided tour, where the optimisation can be watched. When the computations are shifted off-line, to watch in replay, computation times matter less. This is checked  by comparing times for benchmark scenarios with varying sample size and dimension. 
@@ -234,17 +234,17 @@ Three families of data simulations are used for examining the behaviour of the i
 
 - **pipe**: $p$ points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution, labelled "pipe"
 - **sine**:  $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function, labelled "sine"
-- **spiral**: XXX $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
+- **spiral**:  $n$ points where $p-2$ directions are independently drawn from a normal distribution, and direction $p-1$ and $p$ are sampled on an Archimedean spiral, i.e. $r = a + b \theta$, with $a=b=0.1$ and we sample angles $\theta$ from a normal distribution with mean 0 and variance $2\pi$, giving a spiral with higher densities at lower radii. We take the absolute value of $\theta$ to fix the direction of the spiral shape when sampling the points.
 
-Two samples sizes are also used: $p=100$ (small) and $p=1000$ (large).
+Two samples sizes are also used: $n=100$ (small) and $n=1000$ (large).
 
 ### Property assessment
 
 To understand the potential for the various indices defined we use the following overview procedures on the simulated data sets:
 
 - index values for pair of variables, explicitly comparing the uninformative and special view of each dataset, as well as discussing the dependence on the sample size, see Section \ref{sec:dataOv}
-- tour between pairs of variables, considering a planned tour that moves from the $V_1 - V_2$ view either to the $V_3 - V_4$ view (no special structure encountered over the full path) or to the $V_5 - V_6$ (moving from uninformed to special view), see Section \ref{sec:smooth}
-- optimisation path, starting from $V_1 - V_2$, how can we use the available index functions and optimisation algorithms to identify the special view, see Section \ref{sec:guided}
+- tour between pairs of variables, considering a planned tour that moves from the $x_1 - x_2$ view either to the $x_3 - x_4$ view (no special structure encountered over the full path) or to the $x_5 - x_6$ (moving from uninformed to special view), see Section \ref{sec:smooth}
+- optimisation path, starting from $x_1 - x_2$, how can we use the available index functions and optimisation algorithms to identify the special view, see Section \ref{sec:guided}
 - rotating a dataset with functional dependence to evaluate the rotation dependence of the index functions, see Section \ref{sec:rot}
 - benchmarking the computing time in Section \ref{sec:timer}
 
@@ -268,6 +268,13 @@ For each distribution we consider a small sample of $p=100$ and a large sample w
 scagIndex <- function(scagType){
   function(mat){
     sR <- scagnostics.default(mat[,1],mat[,2])$s
+    return(sR[scagType])
+  }
+}
+
+scagIndexNbin <- function(scagType, n){
+  function(mat){
+    sR <- scagnostics.default(mat[,1], mat[,2], bins = n)$s
     return(sR[scagType])
   }
 }
@@ -377,10 +384,10 @@ sin100 <- sinData(6, 100) %>% scale() %>% as_tibble()
 sin1000 <- sinData(6, 1000) %>% scale() %>% as_tibble()
 ```
 
-To get an overview of the dataset we show views of the first two parameters showing the independent distribution and the last two parameters showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of V6 (and V5 for the Pipe distribution) will be distinct from uninformed views of distributions 2 and 3.
+To get an overview of the dataset we show views of the first two directions showing the independent distribution and the last two directions showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of $x_6$ (and $x_5$ for the Pipe and Spiral distribution) will be distinct from uninformed views of distributions 2 and 3.
 
 
-```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the first two parameters V1 and V2, i.e. showing a typical uninformed view for each dataset."}
+```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the first two parameters $x_1$ and $x_2$, i.e. showing a typical uninformed view for each dataset."}
 pL <- list()
 i <- 1
 pLabels <- c("Spiral 100", "Spiral 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
@@ -395,7 +402,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
              ncol=2)
 ```
 
-```{r dataPlotsV5V6, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the last two parameters V5 and V6, i.e. showing the special view built into the Pipe and Sine datasets."}
+```{r dataPlotsV5V6, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the last two parameters $x_5$ and $x_6$, i.e. showing the special view built into the datasets."}
 pL <- list()
 i <- 1
 pLabels <- c("Spiral 100", "Spiral 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
@@ -414,7 +421,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
 its possible to do a single figure legend - need to look up code for this
 -->
 
-```{r dataPlotsDensity, fig.width=6, fig.height=7, fig.cap="One dimensional density distribution for all parameters and all data sets considered. Apart from statistical fluctuations we see that for the Pipe datasets the parameters V5 and V6 are pushed towards more extreme values by vetoing points away from the circle outline, and for the Sine dataset the parameter V6 follows a very distinct distribution. Note also that the first five paramters of the Sine dataset appear to be drawn from different normal distributions, which is a result of the rescaling, shifting the modes to different values for each direction."}
+```{r dataPlotsDensity, fig.width=6, fig.height=7, fig.cap="One dimensional density distribution for all parameters and all data sets considered. Apart from statistical fluctuations we see that for the Pipe datasets the parameters $x_5$ and $x_6$ are pushed towards more extreme values by vetoing points away from the circle outline, and for the Sine (and Spiral) dataset the parameter $x_6$ (and $x_5$) follows a very distinct distribution."}
 pL <- list()
 i <- 1
 pLabels <- c("Spiral 100", "Spiral 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
@@ -430,7 +437,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
              ncol=2)
 ```
 
-We next compare the various index values for three views: V1 vs V2, V5 vs V6 and V1 vs V6 (capturing differences from the different distribution in V6). For the Sphere distribution by construction we see only random fluctuations between the different views, which can be sizable in particular for small datasets. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fictional dependence.
+We next compare the various index values for three views: $x_1$ vs $x_2$, $x_5$ vs $x_6$ and $x_1$ vs $x_6$ (capturing differences from the different distribution in $x_6$). For the Spiral distribution the scagnostics indices skinny and stringy are large and close to their theoretic maximum for the special view. On the other hand while dcor2d is larger is also increased for the special view, the value is far from the theoretic maximum and larger values may be found in other views. MIC and TIC are also found to be sensitive to the spiral distribution. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fictional dependence.
 
 ```{r indexTable, echo=FALSE}
 i <- 1
@@ -473,7 +480,7 @@ knitr::kable(indexOverview,  caption = "Summary of index values.", digits=2)
 \textcolor{red}{Maybe it will be better to combine the two traces? Can have tour from V1-V2 to V3-V4 to V5-V6, indicate position of V3-V4 in path, will save space, make direct comparison easier.}
 
 ### Random fluctuations
-We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto V1-V2 to the projection onto V3-V4 and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views. Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples (p=100), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples (p=1000) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
+We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto $x_1$-$x_2$ to the projection onto $x_3$-$x_4$ and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views. Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples ($n=100$), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples ($n=1000$) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
 
 <!-- index values shouldn't be affected by sample size, on average it should be
 same value. Maybe some need to be normalised by n. Something needs fixing here.
@@ -541,7 +548,7 @@ if(!file.exists("cache/V1V2toV3V4.rda")){
 }
 ```
 
-```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="Short tour paths of uninformed views, moving from the projection onto V1-V2 to the projection onto V3-V4, for all considered datasets and index functions. Small samples (p=100) are shown in red, large samples (p=1000) in blue."}
+```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="Short tour paths of uninformed views, moving from the projection onto $x_1$-$x_2$ to the projection onto $x_3$-$x_4$, for all considered datasets and index functions. Small samples (n=100) are shown in red, large samples (n=1000) in blue."}
 fullResMelt <- melt(fullRes, id=c("t", "name", "size"))
 ggplot(fullResMelt, aes(x=t, y=value)) +
   geom_line(aes(color=factor(size))) + 
@@ -551,8 +558,8 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 
 
 ### Moving into informative projections
-We repeat the same exercise, but now we are interested in how the index values change when going from the view in V1 vs V2 to the view in V5 vs V6, which will also allow us to view the evolution between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
-We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour.
+We repeat the same exercise, but now we are interested in how the index values change when going from the view in $x_1$ vs $x_2$ to the view in $x_5$ vs $x_6$, which will also allow us to view the evolution between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
+We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour. Finally the Spiral appears to be the most challenging, having an even smaller squint angle than the Pipe distribution. While "cmass" appears to be appropriate to identify this view we may actually find larger values of this index for random distributions, making it unfit to use in a guided tour. The scagnostics indices skinny (or 1-convex) appear to be sensitive to the structure at a larger angle compared to MINE indices, but will suffer from the large fluctuations in random views when used in a guided tour.
 Various indices appear less noisy than seen in \ref{fig:plotV1V2toV3V4}, but note that the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
 
 TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full characteristic matrix is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view, in terms of the relative differences.
@@ -580,7 +587,7 @@ if(!file.exists("cache/plannedtourpath.rda")){
 }
 ```
 
-```{r plannedtour, fig.width=6, fig.height=7, fig.cap="As Figure \\ref{fig:plotV1V2toV3V4} but moving from the projection onto V1-V2 to the projection onto V5-V6, i.e. starting from random distribution view, and moving into the special view."}
+```{r plannedtour, fig.width=6, fig.height=7, fig.cap="As Figure \\ref{fig:plotV1V2toV3V4} but moving from the projection onto $x_1$-$x_2$ to the projection onto $x_5$-$x_6$, i.e. starting from random distribution view, and moving into the special view."}
 fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
 ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
   geom_line(aes(color=factor(size))) + 
@@ -591,7 +598,7 @@ ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
 
 ## Distributions of index values
 \label{sec:dist}
-Compare typical index values over the two tour paths. Notation: path 1 / 2 labels tour from V1-V2 to V3-V4 / V5-V6. Typically find broader distributions for small samples because of the large fluctuations in this case. Some indices show preferred behaviour, i.e. sharp peaks around low values for path 1, and very broad distributions leading up to maximum values for path 2. For other indices we can see the strong dependence of the index on sample size, the most extreme example is the skinny index.
+Compare typical index values over the two tour paths. Notation: path 1 / 2 labels tour from $x_1$-$x_2$ to $x_3$-$x_4$ / $x_5$-$x_6$. Typically find broader distributions for small samples because of the large fluctuations in this case. Some indices show preferred behaviour, i.e. sharp peaks around low values for path 1, and very broad distributions leading up to maximum values for path 2. For other indices we can see the strong dependence of the index on sample size, the most extreme example is the skinny index.
 
 \textcolor{red}{Need better representation, in particular normalise TIC to upper limit for given sample size, adapt scales so sharp peaks don't dominate some of the plots.}
 
@@ -607,7 +614,7 @@ ggplot(allRes, aes(x=value)) +
 
 ## Rotation dependence
 \label{sec:rot}
-\textcolor{red}{testing rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$}
+\textcolor{red}{testing rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$, maybe can add second path for spiral?}
 Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binning (and outlier removal?) here. Observe huge drops for some of the indexes! 
 ```{r rotationDep, fig.width=6, fig.height=7, fig.cap="Rotation dependence of the considered index functions tested on the sine 1000 dataset, by rotating the special view by an angle alpha."}
 if(!file.exists("cache/rotationDep.rda")){
@@ -656,7 +663,7 @@ ggplot(scMelt, aes(x=alpha, y=value)) +
 
 ## Note on calculation time
 \label{sec:timer}
-Computing time differs for each index, and depends strongly on the number of data points (as well as probably some dependence on distribution type), here we use as an example the 6-d sphere and calculate the computing time for different indices over 100 interpolated grand tour projections as a function of the sample size.
+Computing time differs for each index, and depends strongly on the number of data points (as well as probably some dependence on distribution type), here we use as an example samples of points in a 6-d solid sphere (obtained via the geozoo package [@geozoo]) and calculate the computing time for different indices over 100 interpolated grand tour projections as a function of the sample size. \textcolor{red}{Since projection is fast compared to index evaluation, the number of original dimensions is not very important here. On the other hand different distributions may impact the computing time.}
 We see that the evaluation of the spline index shows weak dependence on the sample size, making it the least efficient for very small data sets, but one of the fastest when considering large data sets. The situation is similar for calculating the scagnositics measures, which are however faster to compute on datasets of around 10 points. This is because the implementation is first binning the data points, which is fast compared to the evaluation that requires triangulation of the binned points. The distance correlation based measure exhibits strong increase with sample size, we note however that the implementation also allowes for evaluation on binned data points which we have not considered. Finally for the MINE family the computing time increases exponentially as can be expected from the dependence on the sample size, where we see that the improved $MIC_e$ algorithm is somewhat faster than the original implementation, see also @JMLRv1715308.
 
 \textcolor{red}{The plot is not perfect. I use alpha to fade out points, but cant find value that gives nice picture here. In addition the timer isnt precise enough to resolve timing for some indexes on small datasets, they are zeroes, appear on bottom of the log10 y axis.}
@@ -739,6 +746,55 @@ Some parameters must be fixed when using the index functions considered here, co
     - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
     - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points, see Equation \ref{eq:MIC}. The default is chosen such as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
 - Spline knots: for the splines2D measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
+
+### Scagnostics binning
+The implementation of scagnostics will always perform a binning step first, before evaluating the measures. The binning will introduce random fluctuations on interpolated tour paths, but we may also consider using it to reduce fluctuations from the discreteness inherent to the index definitions, see in particular the definition of the stringy index. This needs some care however as different values may be preferred for different structures and depending on which index is being considered. Moreover, choosing a binning that is too rough may result in loss of discrimination power as structures can no longer be resolved. As an example we compare in Figure \ref{fig:sprialScagBinning} the scagnostics index traces for the Spiral 1000 dataset when moving from $x_1$-$x_2$ to $x_5$-$x_6$, for three values of the bins parameter entering the hexagonal binning procedure. We find indeed that different values may be preferred depending on the index considered, with the default bins=50 being the better choice for the convex and skinny index, while bins=20 may work better for the stringy index. Note that neither choice results in smooth curves for any of the indexes considered here.
+
+```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example. For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detedction being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice."}
+getScagComp <- function(df, tPath){
+  sc <- tibble(
+    convex10=numeric(),
+    skinny10=numeric(),
+    stringy10=numeric(),
+    convex20=numeric(),
+    skinny20=numeric(),
+    stringy20=numeric(),
+    convex50=numeric(),
+    skinny50=numeric(),
+    stringy50=numeric(),
+    t=numeric())
+  n <- length(tPath)
+  for (i in 1:n) {
+    dprj <- as.matrix(df) %*% tPath[[i]]
+    scagRes10 <- scagnostics.default(dprj[,1], dprj[,2], bins=10)$s
+    scagRes20 <- scagnostics.default(dprj[,1], dprj[,2], bins=20)$s
+    scagRes50 <- scagnostics.default(dprj[,1], dprj[,2], bins=50)$s
+    sc <- add_row(sc,
+                  convex10=scagRes10["Convex"], skinny10=scagRes10["Skinny"],
+                  stringy10=scagRes10["Stringy"],
+                  convex20=scagRes20["Convex"], skinny20=scagRes20["Skinny"],
+                  stringy20=scagRes20["Stringy"],
+                  convex50=scagRes50["Convex"], skinny50=scagRes50["Skinny"],
+                  stringy50=scagRes50["Stringy"],
+                  t=i)
+  }
+  
+  return(sc)
+}
+if(!file.exists("cache/spiralScagBinning.rda")){
+  scagBinningDf <- getScagComp(spiral1000, t2full)
+  scagMelt <- melt(scagBinningDf, id=c("t")) %>%
+    mutate(nbin = as.numeric(str_sub(variable, start = -2))) %>%
+    mutate(idx = str_sub(variable, end = -3))
+  save(scagBinningDf, scagMelt, file = "cache/spiralScagBinning.rda")
+} else {
+  load("cache/spiralScagBinning.rda")
+}
+ggplot(scagMelt, aes(x=t, y=value)) +
+  geom_line(aes(color=factor(nbin))) + 
+  facet_wrap(~idx, ncol=1, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
+
+```
 
 ### Illustrative example
 A nice example can be constructed based on the RANDU dataset available in R. We use the MIC index and compare different parametrisations of the maximum binning by $\alpha$, where $B(n) = n^{\alpha}$. We compare in Figure \ref{fig:randuEx} the final view, index value and computing time obtained when optimising the MIC index with values $\alpha = 0.6, 0.7, 0.8$. Despite the low dimensionality, the small quint angle of the structure means that the identification of the maximum depends strongly on the starting conditions. Empirically we have found that using $\alpha = 0.7$ is most efficient in identifying the structure, while the default value $\alpha = 0.6$ is most likely to miss the structure given equal starting conditions.
@@ -885,7 +941,7 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 
 \textcolor{red}{can use skinny to find sprial in 3 dimensions, but not higher, scouting method does not work because of large rotation dependence, maybe make it study of guided tour success vs number of parameters entering? e.g. given n starting planes how many times was view in plane V5-V6 identified as function of number of dimensions and index used?}
 
-\textcolor{red}{what about role of optimisation here? search_better not working because rotation in plane makes index drop randomly, geodesic search does not work because (my guess) it picks directions based on being most promising on small step size tests, maybe need to modify code to pass step size as argument, search directions based on larger step size may result in improved scouting run? (but may also give same issues of rotation dependence) -- tried but didnt really work...}
+\textcolor{red}{what about role of optimisation here? search\_better not working because rotation in plane makes index drop randomly, geodesic search does not work because (my guess) it picks directions based on being most promising on small step size tests, maybe need to modify code to pass step size as argument, search directions based on larger step size may result in improved scouting run? (but may also give same issues of rotation dependence) ... tried  but didnt really work...}
 
 ```{r findspiral, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the skinny index for the Sprial 1000 dataset.", results="hide"}
 #getResWithSeed <- function(s){
@@ -896,7 +952,7 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 #set.seed(202020)
 #if(!file.exists("cache/findsine.rda")){
 #  spiralResc <- as.matrix(spiral1000)
-
+#spiralTour <- save_history(spiralResc, guided_tour(dcorIndex()))
 #spiralTour <- save_history(spiralResc, guided_tour(scagIndex("Skinny"), max.tries = 100, n=10, stepS=0.5), max_bases = 10000)
   #spiralTour <- save_history(spiralResc,guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better,
   #                                   alpha = 0.5, max.tries = 500), max_bases = 10000)
@@ -911,9 +967,23 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 #ggplot(spiralTourResMelt, aes(x=t, y=value)) +
 #  geom_line() + 
 #  facet_wrap(~variable, ncol=1, scales = "free_y")
+#iL <- length(as.list(spiralTour))
+#dProj <- spiralResc %*% as.list(spiralTour)[[iL]]
+#ggplot(as.tibble(dProj), aes(V1, V2)) + geom_point()
 ```
 
 
+## Possible modifications
+
+Big issues: smoothness, rotation invariance
+
+### Smoothing
+
+Focusing on scagnostics indices, for which the biggest issues with noisy transitions have been observed. Smoothing can be performed by interpolation, or averaging similar views. For example we can use jittering, or we can use tour functionalities to find a set of randomly selected projections within a small angle of the current view. In this way we can generate a number of similar views. We can then select the mean value, or to avoid large pulls from sharp peaks, we can remove the most extreme values and then calulate the mean from the remaining evaluations.
+
+
+### Rotation invariance
+Do we want to say anything here? big issue for splines2D measure, but also scagnostics
 
 ## Summary
 
@@ -921,20 +991,20 @@ Our results can be summarised by evaluating and comparing the advantages and dis
 
 \begin{table}
 \begin{center}
-\caption{Summary of findings, showing to what extend the considered index functions pass the criteria for a good PPI. Checkmark symbols good behaviour, exclamation mark symbols some issues while cross symbols failure on the corresponding criteria. Each index has particular strengths and drawbacks and selection must be guided by the considered example, see text for details.}
+\caption{Summary of findings, showing to what extend the considered index functions pass the criteria for a good PPI. "\checkmark" symbols good behaviour, "$\cdot$" symbols some issues while "$\times$" symbols failure on the corresponding criteria. Each index has particular strengths and drawbacks and selection must be guided by the considered example, see text for details.}
 \label{tab:summary}
 \begin{tabular}{|l|c|c|c|c|c|c|}
 \hline
 Index & smooth & squintability & flexible & rotation invariant & speed \\
 \hline
-Convex & ! & ! & ! & ! & \checkmark \\
-Skinny & ! & !& ! & ! & \checkmark \\
-Stringy & $\times$ & $\times$ & ! & ! & \checkmark \\
+Convex & $\cdot$ & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
+Skinny & $\cdot$ & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
+Stringy & $\times$ & $\times$ & $\cdot$ & $\cdot$ & \checkmark \\
 \hline
-splines2D & \checkmark & \checkmark & ! & $\times$ & \checkmark \\
-dcor2D & \checkmark & \checkmark & ! & $\times$ & ! \\
+splines2D & \checkmark & \checkmark & $\cdot$ & $\times$ & \checkmark \\
+dcor2D & \checkmark & \checkmark & $\cdot$ & $\times$ & $\cdot$ \\
 \hline
-MINE & ! & \checkmark  & \checkmark & ! & ! \\
+MINE & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
 \hline
 \end{tabular}
 \end{center}
