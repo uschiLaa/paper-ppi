@@ -974,7 +974,7 @@ Big issues: smoothness, rotation invariance
 
 Focusing on scagnostics indices, for which the biggest issues with noisy transitions have been observed. Smoothing can be performed by interpolation, or averaging similar views. For example we can use jittering, or we can use tour functionalities to find a set of randomly selected projections within a small angle of the current view. In this way we can generate a number of similar views. We can then select the mean value, or to avoid large pulls from sharp peaks, we can remove the most extreme values and then calulate the mean from the remaining evaluations. Similar to the study of scagnostics binning we now compare different methods of smoothing when moving into the special view of the Spiral 1000 dataset.
 
-```{r spiralScagSmoothing, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example. For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detedction being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice."}
+```{r spiralScagSmoothing, fig.cap="Comparing the traces of the three scagnostics indices when smoothing the index values, either by averaging over the index value after jittering the projection by some angle alpha (left) or after jittering the projected datapoints with some amount alpha (right). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered."}
 
 jitterScagnostics <-function(proj, d, alpha){
   newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
@@ -1033,8 +1033,8 @@ if(!file.exists("cache/spiralScagSmoothing.rda")){
 }
 
 ggplot(scagSmoothMelt, aes(x=t, y=value)) +
-  geom_line(aes(color=method, linetype=factor(alpha))) + 
-  facet_wrap(~variable, ncol=1, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
+  geom_line(aes(color=factor(alpha))) + 
+  facet_wrap(variable~method, ncol=2, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
 
 ```
 
