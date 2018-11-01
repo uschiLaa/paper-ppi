@@ -230,11 +230,11 @@ in the tour there is an assumed degeneracy between all projections obtained when
 ### Data construction
 \label{sec:dataOv}
 
-Three families of data simulations are used for examining the behaviour of the index functions. Each generates  structure in two variables, with the remaining variables containing various types of noise. This is a very simple construction, because there is no need for projection pursuit to find the structure, one could simply use the scagnostics on pairs of variables. However, it serves the purpose to also evaluate the PPIs. The three data families are:
+Three families of data simulations are used for examining the behaviour of the index functions. Each generates  structure in two variables, with the remaining variables containing various types of noise. This is a very simple construction, because there is no need for projection pursuit to find the structure, one could simply use the scagnostics on pairs of variables. However, it serves the purpose to also evaluate the PPIs. The three data families are explained below. In each set, $p$ is used for the number of points, $n$ is the number of dimensions, and $d=2$ is the projection dimension.
 
 - **pipe**: $p$ points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution, labelled "pipe"
 - **sine**:  $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function, labelled "sine"
-- **sphere**:  $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
+- **spiral**: XXX $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
 
 Two samples sizes are also used: $p=100$ (small) and $p=1000$ (large).
 
@@ -257,7 +257,7 @@ To understand the potential for the various indices defined we use the following
 
 To test the behaviour of the index functions we use three types of simulated data sets based on different underlying distributions, and with different built-in features. They are defined in $n=6$ dimensions with $p$ randomly selected points $x_i, i = 1,..,n$ according to:
 
-- sphere:  $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
+- spiral:  XXX $p$ points on an n-dimensional sphere randomly selected using the geozoo package [@geozoo], as an example of dataset without special views, labelled "sphere"
 - pipe: $p$ points where $n-1$ points are independently drawn from a uniform distribution between $[-1,1]$, and enforcing $x_n^2 + x_{n-1}^2 = 1 \pm 0.1$ by rejection sampling as an example of a dataset with special view that is not described by functional dependence, and where sampling boundaries are apparent in the distribution, labelled "pipe"
 - sine:  $p$ points where $n-1$ points are independently drawn from a normal distribution with mean 0 and variance 1, and with $x_n = \sin(x_{n-1}) + \mathrm{jittering}$ as an example dataset with special view described by a function, labelled "sine"
 
