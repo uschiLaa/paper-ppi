@@ -361,7 +361,7 @@ sin100 <- sinData(6, 100) %>% scale() %>% as_tibble()
 sin1000 <- sinData(6, 1000) %>% scale() %>% as_tibble()
 ```
 
-Figure \ref{data} shows samples from each of the families, both nuisance and structured projections. 
+Figure \ref{data} shows samples from each of the families, of the nuisance and structured pairs of variables. 
 
 <!--
 To get an overview of the dataset we show views of the first two directions showing the independent distribution and the last two directions showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of $x_6$ (and $x_5$ for the Pipe and Spiral distribution) will be distinct from uninformed views of distributions 2 and 3.
@@ -447,7 +447,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
 its possible to do a single figure legend - need to look up code for this
 -->
 
-```{r dataPlotsDensity, fig.width=6, fig.height=7, fig.cap="One dimensional density distribution for all parameters and all data sets considered. Apart from statistical fluctuations we see that for the Pipe datasets the parameters $x_5$ and $x_6$ are pushed towards more extreme values by vetoing points away from the circle outline, and for the Sine (and Spiral) dataset the parameter $x_6$ (and $x_5$) follows a very distinct distribution."}
+```{r dataPlotsDensity, fig.width=6, fig.height=7, fig.cap="One dimensional density distribution for all parameters and all data sets considered. Apart from statistical fluctuations we see that for the Pipe datasets the parameters $x_5$ and $x_6$ are pushed towards more extreme values by vetoing points away from the circle outline, and for the Sine (and Spiral) dataset the parameter $x_6$ (and $x_5$) follows a very distinct distribution.", eval=FALSE}
 pL <- list()
 i <- 1
 pLabels <- c("Spiral 100", "Spiral 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
@@ -463,6 +463,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
              ncol=2)
 ```
 
+Table \ref{indexTable} compares the PPIs for structured projections against those for nuisance variables. XXX adjust the text below once re-working of table is done.
 We next compare the various index values for three views: $x_1$ vs $x_2$, $x_5$ vs $x_6$ and $x_1$ vs $x_6$ (capturing differences from the different distribution in $x_6$). For the Spiral distribution the scagnostics indices skinny and stringy are large and close to their theoretic maximum for the special view. On the other hand while dcor2d is larger is also increased for the special view, the value is far from the theoretic maximum and larger values may be found in other views. MIC and TIC are also found to be sensitive to the spiral distribution. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fictional dependence.
 
 ```{r indexTable, echo=FALSE}
@@ -500,12 +501,11 @@ knitr::kable(indexOverview,  caption = "Summary of index values.", digits=2)
 
 
 
-## Index traces over sequence of interpolated projections
+## Index traces over tour sequence of interpolated nuisance projections
 \label{sec:smooth}
 
 \textcolor{red}{Maybe it will be better to combine the two traces? Can have tour from V1-V2 to V3-V4 to V5-V6, indicate position of V3-V4 in path, will save space, make direct comparison easier.}
 
-### Random fluctuations
 We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto $x_1$-$x_2$ to the projection onto $x_3$-$x_4$ and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views. Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples ($n=100$), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples ($n=1000$) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
 
 <!-- index values shouldn't be affected by sample size, on average it should be
@@ -583,7 +583,9 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 ```
 
 
-### Moving into informative projections
+## Index traces over tour sequence between nuisance and structured projections
+\label{sec:squintability}
+
 We repeat the same exercise, but now we are interested in how the index values change when going from the view in $x_1$ vs $x_2$ to the view in $x_5$ vs $x_6$, which will also allow us to view the evolution between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
 We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour. Finally the Spiral appears to be the most challenging, having an even smaller squint angle than the Pipe distribution. While "cmass" appears to be appropriate to identify this view we may actually find larger values of this index for random distributions, making it unfit to use in a guided tour. The scagnostics indices skinny (or 1-convex) appear to be sensitive to the structure at a larger angle compared to MINE indices, but will suffer from the large fluctuations in random views when used in a guided tour.
 Various indices appear less noisy than seen in \ref{fig:plotV1V2toV3V4}, but note that the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
