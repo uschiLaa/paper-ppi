@@ -204,6 +204,8 @@ library(mbgraphic) #Katrins package
 library(GGally)
 library(geozoo)
 library(minerva) #MINE indices
+library(kableExtra)
+library(forcats)
 ```
 
 
@@ -473,7 +475,7 @@ tableTemp <- function(){
     index=character(),
     data=character(),
     size=numeric(),
-    structured=character(),
+    type=character(),
     value5=numeric(),
     value95=numeric()
   )
@@ -492,7 +494,7 @@ getSample <- function(dataT, size){
   return(ret)
 }
 
-getIdx <- function(dataT, size, structured){
+getIdx <- function(dataT, size, type){
   convex <- numeric(length = 100)
   skinny <- numeric(length = 100)
   stringy <- numeric(length = 100)
@@ -502,7 +504,7 @@ getIdx <- function(dataT, size, structured){
   splines2D <- numeric(length = 100)
   for(i in 1:100){
     cSample <- getSample(dataT, size)
-    if(!structured){
+    if(type == "noise"){
       x = as.numeric(cSample$V1)
       y = as.numeric(cSample$V2)
     } else{
@@ -521,26 +523,26 @@ getIdx <- function(dataT, size, structured){
   }
   lapply(c(skinny, stringy, convex, micidx, ticidx, dcor2D, splines2D), sort)
   res <- tableTemp() %>%
-    add_row(index="Skinny", data=dataT, size=size,
-            structured=ifelse(structured, "yes", "no"),
+    add_row(index="skinny", data=dataT, size=size,
+            type=type,
             value5=skinny[5], value95=skinny[95]) %>%
-    add_row(index="Stringy", data=dataT, size=size,
-            structured=ifelse(structured, "yes", "no"),
+    add_row(index="stringy", data=dataT, size=size,
+            type=type,
             value5=stringy[5], value95=stringy[95]) %>%
-    add_row(index="Convex", data=dataT, size=size,
-            structured=ifelse(structured, "yes", "no"),
+    add_row(index="convex", data=dataT, size=size,
+            type=type,
             value5=convex[5], value95=convex[95]) %>%
     add_row(index="MICe", data=dataT, size=size,
-            structured=ifelse(structured, "yes", "no"),
+            type=type,
             value5=micidx[5], value95=micidx[95]) %>%
     add_row(index="TICe", data=dataT, size=size,
-            structured=ifelse(structured, "yes", "no"),
+            type=type,
             value5=ticidx[5], value95=ticidx[95]) %>%
     add_row(index="dcor2D", data=dataT, size=size,
-            structured=ifelse(structured, "yes", "no"),
+            type=type,
             value5=dcor2D[5], value95=dcor2D[95]) %>%
     add_row(index="splines2D", data=dataT, size=size,
-            structured=ifelse(structured, "yes", "no"),
+            type=type,
             value5=splines2D[5], value95=splines2D[95])
 }
 
@@ -549,16 +551,43 @@ if(!file.exists("cache/indexTable.rda")){
   res <- tableTemp()
   for(ds in c("Pipe", "Sine", "Spiral")){
     for (size in c(100, 1000)){
-      for (structured in c(TRUE, FALSE)){
-        res <- full_join(res,getIdx(ds, size, structured))
+      for (type in c("structure", "noise")){
+        res <- bind_rows(res,getIdx(ds, size, type))
       }
     }
   }
+  res <- res %>% arrange(data, size, index, type) %>% select(data, size, index, type, value5, value95)
   save(res, file = "cache/indexTable.rda")
 } else {
   load("cache/indexTable.rda")
 }
-knitr::kable(res,  caption = "Summary of index values.", digits=2) 
+resp <- res %>% filter(size == 1000, data == "Pipe") %>%
+  select(index, type, value95, value5) %>%
+  rename(lower=value95, upper=value5)
+resi <- res %>% filter(size == 1000, data == "Sine") %>%
+  select(index, type, value95, value5) %>%
+  rename(lower=value95, upper=value5)
+ress <- res %>% filter(size == 1000, data == "Spiral") %>%
+  select(index, type, value95, value5) %>%
+  rename(lower=value95, upper=value5)
+res_all <- bind_cols(resp, resi, ress) %>%
+  select(-index1, -type1, -index2, -type2) %>%
+  mutate(index = fct_relevel(index, "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe")) %>%
+  mutate(index = c("convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", ""))
+# Good resource for doing tables
+# https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_pdf.pdf
+kable(res_all, format = "latex",  caption = "Comparison of index values between noise projections and structured projections for sample size 1000, using 5th and 95th percentiles from 100 simulated sets. Most indices have much larger values for the structured projections, except for convex.", 
+      col.names=c("Index","", "lower", "upper", "lower", "upper", "lower", "upper"),
+      digits=2, booktabs = T) %>% 
+      add_header_above(c(" ", " ", "pipe" = 2, "sine" = 2, "spiral"=2)) %>%
+  group_rows("", 1, 2) %>%
+  group_rows("", 3, 4) %>%
+  group_rows("", 5, 6) %>%
+  group_rows("", 7, 8) %>%
+  group_rows("", 9, 10) %>%
+  group_rows("", 11, 12) %>%
+  group_rows("", 13, 14) %>%
+  kable_styling(position = "center")
 ```
 
 
