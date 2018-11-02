@@ -204,6 +204,7 @@ library(mbgraphic) #Katrins package
 library(GGally)
 library(geozoo)
 library(minerva) #MINE indices
+library(kableExtra) #table layout
 ```
 
 
@@ -519,29 +520,29 @@ getIdx <- function(dataT, size, structured){
     dcor2D[i] <- dcor2d(x=x, y=y)
     splines2D[i] <- splines2d(x,y)
   }
-  lapply(c(skinny, stringy, convex, micidx, ticidx, dcor2D, splines2D), sort)
+  sortedList <- lapply(list(skinny, stringy, convex, micidx, ticidx, dcor2D, splines2D), sort)
   res <- tableTemp() %>%
     add_row(index="Skinny", data=dataT, size=size,
             structured=ifelse(structured, "yes", "no"),
-            value5=skinny[5], value95=skinny[95]) %>%
+            value5=sortedList[[1]][5], value95=sortedList[[1]][95]) %>%
     add_row(index="Stringy", data=dataT, size=size,
             structured=ifelse(structured, "yes", "no"),
-            value5=stringy[5], value95=stringy[95]) %>%
+            value5=sortedList[[2]][5], value95=sortedList[[2]][95]) %>%
     add_row(index="Convex", data=dataT, size=size,
             structured=ifelse(structured, "yes", "no"),
-            value5=convex[5], value95=convex[95]) %>%
+            value5=sortedList[[3]][5], value95=sortedList[[3]][95]) %>%
     add_row(index="MICe", data=dataT, size=size,
             structured=ifelse(structured, "yes", "no"),
-            value5=micidx[5], value95=micidx[95]) %>%
+            value5=sortedList[[4]][5], value95=sortedList[[4]][95]) %>%
     add_row(index="TICe", data=dataT, size=size,
             structured=ifelse(structured, "yes", "no"),
-            value5=ticidx[5], value95=ticidx[95]) %>%
+            value5=sortedList[[5]][5], value95=sortedList[[5]][95]) %>%
     add_row(index="dcor2D", data=dataT, size=size,
             structured=ifelse(structured, "yes", "no"),
-            value5=dcor2D[5], value95=dcor2D[95]) %>%
+            value5=sortedList[[6]][5], value95=sortedList[[6]][95]) %>%
     add_row(index="splines2D", data=dataT, size=size,
             structured=ifelse(structured, "yes", "no"),
-            value5=splines2D[5], value95=splines2D[95])
+            value5=sortedList[[7]][5], value95=sortedList[[7]][95])
 }
 
 if(!file.exists("cache/indexTable.rda")){
@@ -558,7 +559,22 @@ if(!file.exists("cache/indexTable.rda")){
 } else {
   load("cache/indexTable.rda")
 }
-knitr::kable(res,  caption = "Summary of index values.", digits=2) 
+
+res <- res %>%
+  mutate(Range=paste0("[",formatC(value5, digits=2, format ="f"),",",
+                      formatC(value95, digits=2, format = "f"),"]")) %>%
+  select(-value5, -value95) %>%
+  spread(key=structured, value = Range) %>%
+  rename(nuisance=no, structured=yes) %>%
+  arrange(data) %>%
+  select(-data)
+  
+
+kable(res,  "latex", booktabs = T, longtable = T, caption = "Summary of index values.", digits=2) %>%
+  kable_styling(latex_options = c("repeat_header")) %>%
+  group_rows("Pipe", 1, 14) %>%
+  group_rows("Sine", 15, 28) %>%
+  group_rows("Spiral", 29, 42)
 ```
 
 
