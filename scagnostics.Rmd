@@ -466,7 +466,6 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
 Table \ref{indexTable} compares the PPIs for structured projections against those for nuisance variables. XXX adjust the text below once re-working of table is done.
 We next compare the various index values for three views: $x_1$ vs $x_2$, $x_5$ vs $x_6$ and $x_1$ vs $x_6$ (capturing differences from the different distribution in $x_6$). For the Spiral distribution the scagnostics indices skinny and stringy are large and close to their theoretic maximum for the special view. On the other hand while dcor2d is larger is also increased for the special view, the value is far from the theoretic maximum and larger values may be found in other views. MIC and TIC are also found to be sensitive to the spiral distribution. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fictional dependence.
 
-FIXME yes/no labels appear to be inverted?
 
 ```{r indexTable, echo=FALSE}
 tableTemp <- function(){
@@ -503,7 +502,7 @@ getIdx <- function(dataT, size, structured){
   splines2D <- numeric(length = 100)
   for(i in 1:100){
     cSample <- getSample(dataT, size)
-    if(structured){
+    if(!structured){
       x = as.numeric(cSample$V1)
       y = as.numeric(cSample$V2)
     } else{
