@@ -241,67 +241,6 @@ Three families of data simulations are used for examining the behaviour of the i
 
 The structured projection is in fifth and sixth variables. Two samples sizes are also used: $n=(100, 1000)$. All variables are standardized to mean 0 and standard deviation 1. 
 
-```{r datasets}
-# sample(1000:9999, 1)
-set.seed(3705)
-spiral100 <- spiralData(6, 100) %>% scale() %>% as_tibble()
-spiral1000 <- spiralData(6, 1000) %>% scale() %>% as_tibble()
-#sphere100 <- sphereData(6, 100) %>% scale() %>% as_tibble()
-#sphere1000 <- sphereData(6, 1000) %>% scale() %>% as_tibble()
-
-pipe100 <- pipeData(6, 100) %>% scale() %>% as_tibble()
-pipe1000 <- pipeData(6,1000) %>% scale() %>% as_tibble()
-
-sin100 <- sinData(6, 100) %>% scale() %>% as_tibble()
-sin1000 <- sinData(6, 1000) %>% scale() %>% as_tibble()
-```
-
-Figure \ref{data} shows samples from each of the families, both nuisance and structured projections. 
-
-<!--
-To get an overview of the dataset we show views of the first two directions showing the independent distribution and the last two directions showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of $x_6$ (and $x_5$ for the Pipe and Spiral distribution) will be distinct from uninformed views of distributions 2 and 3.
--->
-
-```{r data, fig.width=6, fig.height=7, fig.cap="Scatterplots of pairs of variables from samples of each family, showing the nuisance variables and structured variables."}
-dsn <- spiral1000 %>% select(V1, V2) %>%
-  rename(X1=V1, X2=V2) %>%
-  mutate(family="spiral", type="nuisance")
-dss <- spiral1000 %>% select(V5, V6) %>%
-  rename(X1=V5, X2=V6) %>%
-  mutate(family="spiral", type="structured")
-dpn <- pipe1000 %>% select(V1, V2) %>%
-  rename(X1=V1, X2=V2) %>%
-  mutate(family="pipe", type="nuisance")
-dps <- pipe1000 %>% select(V5, V6) %>%
-  rename(X1=V5, X2=V6) %>%
-  mutate(family="pipe", type="structured")
-din <- sin1000 %>% select(V1, V2) %>%
-  rename(X1=V1, X2=V2) %>%
-  mutate(family="sine", type="nuisance")
-dis <- sin1000 %>% select(V5, V6) %>%
-  rename(X1=V5, X2=V6) %>%
-  mutate(family="sine", type="structured")
-d <- bind_rows(dsn, dss, dpn, dps, din, dis)
-ggplot(d, aes(x=X1, y=X2)) + geom_point(alpha=0.3) + 
-  facet_grid(type~family) + theme(aspect.ratio=1) +
-  xlab("") + ylab("")
-```
-
-### Property assessment
-
-The family of data sets can be used to assess the PPIs on the desirable properties: smoothness, squintability, flexibility, rotation invariance, and speed. The procedures are as follows:
-
-- Compare the index values for structured vs nuisance variables, by simulating many examples from the model families, and recording the 90% confidence intervals. This checks if the PPI can detect the structure, that it has distinct differences between the sets of values. 
-- Use the tour to show the index values along an interpolation between pairs of nuisance variables, $x_1 - x_2$ view either to the $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
-- Use the tour to show the index values along an interpolation between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
-- A guided tour, showing the optimisation path, starting from $x_1 - x_2$, for one index, shows how effectively the maximum is attained. The values for other PPIs is computed for this path also, which allows an assessment of similarity between PPIs. 
-- Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
-- Benchmarking is used to assess the computational speed.
-
-<!--
-\textcolor{red}{\cite{posse95a} uses simulations with "strongly hidden structure", i.e. truncated Gaussian distributions with approximately identity covariance matrix, such that they don't appear in any of the principal component planes. In particular seems that spiral is hardest to identify based on results from Posse, maybe I can add this to my sphere dataset? or instead of it?}
--->
-
 ```{r util}
 #defining index functions to be used with the tour
 scagIndex <- function(scagType){
@@ -406,6 +345,68 @@ spiralData <- function(n, p){
 }
 
 ```
+
+```{r datasets}
+# sample(1000:9999, 1)
+set.seed(3705)
+spiral100 <- spiralData(6, 100) %>% scale() %>% as_tibble()
+spiral1000 <- spiralData(6, 1000) %>% scale() %>% as_tibble()
+#sphere100 <- sphereData(6, 100) %>% scale() %>% as_tibble()
+#sphere1000 <- sphereData(6, 1000) %>% scale() %>% as_tibble()
+
+pipe100 <- pipeData(6, 100) %>% scale() %>% as_tibble()
+pipe1000 <- pipeData(6,1000) %>% scale() %>% as_tibble()
+
+sin100 <- sinData(6, 100) %>% scale() %>% as_tibble()
+sin1000 <- sinData(6, 1000) %>% scale() %>% as_tibble()
+```
+
+Figure \ref{data} shows samples from each of the families, both nuisance and structured projections. 
+
+<!--
+To get an overview of the dataset we show views of the first two directions showing the independent distribution and the last two directions showing the special view. The enforced relationships will also affect the 1-d densities as can be seen from \ref{fig:dataPlotsDensity}, which means that views including sizable fractions of $x_6$ (and $x_5$ for the Pipe and Spiral distribution) will be distinct from uninformed views of distributions 2 and 3.
+-->
+
+```{r data, fig.width=6, fig.height=7, fig.cap="Scatterplots of pairs of variables from samples of each family, showing the nuisance variables and structured variables."}
+dsn <- spiral1000 %>% select(V1, V2) %>%
+  rename(X1=V1, X2=V2) %>%
+  mutate(family="spiral", type="nuisance")
+dss <- spiral1000 %>% select(V5, V6) %>%
+  rename(X1=V5, X2=V6) %>%
+  mutate(family="spiral", type="structured")
+dpn <- pipe1000 %>% select(V1, V2) %>%
+  rename(X1=V1, X2=V2) %>%
+  mutate(family="pipe", type="nuisance")
+dps <- pipe1000 %>% select(V5, V6) %>%
+  rename(X1=V5, X2=V6) %>%
+  mutate(family="pipe", type="structured")
+din <- sin1000 %>% select(V1, V2) %>%
+  rename(X1=V1, X2=V2) %>%
+  mutate(family="sine", type="nuisance")
+dis <- sin1000 %>% select(V5, V6) %>%
+  rename(X1=V5, X2=V6) %>%
+  mutate(family="sine", type="structured")
+d <- bind_rows(dsn, dss, dpn, dps, din, dis)
+ggplot(d, aes(x=X1, y=X2)) + geom_point(alpha=0.3) + 
+  facet_grid(type~family) + theme(aspect.ratio=1) +
+  xlab("") + ylab("")
+```
+
+### Property assessment
+
+The family of data sets can be used to assess the PPIs on the desirable properties: smoothness, squintability, flexibility, rotation invariance, and speed. The procedures are as follows:
+
+- Compare the index values for structured vs nuisance variables, by simulating many examples from the model families, and recording the 90% confidence intervals. This checks if the PPI can detect the structure, that it has distinct differences between the sets of values. 
+- Use the tour to show the index values along an interpolation between pairs of nuisance variables, $x_1 - x_2$ view either to the $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
+- Use the tour to show the index values along an interpolation between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
+- A guided tour, showing the optimisation path, starting from $x_1 - x_2$, for one index, shows how effectively the maximum is attained. The values for other PPIs is computed for this path also, which allows an assessment of similarity between PPIs. 
+- Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
+- Benchmarking is used to assess the computational speed.
+
+<!--
+\textcolor{red}{\cite{posse95a} uses simulations with "strongly hidden structure", i.e. truncated Gaussian distributions with approximately identity covariance matrix, such that they don't appear in any of the principal component planes. In particular seems that spiral is hardest to identify based on results from Posse, maybe I can add this to my sphere dataset? or instead of it?}
+-->
+
 
 <!-- I think you need to standardise the scale of the data -->
 
