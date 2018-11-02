@@ -667,11 +667,17 @@ if(!file.exists("cache/V1V2toV3V4.rda")){
 ```
 
 ```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="Short tour paths of uninformed views, moving from the projection onto $x_1$-$x_2$ to the projection onto $x_3$-$x_4$, for all considered datasets and index functions. Small samples (n=100) are shown in red, large samples (n=1000) in blue."}
-fullResMelt <- melt(fullRes, id=c("t", "name", "size"))
-ggplot(fullResMelt, aes(x=t, y=value)) +
-  geom_line(aes(color=factor(size))) + 
-  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
-  guides(color=FALSE)
+fullResMelt <- fullRes %>% gather(PPI, value, -t, -name, -size)
+#ggplot(fullResMelt, aes(x=t, y=value)) +
+#  geom_line(aes(color=factor(size))) + 
+#  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
+#  guides(color=FALSE)
+fullResMelt %>% 
+  ggplot(aes(x=t, y=value)) + 
+  geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
+  ylim(c(0,1)) +
+  facet_grid(PPI~name) + 
+  theme(legend.position="none")
 ```
 
 
