@@ -521,7 +521,7 @@ getIdx <- function(dataT, size, type){
     dcor2D[i] <- dcor2d(x=x, y=y)
     splines2D[i] <- splines2d(x,y)
   }
-  lapply(c(skinny, stringy, convex, micidx, ticidx, dcor2D, splines2D), sort)
+  sortedList <- lapply(list(skinny, stringy, convex, micidx, ticidx, dcor2D, splines2D), sort)
   res <- tableTemp() %>%
     add_row(index="skinny", data=dataT, size=size,
             type=type,
