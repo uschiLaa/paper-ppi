@@ -466,39 +466,101 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
 Table \ref{indexTable} compares the PPIs for structured projections against those for nuisance variables. XXX adjust the text below once re-working of table is done.
 We next compare the various index values for three views: $x_1$ vs $x_2$, $x_5$ vs $x_6$ and $x_1$ vs $x_6$ (capturing differences from the different distribution in $x_6$). For the Spiral distribution the scagnostics indices skinny and stringy are large and close to their theoretic maximum for the special view. On the other hand while dcor2d is larger is also increased for the special view, the value is far from the theoretic maximum and larger values may be found in other views. MIC and TIC are also found to be sensitive to the spiral distribution. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fictional dependence.
 
-```{r indexTable, echo=FALSE}
-i <- 1
-pLabels <- c("Spiral 100", "Spiral 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
-indexOverview <- tibble(convex=numeric(),
-               skinny=numeric(),
-               stringy=numeric(),
-               dcor2d=numeric(),
-               splines2d=numeric(),
-               MIC=numeric(),
-               TIC=numeric(),
-               holes=numeric(),
-               name=character(),
-               vars=character())
-dsL <- list(spiral100, spiral1000, pipe100, pipe1000, sin100, sin1000)
-for(ds in dsL){
-  for(vars in list(c("V1","V2"),c("V5","V6"),c("V1","V6"))){
-    dprj <- as.matrix(select_(ds, vars[1], vars[2]))
-    scagRes <- scagnostics(dprj)
-    dcorRes <- dcor2d(dprj[,1], dprj[,2])
-    splineRes <- splines2d(dprj[,1], dprj[,2])
-    mineRes <- mine(dprj[,1], dprj[,2])
-    holesRes <- holes(dprj)
-    indexOverview <- add_row(indexOverview, convex=scagRes[,"Convex"],
-                    skinny=scagRes[,"Skinny"], stringy=scagRes[,"Stringy"],
-                    dcor2d=dcorRes, splines2d=splineRes,
-                    MIC=mineRes$MIC, TIC=mineRes$TIC, holes=holesRes,
-                    name=pLabels[i], vars=paste0(vars[1],"-",vars[2]))
-  }
-  i <- i+1
-}
-knitr::kable(indexOverview,  caption = "Summary of index values.", digits=2) 
-```
+FIXME yes/no labels appear to be inverted?
 
+```{r indexTable, echo=FALSE}
+tableTemp <- function(){
+  tibble(
+    index=character(),
+    data=character(),
+    size=numeric(),
+    structured=character(),
+    value5=numeric(),
+    value95=numeric()
+  )
+}
+
+getSample <- function(dataT, size){
+  if (dataT == "Pipe"){
+    ret <- pipeData(p = size, n = 6) %>% scale() %>% as_tibble()
+  }
+  if (dataT == "Spiral"){
+    ret <- spiralData(p = size, n = 6) %>% scale() %>% as_tibble()
+  }
+  if (dataT == "Sine"){
+    ret <- sinData(p = size, n = 6) %>% scale() %>% as_tibble()
+  }
+  return(ret)
+}
+
+getIdx <- function(dataT, size, structured){
+  convex <- numeric(length = 100)
+  skinny <- numeric(length = 100)
+  stringy <- numeric(length = 100)
+  micidx <- numeric(length = 100)
+  ticidx <- numeric(length = 100)
+  dcor2D <- numeric(length = 100)
+  splines2D <- numeric(length = 100)
+  for(i in 1:100){
+    cSample <- getSample(dataT, size)
+    if(structured){
+      x = as.numeric(cSample$V1)
+      y = as.numeric(cSample$V2)
+    } else{
+      x = as.numeric(cSample$V5)
+      y = as.numeric(cSample$V6)
+    }
+    scag <- scagnostics(x=x, y=y)$s
+    midx <- mine(x, y, est = "mic_e")
+    skinny[i] <- scag["Skinny"]
+    stringy[i] <- scag["Stringy"]
+    convex[i] <- scag["Convex"]
+    micidx[i] <- midx$MIC
+    ticidx[i] <- midx$TIC
+    dcor2D[i] <- dcor2d(x=x, y=y)
+    splines2D[i] <- splines2d(x,y)
+  }
+  lapply(c(skinny, stringy, convex, micidx, ticidx, dcor2D, splines2D), sort)
+  res <- tableTemp() %>%
+    add_row(index="Skinny", data=dataT, size=size,
+            structured=ifelse(structured, "yes", "no"),
+            value5=skinny[5], value95=skinny[95]) %>%
+    add_row(index="Stringy", data=dataT, size=size,
+            structured=ifelse(structured, "yes", "no"),
+            value5=stringy[5], value95=stringy[95]) %>%
+    add_row(index="Convex", data=dataT, size=size,
+            structured=ifelse(structured, "yes", "no"),
+            value5=convex[5], value95=convex[95]) %>%
+    add_row(index="MICe", data=dataT, size=size,
+            structured=ifelse(structured, "yes", "no"),
+            value5=micidx[5], value95=micidx[95]) %>%
+    add_row(index="TICe", data=dataT, size=size,
+            structured=ifelse(structured, "yes", "no"),
+            value5=ticidx[5], value95=ticidx[95]) %>%
+    add_row(index="dcor2D", data=dataT, size=size,
+            structured=ifelse(structured, "yes", "no"),
+            value5=dcor2D[5], value95=dcor2D[95]) %>%
+    add_row(index="splines2D", data=dataT, size=size,
+            structured=ifelse(structured, "yes", "no"),
+            value5=splines2D[5], value95=splines2D[95])
+}
+
+if(!file.exists("cache/indexTable.rda")){
+  set.seed(505)
+  res <- tableTemp()
+  for(ds in c("Pipe", "Sine", "Spiral")){
+    for (size in c(100, 1000)){
+      for (structured in c(TRUE, FALSE)){
+        res <- full_join(res,getIdx(ds, size, structured))
+      }
+    }
+  }
+  save(res, file = "cache/indexTable.rda")
+} else {
+  load("cache/indexTable.rda")
+}
+knitr::kable(res,  caption = "Summary of index values.", digits=2) 
+```
 
 
 ## Index traces over tour sequence of interpolated nuisance projections
