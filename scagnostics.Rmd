@@ -682,6 +682,10 @@ fullResMelt %>%
 ## Index traces over tour sequence between nuisance and structured projections
 \label{sec:squintability}
 
+Figure \ref{fig:plannedtour} shows the PPIs for a tour sequence between a nuisance and structured projection. Sample size is indicated by linetype: dashed being $n=100$ and solid is $n=1000$. The beginnnig of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, dcor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.  
+
+\textcolor{red}{XXX This shouldn't go here. The index needs to have been introduced much earlier in the paper. TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full characteristic matrix is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view, in terms of the relative differences.}
+<!--
 We repeat the same exercise, but now we are interested in how the index values change when going from the view in $x_1$ vs $x_2$ to the view in $x_5$ vs $x_6$, which will also allow us to view the evolution between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
 We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour. Finally the Spiral appears to be the most challenging, having an even smaller squint angle than the Pipe distribution. While "cmass" appears to be appropriate to identify this view we may actually find larger values of this index for random distributions, making it unfit to use in a guided tour. The scagnostics indices skinny (or 1-convex) appear to be sensitive to the structure at a larger angle compared to MINE indices, but will suffer from the large fluctuations in random views when used in a guided tour.
 Various indices appear less noisy than seen in \ref{fig:plotV1V2toV3V4}, but note that the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
@@ -689,6 +693,7 @@ Various indices appear less noisy than seen in \ref{fig:plotV1V2toV3V4}, but not
 TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full characteristic matrix is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view, in terms of the relative differences.
 
 \textcolor{red}{Holes index or even pca could discover pipe as well...}
+-->
 
 ```{r plannedtourpath}
 if(!file.exists("cache/plannedtourpath.rda")){
@@ -711,7 +716,7 @@ if(!file.exists("cache/plannedtourpath.rda")){
 }
 ```
 
-```{r plannedtour, fig.width=6, fig.height=7, fig.cap="As Figure \\ref{fig:plotV1V2toV3V4} but moving from the projection onto $x_1$-$x_2$ to the projection onto $x_5$-$x_6$, i.e. starting from random distribution view, and moving into the special view."}
+```{r plannedtour, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between a nuisance and a structured projection (solid lines: $n=1000$; dashed: $n=100$). Most of the indexes have peaks at the end of the sequence, indicating that they see the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection."}
 #fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
 fullResMeltPlanned <- fullResPlanned %>%
   mutate(convex = 1-convex) %>% 
@@ -723,7 +728,7 @@ fullResMeltPlanned %>%
   geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
   ylim(c(0,1)) +
   facet_grid(PPI~name) + 
-  theme(legend.position="none") + xlab("Sequence of projections, t") + ylab("PPI value")
+  theme(legend.position="none") + xlab("Sequence of projections (t)") + ylab("PPI value")
 ```
 
 <!--
@@ -743,13 +748,13 @@ ggplot(allRes, aes(x=value)) +
   facet_wrap(PPI~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
 ```
 
+\textcolor{red}{testing rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$, maybe can add second path for spiral?}
+Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binning (and outlier removal?) here. Observe huge drops for some of the indexes! 
 -->
 
 ## Rotation dependence
 \label{sec:rot}
-\textcolor{red}{testing rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$, maybe can add second path for spiral?}
-Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binning (and outlier removal?) here. Observe huge drops for some of the indexes! 
-```{r rotationDep, fig.width=6, fig.height=7, fig.cap="Rotation dependence of the considered index functions tested on the sine 1000 dataset, by rotating the special view by an angle alpha."}
+```{r rotationDep, fig.width=6, fig.height=7, fig.cap="PPI for rotations of the sine 1000 data, to examine rotation invariance. Most are close to rotation invariant, except for dcor2d, splines2d and TIC."}
 if(!file.exists("cache/rotationDep.rda")){
   sineM <- as.matrix(select(sin1000, V5, V6))
   sc <- tibble(
@@ -784,12 +789,19 @@ if(!file.exists("cache/rotationDep.rda")){
   load("cache/rotationDep.rda")
 }
 
-scMelt <- melt(sc, id=c("alpha"))
-ggplot(scMelt, aes(x=alpha, y=value)) +
+scMelt <- sc %>% 
+  mutate(angle=alpha*360/(2*pi), TIC = TIC/148) %>%
+  select(-alpha) %>%
+  gather(PPI, value, -angle) %>%
+  mutate(PPI = fct_relevel(PPI, "holes", "cmass", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+ggplot(scMelt, aes(x=angle, y=value)) +
   geom_line() + 
-  facet_wrap(~variable, scales = "free_y", ncol = 1) +
-  geom_blank(aes(y = 0)) +
-  geom_blank(aes(y = 1))
+  ylim(c(-1, 1.1)) +
+  facet_wrap(~PPI, ncol = 3) +
+  #geom_blank(aes(y = 0)) +
+  #geom_blank(aes(y = 1)) +
+  coord_polar() +
+  xlab("") + ylab("")
 ```
 
 
