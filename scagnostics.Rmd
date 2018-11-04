@@ -410,10 +410,6 @@ The family of data sets can be used to assess the PPIs on the desirable properti
 -->
 
 
-<!-- I think you need to standardise the scale of the data -->
-
-
-
 ```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the first two parameters $x_1$ and $x_2$, i.e. showing a typical uninformed view for each dataset.", eval=FALSE}
 pL <- list()
 i <- 1
@@ -596,9 +592,11 @@ kable(res_all, format = "latex",  caption = "Comparison of index values between 
 ## Index traces over tour sequence of interpolated nuisance projections
 \label{sec:smooth}
 
-\textcolor{red}{Maybe it will be better to combine the two traces? Can have tour from V1-V2 to V3-V4 to V5-V6, indicate position of V3-V4 in path, will save space, make direct comparison easier.}
+Figure \ref{fig:plotV1V2toV3V4} shows the traces representing the index values calculated across a tour between a pair of nuisance projections. The range of each axis is set to be the limits of the index, as might be expected over many different data sets, 0 to 1. Each projection in the interpolation will also be noise. Two different sample sizes are show, $n=100$ as a dashed line, and $n=1000$ as a solid line. The ideal trace is a smooth function, with relatively low values, and no difference between the sample sizes. A major feature to notice is that the scagnostics produce noisy functions, which is problematic, because small changes in the projection result in big jumps in the value. This will make them difficult to optimize. TIC also is noisy. \textcolor{red}{why is TIC so high? did it get inverted?} On the other hand holes, dcor2d, splines2d and MIC are relatively smooth functions. \textcolor{red}{why is holes so high? it should range between 0-1, maybe needs to be better standardised, too.} Several of the indexes are sensitive to sample size also, the same structured projection with differing numbers of points, produces different values. 
 
+<!--
 We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto $x_1$-$x_2$ to the projection onto $x_3$-$x_4$ and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views. Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples ($n=100$), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples ($n=1000$) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
+-->
 
 <!-- index values shouldn't be affected by sample size, on average it should be
 same value. Maybe some need to be normalised by n. Something needs fixing here.
@@ -666,18 +664,18 @@ if(!file.exists("cache/V1V2toV3V4.rda")){
 }
 ```
 
-```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="Short tour paths of uninformed views, moving from the projection onto $x_1$-$x_2$ to the projection onto $x_3$-$x_4$, for all considered datasets and index functions. Small samples (n=100) are shown in red, large samples (n=1000) in blue."}
-fullResMelt <- fullRes %>% gather(PPI, value, -t, -name, -size)
-#ggplot(fullResMelt, aes(x=t, y=value)) +
-#  geom_line(aes(color=factor(size))) + 
-#  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
-#  guides(color=FALSE)
+```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between two nuisance projections. All projections would be nuisance so the PPI are ideally low and smooth, with little difference between sample sizes (solid lines: $n=1000$; dashed: $n=100$). The scagnostic PPIs are noisy, as is TIC. Some indexes have distinct differences in values between sample sizes."}
+fullResMelt <- fullRes %>%
+  mutate(convex = 1-convex) %>% 
+  gather(PPI, value, -t, -name, -size) %>%
+  filter(PPI != "cmass") %>%
+  mutate(PPI = fct_relevel(PPI, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
 fullResMelt %>% 
   ggplot(aes(x=t, y=value)) + 
   geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
   ylim(c(0,1)) +
   facet_grid(PPI~name) + 
-  theme(legend.position="none")
+  theme(legend.position="none") + xlab("Sequence of projections (t)") + ylab("PPI value")
 ```
 
 
@@ -714,14 +712,22 @@ if(!file.exists("cache/plannedtourpath.rda")){
 ```
 
 ```{r plannedtour, fig.width=6, fig.height=7, fig.cap="As Figure \\ref{fig:plotV1V2toV3V4} but moving from the projection onto $x_1$-$x_2$ to the projection onto $x_5$-$x_6$, i.e. starting from random distribution view, and moving into the special view."}
-fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
-ggplot(fullResMeltPlanned, aes(x=t, y=value)) +
-  geom_line(aes(color=factor(size))) + 
-  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
-  guides(color=FALSE)
+#fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
+fullResMeltPlanned <- fullResPlanned %>%
+  mutate(convex = 1-convex) %>% 
+  gather(PPI, value, -t, -name, -size) %>%
+  filter(PPI != "cmass") %>%
+  mutate(PPI = fct_relevel(PPI, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+fullResMeltPlanned %>% 
+  ggplot(aes(x=t, y=value)) + 
+  geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
+  ylim(c(0,1)) +
+  facet_grid(PPI~name) + 
+  theme(legend.position="none") + xlab("Sequence of projections, t") + ylab("PPI value")
 ```
 
-
+<!--
+I don't think this section adds anything to the paper
 ## Distributions of index values
 \label{sec:dist}
 Compare typical index values over the two tour paths. Notation: path 1 / 2 labels tour from $x_1$-$x_2$ to $x_3$-$x_4$ / $x_5$-$x_6$. Typically find broader distributions for small samples because of the large fluctuations in this case. Some indices show preferred behaviour, i.e. sharp peaks around low values for path 1, and very broad distributions leading up to maximum values for path 2. For other indices we can see the strong dependence of the index on sample size, the most extreme example is the skinny index.
@@ -734,9 +740,10 @@ fullResMeltPlanned1 <- fullResMeltPlanned %>% add_column(path="path2")
 allRes <- rbind(fullResMelt1, fullResMeltPlanned1)
 ggplot(allRes, aes(x=value)) +
   geom_density(aes(color=path, linetype = factor(size))) +
-  facet_wrap(variable~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
+  facet_wrap(PPI~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
 ```
 
+-->
 
 ## Rotation dependence
 \label{sec:rot}
@@ -854,13 +861,15 @@ timerMeans <- dfTimer %>%
   group_by(name, n) %>%
   summarise(t=mean(t))
 
-ggplot(dfTimer, aes(x = n, y = t, color=name)) + 
-  geom_point(alpha=0.05) +
-  geom_point(data=timerMeans) +
-  geom_line(data=timerMeans) +
-  scale_x_log10() +
-  scale_y_log10() +
-  labs(x = "Sample Size", y = "Time [s]", color = "Index family")
+ggplot(dfTimer, aes(x = n, y = t)) + 
+  geom_point(alpha=0.1, aes(color=name, shape=name)) +
+  geom_point(data=timerMeans, aes(color=name, shape=name)) +
+  geom_line(data=timerMeans, aes(linetype=name, color=name)) +
+  scale_x_log10(limits=c(90,10100)) +
+#  scale_y_log10(limits=c(0.00001,1)) + 
+  labs(x = "Sample Size", y = "Time [s]", color = "Index family", 
+       linetype = "Index family", shape = "Index family") + 
+  scale_colour_brewer(palette="Dark2")
 ```
 
 
