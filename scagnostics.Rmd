@@ -651,11 +651,11 @@ getProj <- function(df, tPath, nameStr, size){
                   splines2d=splineRes, MIC=mineRes$MIC,
                   TIC1=mineRes$TIC, t=i, name=nameStr, size=size)
   }
-  maxTIC <- max(sc$TIC1)
+  if (size == 100) {maxTIC <- 16}
+  if (size == 1000) {maxTIC <- 148}
   sc <- sc %>%
     mutate(TIC = TIC1/maxTIC) %>%
     select(-TIC1)
-  
   return(sc)
 }
 ```
@@ -799,7 +799,7 @@ if(!file.exists("cache/rotationDep.rda")){
                   convex=scagRes[,"Convex"], skinny=scagRes[,"Skinny"],
                   stringy=scagRes[,"Stringy"], dcor2d=dcorRes,
                   splines2d=splineRes, MIC=mineRes$MIC,
-                  TIC=mineRes$TIC, alpha=a)
+                  TIC=mineRes$TIC/148, alpha=a)
   }
   save(sc, file = "cache/rotationDep.rda")
 } else {
@@ -807,7 +807,7 @@ if(!file.exists("cache/rotationDep.rda")){
 }
 
 scMelt <- sc %>% 
-  mutate(angle=alpha*360/(2*pi), TIC = TIC/148) %>%
+  mutate(angle=alpha*360/(2*pi), TIC = TIC) %>%
   select(-alpha) %>%
   gather(PPI, value, -angle) %>%
   mutate(PPI = fct_relevel(PPI, "holes", "cmass", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
@@ -1048,6 +1048,8 @@ We next show in Fig \ref{fig:testpipe} (left) the final view corresponding to th
 
 ```{r refinepipe, results="hide"}
 if(!file.exists("cache/refinepipe.rda")){
+  iLast <- length(pipeTourFull)
+  fProj <- pipeTourFull[[iLast]]
   pipeTour2 <- save_history(pipeResc, guided_tour(mineIndex("TIC")), start = fProj)
   pipeTourFull2 <- as.list(interpolate(pipeTour2))
   pipeTourRes2 <- getProj(pipe1000, pipeTourFull2, "Pipe", 1000)
