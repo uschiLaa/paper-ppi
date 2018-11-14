@@ -500,6 +500,7 @@ getIdx <- function(dataT, size, type){
   ticidx <- numeric(length = 100)
   dcor2D <- numeric(length = 100)
   splines2D <- numeric(length = 100)
+  holesI <- numeric(length = 100)
   for(i in 1:100){
     cSample <- getSample(dataT, size)
     if(type == "noise"){
@@ -515,11 +516,22 @@ getIdx <- function(dataT, size, type){
     stringy[i] <- scag["Stringy"]
     convex[i] <- scag["Convex"]
     micidx[i] <- midx$MIC
-    ticidx[i] <- midx$TIC
+    if (size == 100) {ticidx[i] <- midx$TIC / 16}
+    if (size == 1000) {ticidx[i] <- midx$TIC / 148}
     dcor2D[i] <- dcor2d(x=x, y=y)
     splines2D[i] <- splines2d(x,y)
+    holesI[i] <- holes(matrix(c(x,y), ncol = 2))
+    
   }
-  sortedList <- lapply(list(skinny, stringy, convex, micidx, ticidx, dcor2D, splines2D), sort)
+  #sortedList <- lapply(list(skinny, stringy, convex, micidx, ticidx, dcor2D, splines2D, holesI), sort)
+  skinny <- sort(skinny)
+  stringy <- sort(stringy)
+  convex <- sort(convex)
+  micidx <- sort(micidx)
+  ticidx <- sort(ticidx)
+  dcor2D <- sort(dcor2D)
+  splines2D <- sort(splines2D)
+  holesI <- sort(holesI)
   res <- tableTemp() %>%
     add_row(index="skinny", data=dataT, size=size,
             type=type,
@@ -541,7 +553,10 @@ getIdx <- function(dataT, size, type){
             value5=dcor2D[5], value95=dcor2D[95]) %>%
     add_row(index="splines2D", data=dataT, size=size,
             type=type,
-            value5=splines2D[5], value95=splines2D[95])
+            value5=splines2D[5], value95=splines2D[95]) %>%
+    add_row(index="holes", data=dataT, size=size,
+            type=type,
+            value5=holesI[5], value95=holesI[95])
 }
 
 if(!file.exists("cache/indexTable.rda")){
@@ -560,18 +575,19 @@ if(!file.exists("cache/indexTable.rda")){
   load("cache/indexTable.rda")
 }
 resp <- res %>% filter(size == 1000, data == "Pipe") %>%
-  select(index, type, value95, value5) %>%
-  rename(lower=value95, upper=value5)
+  select(index, type, value5, value95) %>%
+  rename(lower=value5, upper=value95)
 resi <- res %>% filter(size == 1000, data == "Sine") %>%
-  select(index, type, value95, value5) %>%
-  rename(lower=value95, upper=value5)
+  select(index, type, value5, value95) %>%
+  rename(lower=value5, upper=value95)
 ress <- res %>% filter(size == 1000, data == "Spiral") %>%
-  select(index, type, value95, value5) %>%
-  rename(lower=value95, upper=value5)
+  select(index, type, value5, value95) %>%
+  rename(lower=value5, upper=value95)
 res_all <- bind_cols(resp, resi, ress) %>%
   select(-index1, -type1, -index2, -type2) %>%
-  mutate(index = fct_relevel(index, "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe")) %>%
-  mutate(index = c("convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", ""))
+  mutate(index = fct_relevel(index, "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe", "holes")) %>%
+  arrange(index) %>%
+  mutate(index = c("convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", "", "holes", ""))
 # Good resource for doing tables
 # https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_pdf.pdf
 kable(res_all, format = "latex",  caption = "Comparison of index values between noise projections and structured projections for sample size 1000, using 5th and 95th percentiles from 100 simulated sets. Most indices have much larger values for the structured projections, except for convex.", 
@@ -585,6 +601,7 @@ kable(res_all, format = "latex",  caption = "Comparison of index values between 
   group_rows("", 9, 10) %>%
   group_rows("", 11, 12) %>%
   group_rows("", 13, 14) %>%
+  group_rows("", 15, 16) %>%
   kable_styling(position = "center")
 ```
 
