@@ -585,9 +585,9 @@ ress <- res %>% filter(size == 1000, data == "Spiral") %>%
   rename(lower=value5, upper=value95)
 res_all <- bind_cols(resp, resi, ress) %>%
   select(-index1, -type1, -index2, -type2) %>%
-  mutate(index = fct_relevel(index, "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe", "holes")) %>%
+  mutate(index = fct_relevel(index, "holes", "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe")) %>%
   arrange(index) %>%
-  mutate(index = c("convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", "", "holes", ""))
+  mutate(index = c("holes", "", "convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", ""))
 # Good resource for doing tables
 # https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_pdf.pdf
 kable(res_all, format = "latex",  caption = "Comparison of index values between noise projections and structured projections for sample size 1000, using 5th and 95th percentiles from 100 simulated sets. Most indices have much larger values for the structured projections, except for convex.", 
