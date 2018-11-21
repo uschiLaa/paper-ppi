@@ -536,13 +536,14 @@ Figure \ref{fig:data} shows samples from each of the families, of the nuisance a
 
 The family of data sets can be used to assess the PPIs on the desirable properties: smoothness, squintability, flexibility, rotation invariance, and speed. The procedures are as follows:
 
-- Compare the index values for structured vs nuisance variables, by simulating many examples from the model families, and recording the 90% confidence intervals. This checks if the PPI can detect the structure, that it has distinct differences between the sets of values. 
-- Use the tour to show the index values along an interpolation between pairs of nuisance variables, $x_1 - x_2$ view either to the $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
-- Use the tour to show the index values along an interpolation between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
-- Ease of optimisation depends on having a smooth function, and this is tested using a guided tour, showing the optimisation path, starting from $x_1 - x_2$.  One index is optimised to show how effectively the maximum is attained, and the values for other PPIs is examined along the same path, which allows an assessment of similarity between PPIs. 
-- Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
-- Varying the parameters for PPIs is used to examine the effect on value, smoothness, how flexible the index can be to find different structure and whether the index is fiddly to tune. Trace plots between noise and structured projections are used to examine this. 
-- Benchmarking on a range of sample sizes is used to assess the computational speed.
+<!-- - Compare the index values for structured vs nuisance variables, by simulating many examples from the model families, and recording the 90% confidence intervals. This checks if the PPI can detect the structure, that it has distinct differences between the sets of values. 
+-->
+1. Use the tour to show the index values along an interpolation between pairs of nuisance variables, $x_1 - x_2$ view either to the $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
+2. Use the tour to show the index values along an interpolation between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
+3. Ease of optimisation depends on having a smooth function, and this is tested using a guided tour, showing the optimisation path, starting from $x_1 - x_2$.  One index is optimised to show how effectively the maximum is attained, and the values for other PPIs is examined along the same path, which allows an assessment of similarity between PPIs. 
+4.Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
+5. Varying the parameters for PPIs is used to examine the effect on value, smoothness, how flexible the index can be to find different structure and whether the index is fiddly to tune. Trace plots between noise and structured projections are used to examine this. 
+6. Benchmarking on a range of sample sizes is used to assess the computational speed.
 
 <!--
 \textcolor{red}{\cite{posse95a} uses simulations with "strongly hidden structure", i.e. truncated Gaussian distributions with approximately identity covariance matrix, such that they don't appear in any of the principal component planes. In particular seems that spiral is hardest to identify based on results from Posse, maybe I can add this to my sphere dataset? or instead of it?}
@@ -771,7 +772,7 @@ ggplot(allRes, aes(x=value)) +
 Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binning (and outlier removal?) here. Observe huge drops for some of the indexes! 
 -->
 
-## Ease of optimisation
+## Optimisation
 \label{sec:guided}
 
 - remind reader of the options for optimisation in guided tour
@@ -858,7 +859,7 @@ grid.arrange(p1, p2, ncol=2)
 
 ### Finding sine waves
 
-We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from the planned tour we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}. Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Fig \ref{}
+We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from the planned tour we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}. Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Figure \ref{fig:findsine}.
 
 
 ```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset.", results="hide"}
