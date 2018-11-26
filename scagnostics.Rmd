@@ -777,7 +777,7 @@ Interesting to note that some indexes are symmetric around $\pi$, but scagnostic
 - how you use them here
 - 
 
-The guided tour combines optimisation with interpolation between pairs of planes. Target planes of the path are chosen to maximise the PPI. There are three derivative-free optimisation methods available in the guided tour: \verb# search_better_random# (1), \verb# search_better# (2), and \verb# search_geodesic# (3). Method 1 casts a wide net randomly generating projection planes, computing the PPIs and keeping the best projection. Method 2 conducts a localised maximum search. Method 3 is quite different: a local search is conducted to determine a promising direction, and then this direction is followed until the maximum in that direction is found. In each case, a single target plane is chosen by the search methods, and a tour path generated to interpolate from the current projection to the target plane.
+The guided tour combines optimisation with interpolation between pairs of planes. Target planes of the path are chosen to maximise the PPI. There are three derivative-free optimisation methods available in the guided tour: \verb# search_better_random# (1), \verb# search_better# (2), and \verb# search_geodesic# (3). Method 1 casts a wide net randomly generating projection planes, computing the PPIs and keeping the best projection. Method 2 conducts a localised maximum search. Method 3 is quite different: a local search is conducted to determine a promising direction, and then this direction is followed until the maximum in that direction is found. In each case, a single target plane is chosen by the search methods, and a tour path is generated to interpolate from the current projection to the target plane.
 
 ### Looking down the pipe
 
@@ -809,11 +809,20 @@ if(!file.exists("cache/findpipe.rda")){
 
 ```{r eval=FALSE}
 # Quick glimpse of optimisations
+myholes <- function(mat) {
+    n <- nrow(mat)
+    d <- ncol(mat)
+    num <- 1 - 1/n * sum(exp(-0.5 * rowSums(mat^2)))
+    den <- 1 - exp(-d/2)
+    (num/den - 0.7) * 1.43
+}
 quartz()
-animate_xy(pipeResc, guided_tour(mineIndex("TIC"), search_f = tourr:::search_better,
-                                     cooling=1, alpha = 0.5, max.tries = 5000))
-animate_xy(pipeResc, guided_tour(holes, search_f = tourr:::search_better,
-                                     cooling=1, alpha = 0.5, max.tries = 5000))
+set.seed(sample(10000:50000, 1))
+animate_xy(pipeResc, guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better, cooling=0.9, alpha = pi, max.tries = 500))
+animate_xy(pipeResc, guided_tour(mineIndex("MIC"), search_f = tourr:::search_better, cooling=1, alpha = pi, max.tries = 500))
+animate_xy(pipeResc, guided_tour(mineIndex("TIC"), search_f = tourr:::search_better, cooling=1, alpha = pi, max.tries = 5000))
+animate_xy(pipeResc, guided_tour(holes, search_f = tourr:::search_geodesic,
+      cooling=0.8, alpha = pi, max.tries = 500))
 ```
 
 ```{r pipeFirstRun,fig.width=6, fig.height=7, fig.cap="Index value on tour path when scouting for high TIC index values."}
