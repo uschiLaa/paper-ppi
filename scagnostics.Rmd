@@ -888,6 +888,7 @@ We next work with distribution 3 and aim to identify the view showing functional
 \textcolor{red}{Notice that even for anchor planes highlighted by blue vertical lines the index sometimes decreases because of the rotation dependence, ... more details here? e.g. point out that such effects depend on the optimizer, here we use search\_geodesic, closely relates to how interpolation is done, therefore no big jumps in index values as found for search\_random type optimizers.}
 Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Figure \ref{fig:findsine}.
 
+\textcolor{red}{This isn't actually the "ideal" view, why is that?}
 
 ```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset. Anchor planes are marked by the blue vertical lines.", results="hide"}
 set.seed(2018)
@@ -961,7 +962,7 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 
 ## Rotation dependence
 \label{sec:rot}
-```{r rotationDep, fig.width=6, fig.height=7, fig.cap="PPI for rotations of the sine 1000 data, to examine rotation invariance. Most are close to rotation invariant, except for dcor2d, splines2d and TIC."}
+```{r rotationDep, out.width=".6\\textwidth", fig.cap="PPI for rotations of the sine 1000 data, to examine rotation invariance. Most are close to rotation invariant, except for dcor2d, splines2d and TIC."}
 if(!file.exists("cache/rotationDep.rda")){
   sineM <- as.matrix(select(sin1000, V5, V6))
   sc <- tibble(
