@@ -882,10 +882,12 @@ grid.arrange(p1, p2, ncol=2)
 
 ### Finding sine waves
 
-We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from the planned tour we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}. Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Figure \ref{fig:findsine}.
+We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from the planned tour we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}.
+\textcolor{red}{Notice that even for anchor planes highlighted by blue vertical lines the index sometimes decreases because of the rotation dependence, ... more details here? e.g. point out that such effects depend on the optimizer, here we use search\_geodesic, closely relates to how interpolation is done, therefore no big jumps in index values as found for search\_random type optimizers.}
+Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Figure \ref{fig:findsine}.
 
 
-```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset.", results="hide"}
+```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset. Anchor planes are marked by the blue vertical lines.", results="hide"}
 set.seed(2018)
 if(!file.exists("cache/findsine.rda")){
   sineResc <- as.matrix(sin1000)
@@ -898,9 +900,15 @@ if(!file.exists("cache/findsine.rda")){
 } else {
   load("cache/findsine.rda")
 }
+anchorIdx <- as.tibble(which(attributes(interpolate(sineTour))$new_basis))
 ggplot(sineTourResMelt, aes(x=t, y=value)) +
-  geom_line() + 
-  facet_wrap(~variable, ncol=1, scales = "free_y")
+  geom_line(mapping=aes(color=(variable=="splines2d"))) + 
+  facet_wrap(~variable, ncol=1, scales = "free_y") +
+  scale_colour_manual(values = c("black", "red")) +
+  facet_wrap(~variable, ncol=1) +
+  geom_vline(data=anchorIdx, mapping=aes(xintercept=value), color="blue", alpha=0.3) +
+  guides(color=FALSE) +
+  ylim(c(0,1))
 ```
 
 ```{r testsine, out.width=".5\\textwidth", fig.cap="Final view identified by the optimisation."}
