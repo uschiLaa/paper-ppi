@@ -797,6 +797,7 @@ This gives some indication on how to handle difficult datasets. As we will see b
 The results are shown below, first Fig. \ref{fig:pipeFirstRun} shows how the considered index values evolve in the scouting phase. Note that this is the interpolated path and there are small local maxima and minima along the index value, especially because we keep the step size in the guided tour large. We can see the clear maximum of the TIC index in the final projection, as well as clear minimum of the convex index that carries similar information On the other hand we see that MIC or the dcor2d index are not suitable for uncovering the special view here.
 
 \textcolor{red}{Sometimes index value decreases, because index is not rotationally invariant.}
+\textcolor{red}{Updated the plot, makes it look like skinny, 1-convex should be better index to optimise, however in practice this is not the case, probably because TIC is less sensitive to fluctuations, making it more robust against getting stuck in local maxima.}
 
 
 ```{r findpipe, results="hide"}
@@ -839,11 +840,14 @@ if(!file.exists("cache/pipeFirstRun.rda")){
 } else {
   load("cache/pipeFirstRun.rda")
 }
-newBasisPipeTour <- which(attributes(interpolate(pipeTour))$new_basis)
-ggplot(pipeTourResMelt, aes(x=t, y=value)) +
-  geom_line() + 
-  facet_wrap(~variable, ncol=1, scales = "free_y")+
-  geom_vline(data=as.tibble(newBasisPipeTour), mapping=aes(xintercept=value), color="red")
+newBasisPipeTour <- pipeTourResMelt %>%
+  filter(t %in% which(attributes(interpolate(pipeTour))$new_basis))
+ggplot(newBasisPipeTour, aes(x=t, y=value)) +
+  geom_point(mapping=aes(color=(variable=="TIC"))) + 
+  scale_colour_manual(values = c("black", "red")) +
+  facet_wrap(~variable, ncol=1) +
+  guides(color=FALSE) +
+  ylim(c(0,1))
 ```
 
 We next show in Fig \ref{fig:testpipe} (left) the final view corresponding to the highest index found in the TIC scouting phase. While this is clearly not the optimal view of the pipe feature, we can already identify the feature in the distribution, and we expect to be able to find the maximum when using this plane as a starting point of the geodesic optimisation. Indeed performing a standard guided tour with the TIC index and the identified starting plane efficiently identifies the optimal view shown in the right plot. In this case the optimisation quickly converges, following a smooth, monotonic increas of the TIC index.
