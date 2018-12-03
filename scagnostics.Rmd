@@ -794,6 +794,8 @@ As seen before (reference figure) MIC or TIC should be able to find the view dow
 The described procedure is CPU time intensive, however it is promising that we manage to uncover such small scale structure in the distribution. On the other hand no "guarantee" can be provided for uncovering the special view. Parameters for the scouting phase will need to be adapted to different examples, and with increasing number of dimensions it may be better to consider several runs with different starting projections.
 This gives some indication on how to handle difficult datasets. As we will see below most of the time standard "search_geodesic" optimisation will be efficient enough to uncover the interesting views.
 
+\textcolor{red}{Probably a good idea to give stopping condition to scouting phase, since at each step we may spend a long time looking for better projections. E.g. if maximum index value is 1, stop scoutig phase when reaching index value 0.9, i.e. should be in squintable distance of the index maximum, switch to geodesic optimiser at this point (only works if indeed the optimal view takes index values close to the maximum though)}
+
 The results are shown below, first Fig. \ref{fig:pipeFirstRun} shows how the considered index values evolve in the scouting phase. Note that this is the interpolated path and there are small local maxima and minima along the index value, especially because we keep the step size in the guided tour large. We can see the clear maximum of the TIC index in the final projection, as well as clear minimum of the convex index that carries similar information On the other hand we see that MIC or the dcor2d index are not suitable for uncovering the special view here.
 
 \textcolor{red}{Sometimes index value decreases, because index is not rotationally invariant.}
@@ -926,37 +928,82 @@ ggplot(dProj, aes(V1,V2)) + geom_point()
 
 ### Spiral detection
 
-\textcolor{red}{can use skinny to find sprial in 3 dimensions, but not higher, scouting method does not work because of large rotation dependence, maybe make it study of guided tour success vs number of parameters entering? e.g. given n starting planes how many times was view in plane V5-V6 identified as function of number of dimensions and index used?}
+The spiral is the most challenging structure to detect amonst the distribution considered here (compare also Posses results?). Here we explore the role of dimensionality in the index optimisation, using the skinny index that was found to be sensitive to this structure.
+We use a setup similar to that introduced for detecting the pipe structure, i.e.\ we use the search\_better optimisation of the guided tour, disabeling the cooling and with a large search window, while sampling a large number of random projections (up to 5000) for each step.
+We consider distributions in d=4,6,8 dimensions and compare features found in the tour.
+In d=4 dimensions the optimisation identifies a view showing the spiral after 33 steps, and we limit the optimiser to consider only 33 steps for the study in 6 and 8 dimensions for direct comparison. Note however that the spiral is typically also not identified with much larger number of steps, the limiting factor being rather the numver of random projections sampled and rotation non-invariance of the index prohibiting the convergence, in particular in higher dimensions.
+Results are shown in the top panel Fig.~\ref{fig:findspiral}, showing the pariwise distance of the 33 planes found in 4, 6 and 8 dimensions (left), and comparing the evolution of the distance from the plane containing the spiral view with progression of the optimisation (right). We see that the pairwise distances grow with d (what do we learn from that?). Moreover we find that the distance to the special view is far from monotonically decreasing towards zero, and large jumps are possible. Note that the spiral itself is approximately rotation invariant, but partial views are not. At medium distances from the special view we often observe a jump to higher distances as consequence of in-plane rotation dependence for such partial views. This stabilises closer to the special view, however it relies on randomly identifying a projection within this angle. As a consequence increasing dimensionality dramatically reduces the chance of identifying structures with high index values.
 
-\textcolor{red}{what about role of optimisation here? search\_better not working because rotation in plane makes index drop randomly, geodesic search does not work because (my guess) it picks directions based on being most promising on small step size tests, maybe need to modify code to pass step size as argument, search directions based on larger step size may result in improved scouting run? (but may also give same issues of rotation dependence) ... tried  but didnt really work...}
 
-```{r findspiral, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the skinny index for the Sprial 1000 dataset.", results="hide"}
-#getResWithSeed <- function(s){
-#  set.seed(s)
-#  startM <- orthonormalise(matrix(runif(12),ncol = 2))
-#  tourRes <- save_history(spiralResc, guided_tour(scagIndex("Skinny")), max_bases = 10000)
-#}
-#set.seed(202020)
-#if(!file.exists("cache/findsine.rda")){
-#  spiralResc <- as.matrix(spiral1000)
-#spiralTour <- save_history(spiralResc, guided_tour(dcorIndex()))
-#spiralTour <- save_history(spiralResc, guided_tour(scagIndex("Skinny"), max.tries = 100, n=10, stepS=0.5), max_bases = 10000)
-  #spiralTour <- save_history(spiralResc,guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better,
-  #                                   alpha = 0.5, max.tries = 500), max_bases = 10000)
-  #spiralTourFull <- as.list(interpolate(spiralTour))
-  #spiralTourRes <- getProj(spiral1000, spiralTourFull, "Spiral", 1000)
-  #spiralTourResMelt <- melt(spiralTourRes, id=c("t", "name", "size"))
-#  save(spiralResc, spiralTour, spiralTourFull, spiralTourRes, spiralTourResMelt,
-#       file = "cache/findspiral.rda")
-#} else {
-#  load("cache/findsine.rda")
-#}
-#ggplot(spiralTourResMelt, aes(x=t, y=value)) +
-#  geom_line() + 
-#  facet_wrap(~variable, ncol=1, scales = "free_y")
-#iL <- length(as.list(spiralTour))
-#dProj <- spiralResc %*% as.list(spiralTour)[[iL]]
-#ggplot(as.tibble(dProj), aes(V1, V2)) + geom_point()
+```{r findspiral, out.width="\\textwidth", fig.cap="Guided tour optimising the skinny index for the Sprial dataset with 1000 datapoints, with d = 4, 6, 8. The top left plot shows the distribution of pairwise distances between planes obtained via the guided tour, the top right shows the evolution of distance to the plane containing the spiral as the index is being optimised. The bottom row shows the final view obtained for d = 4 (left), d = 6 (middle) and d = 8 (right) after 33 steps in the guided tour.", results="hide"}
+
+distanceDist <- function(planes, nn=F){
+  #nn could be used to turn on only distance to nearest neighbour?
+  planes <- as.list(planes)
+  maxI <- length(planes)
+  distL <- numeric(choose(maxI, 2))
+  i <- 1
+  idx <- 1
+  while(i<maxI+1){
+    j <- i+1
+    while(j<maxI+1){
+      cDist <- proj_dist(planes[[i]], planes[[j]])
+      distL[idx] <- cDist
+      j <- j+1
+      idx <- idx+1
+    }
+    i <- i+1
+  }
+  return(distL)
+}
+
+distanceToSp <- function(planes, specialPlane){
+  planes <- as.list(planes)
+  maxI <- length(planes)
+  distL <- numeric(maxI)
+  i <- 1
+  while(i<maxI+1){
+    cDist <- proj_dist(planes[[i]], specialPlane)
+    distL[i] <- cDist
+    i <- i+1
+  }
+  return(distL)
+  }
+if(!file.exists("cache/findspiral.rda")){
+  distDf <- tibble(d=numeric(), distance=numeric())
+  distToSp <- tibble(d=numeric(), distance=numeric(), t=numeric())
+
+  maxBases <- 100
+  fViewL <- list()
+  allPlanes <- list()
+  i <- 1
+  for(d in c(4,6,8)){
+    set.seed(1779+d)
+    specialPlane <- matrix(c(rep(0,d-2),1,0,rep(0,d-1),1),ncol=2)
+    spiralD <- spiralData(d, 1000) %>% scale() %>% as_tibble()
+    spiralTour <- save_history(spiralD, guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better,
+                                                    max.tries = 5000, cooling = 1, alpha = pi),
+                              max_bases = maxBases)
+    if(d==4){maxBases <- min(maxBases, length(spiralTour))}
+    distDf <- rbind(distDf, tibble(d=d, distance=distanceDist(spiralTour)))
+    distToSp <- rbind(distToSp, tibble(d=d, distance=distanceToSp(spiralTour, specialPlane), t=1:maxBases))
+    fView <- as.tibble(as.matrix(spiralD) %*% as.list(spiralTour)[[maxBases]])
+    fViewL[[i]] <- ggplot(fView, aes(V1, V2)) + geom_point()
+    allPlanes[[i]] <- spiralTour
+    i <- i+1
+  }
+  save(distDf, distToSp, fViewL, allPlanes, file = "cache/findspiral.rda")
+} else {
+  load("cache/findspiral.rda")
+}
+
+p1 <- ggplot(distDf, aes(group=d, y=distance, x=d)) + geom_boxplot()
+p2 <- ggplot(distToSp, aes(color=as.factor(d),x =t, y=distance)) +
+  geom_point() +
+  labs(y = "Distance to special view", color = "d")
+
+grid.arrange(p1, p2, fViewL[[1]], fViewL[[2]], fViewL[[3]], layout_matrix = rbind(c(1,2,2),c(3,4,5)))
+
 ```
 
 
