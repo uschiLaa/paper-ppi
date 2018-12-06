@@ -313,6 +313,19 @@ cmassR <- function(){
   }
 }
 
+rescaleHoles <- function(x){
+  if(x<0.8) x <- 0.
+  else x <- (x-0.8) * 5
+  return(x)
+}
+
+rescaleCmass <- function(x){
+  if(x<0.2) x <- 0.
+  else x <- (x-0.2) * 1.25
+  return(x)
+}
+
+
 ```
 
 
@@ -707,10 +720,12 @@ if(!file.exists("cache/V1V2toV3V4.rda")){
 
 ```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between two nuisance projections. All projections would be nuisance so the PPI are ideally low and smooth, with little difference between sample sizes (solid lines: $n=1000$; dashed: $n=100$). The scagnostic PPIs are noisy. Some indexes have distinct differences in values between sample sizes."}
 fullResMelt <- fullRes %>%
-  mutate(convex = 1-convex) %>% 
+  mutate(convex = 1-convex) %>%
+  rowwise() %>%
+  mutate(holes = rescaleHoles(holes)) %>%
   gather(PPI, value, -t, -name, -size) %>%
   filter(PPI != "cmass") %>%
-  mutate(PPI = fct_relevel(PPI, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+  mutate(PPI = fct_relevel(PPI, "holes", "cmass", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
 fullResMelt %>% 
   ggplot(aes(x=t, y=value)) + 
   geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
@@ -750,6 +765,8 @@ if(!file.exists("cache/plannedtourpath.rda")){
 #fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
 fullResMeltPlanned <- fullResPlanned %>%
   mutate(convex = 1-convex) %>% 
+  rowwise() %>%
+  mutate(holes = rescaleHoles(holes)) %>%
   gather(PPI, value, -t, -name, -size) %>%
   filter(PPI != "cmass") %>%
   mutate(PPI = fct_relevel(PPI, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
@@ -1048,8 +1065,6 @@ ggplot(scMelt, aes(x=angle, y=value)) +
 \label{sec:timer}
 Computing time differs for each index, and depends strongly on the number of data points (as well as probably some dependence on distribution type), here we use as an example samples of points in a 6-d solid sphere (obtained via the geozoo package [@geozoo]) and calculate the computing time for different indices over 100 interpolated grand tour projections as a function of the sample size. \textcolor{red}{Since projection is fast compared to index evaluation, the number of original dimensions is not very important here. On the other hand different distributions may impact the computing time.}
 We see that the evaluation of the spline index shows weak dependence on the sample size, making it the least efficient for very small data sets, but one of the fastest when considering large data sets. The situation is similar for calculating the scagnositics measures, which are however faster to compute on datasets of around 10 points. This is because the implementation is first binning the data points, which is fast compared to the evaluation that requires triangulation of the binned points. The distance correlation based measure exhibits strong increase with sample size, we note however that the implementation also allowes for evaluation on binned data points which we have not considered. Finally for the MINE family the computing time increases exponentially as can be expected from the dependence on the sample size, where we see that the improved $MIC_e$ algorithm is somewhat faster than the original implementation, see also @JMLRv1715308.
-
-\textcolor{red}{The plot is not perfect. I use alpha to fade out points, but cant find value that gives nice picture here. In addition the timer isnt precise enough to resolve timing for some indexes on small datasets, they are zeroes, appear on bottom of the log10 y axis.}
 
 ```{r getTimer}
 
