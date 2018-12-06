@@ -719,6 +719,12 @@ fullResMelt %>%
   theme(legend.position="none") + xlab("Sequence of projections (t)") + ylab("PPI value")
 ```
 
+
+## PPI traces over a tour sequence between nuisance and structured projections
+\label{sec:squintability}
+
+Figure \ref{fig:plannedtour} shows the PPIs for a tour sequence between a nuisance and structured projection. Sample size is indicated by linetype: dashed being $n=100$ and solid is $n=1000$. The beginnnig of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, dcor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.  
+
 ```{r plannedtourpath}
 if(!file.exists("cache/plannedtourpath.rda")){
   m1 <- matrix(c(1,0,0,0,0,0,0,1,0,0,0,0),ncol=2)
@@ -755,46 +761,6 @@ fullResMeltPlanned %>%
   theme(legend.position="none") + xlab("Sequence of projections (t)") + ylab("PPI value")
 ```
 
-## PPI traces over a tour sequence between nuisance and structured projections
-\label{sec:squintability}
-
-Figure \ref{fig:plannedtour} shows the PPIs for a tour sequence between a nuisance and structured projection. Sample size is indicated by linetype: dashed being $n=100$ and solid is $n=1000$. The beginnnig of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, dcor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.  
-
-<!--
-\textcolor{red}{XXX This shouldn't go here. The index needs to have been introduced much earlier in the paper. TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full characteristic matrix is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view, in terms of the relative differences.}
--->
-
-<!--
-We repeat the same exercise, but now we are interested in how the index values change when going from the view in $x_1$ vs $x_2$ to the view in $x_5$ vs $x_6$, which will also allow us to view the evolution between typical low and high values of the index function. Results are shown in Figure \ref{fig:plannedtour}.
-We can see a pretty clear and smooth increase in dcor2d and splines2d as well as MIC and TIC index when approaching the special view of the Sine distribution, which should therefore be efficient to optimise. On the other hand while we also see smooth increase in MIC and TIC when approaching the special view of the Pipe distribution, the increase only becomes apparent much closer to the final projection, making this structure more challenging to detect with a guided tour. Finally the Spiral appears to be the most challenging, having an even smaller squint angle than the Pipe distribution. While "cmass" appears to be appropriate to identify this view we may actually find larger values of this index for random distributions, making it unfit to use in a guided tour. The scagnostics indices skinny (or 1-convex) appear to be sensitive to the structure at a larger angle compared to MINE indices, but will suffer from the large fluctuations in random views when used in a guided tour.
-Various indices appear less noisy than seen in \ref{fig:plotV1V2toV3V4}, but note that the y-axis scale is different (typically reaching higher index values in this example, whereas smaller fluctuations are more amplified in the previous views).
-
-TIC was suggested in @JMLRv1715308 as an alternative to MIC with better properties for testing against independence, this is because the full characteristic matrix is used, implying that more information is considered. We also see that TIC is smoother when moving into the special view, in terms of the relative differences.
-
-\textcolor{red}{Holes index or even pca could discover pipe as well...}
--->
-
-
-<!--
-I don't think this section adds anything to the paper
-## Distributions of index values
-\label{sec:dist}
-Compare typical index values over the two tour paths. Notation: path 1 / 2 labels tour from $x_1$-$x_2$ to $x_3$-$x_4$ / $x_5$-$x_6$. Typically find broader distributions for small samples because of the large fluctuations in this case. Some indices show preferred behaviour, i.e. sharp peaks around low values for path 1, and very broad distributions leading up to maximum values for path 2. For other indices we can see the strong dependence of the index on sample size, the most extreme example is the skinny index.
-
-\textcolor{red}{Need better representation, in particular normalise TIC to upper limit for given sample size, adapt scales so sharp peaks don't dominate some of the plots.}
-
-```{r indexDist, fig.width=6, fig.height=7, fig.cap="Comparing distributions of index values found in the interpolated tour paths 1 and 2 as described in the text."}
-fullResMelt1 <- fullResMelt %>% add_column(path="path1")
-fullResMeltPlanned1 <- fullResMeltPlanned %>% add_column(path="path2")
-allRes <- rbind(fullResMelt1, fullResMeltPlanned1)
-ggplot(allRes, aes(x=value)) +
-  geom_density(aes(color=path, linetype = factor(size))) +
-  facet_wrap(PPI~name, ncol=3, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
-```
-
-\textcolor{red}{testing rotation dependence by turning sine dataset with $\alpha \in [0,2\pi]$, maybe can add second path for spiral?}
-Interesting to note that some indexes are symmetric around $\pi$, but scagnostics indexes are very arbitrary, dependence is introduced via binning (and outlier removal?) here. Observe huge drops for some of the indexes! 
--->
 
 ## Optimisation check with the guided tour
 \label{sec:guided}
