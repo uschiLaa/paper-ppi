@@ -865,11 +865,12 @@ grid.arrange(p1, p2, ncol=2)
 
 ### Finding sine waves
 
-We next work with distribution 3 and aim to identify the view showing functional dependence using the splines2d index. Given the results from the planned tour we expect to be able to efficiently identify this view without relying on the two step procedure described above. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}.
-\textcolor{red}{Notice that even for anchor planes highlighted by blue vertical lines the index sometimes decreases because of the rotation dependence, ... more details here? e.g. point out that such effects depend on the optimizer, here we use search\_geodesic, closely relates to how interpolation is done, therefore no big jumps in index values as found for search\_random type optimizers.}
+Given the results from Fig.\ref{fig:plannedtour} we expect to be able to efficiently identify the sine view in the 6-d distribution, using only method 3 for the optimisation, using e.g. the splines2d index. Indeed the guided tour quickly converges in this case, the evolution of the index functions is shown in Fig \ref{fig:findsine}. The only difficulties stem from the rotation dependence of the index function as well as the structured distribution, this will be discussed in some more details below. Here we only note that even for anchor planes highlighted by blue vertical lines the index sometimes decreases because of this dependence. These are however not dramatic effects because this search method is closely related to how interpolation is done (a different picture would be optained using method 2 which often leads to large drops in index values after the interpolation step).
+
+
 Here there are four index functions that appear to be suitable for the optimisation: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimisation when considering them as index functions. The final view identified by the guided tour is shown in Figure \ref{fig:findsine}.
 
-\textcolor{red}{This isn't actually the "ideal" view, why is that?}
+\textcolor{red}{This isn't actually the "ideal" view, could be because of rotation dependence??}
 
 ```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising the splines2d index for the Sine 1000 dataset. Anchor planes are marked by the blue vertical lines.", results="hide"}
 set.seed(2018)
