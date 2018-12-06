@@ -989,6 +989,8 @@ grid.arrange(p1, p2, fViewL[[1]], fViewL[[2]], fViewL[[3]], layout_matrix = rbin
 
 ## Rotation dependence
 \label{sec:rot}
+
+We study rotation dependence using the sine function distribution, and tracing the index values as a function of roation angle. Results are shown in Figure \ref{fig:rotationDep}. Several indexes are found to be invariant, holes, convex and MIC. The dcor2d, splines2d and TIC index show consistent patterns in rotation dependence, on the other hand the scagnostics index skinny is found to have sizable random fluctuations as the basis is rotated.
 ```{r rotationDep, out.width=".6\\textwidth", fig.cap="PPI for rotations of the sine 1000 data, to examine rotation invariance. Most are close to rotation invariant, except for dcor2d, splines2d and TIC."}
 if(!file.exists("cache/rotationDep.rda")){
   sineM <- as.matrix(select(sin1000, V5, V6))
