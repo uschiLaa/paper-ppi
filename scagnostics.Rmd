@@ -13,18 +13,6 @@ authors:
 - name: Dianne Cook
   affiliation: Department of Econometrics and Business Statistics, Monash University
   
-- name: Heike Hofmann
-  affiliation: Department of Statistics, Iowa State University
-  
-- name: Hadley Wickham
-  affiliation: RStudio
-  
-- name: Antony Unwin
-  affiliation: Department of Mathematics, Augsburg University
-  
-- name: Katrin Grimm
-  affiliation: ???
-
 keywords:
 - scagnostics
 - statistical graphics
@@ -34,7 +22,7 @@ keywords:
 - guided tour
 
 abstract: |
-  Projection pursuit describes a procedure for searching high-dimensional data for "interesting" low-dimensional projections via the optimization of a criterion function called the projection pursuit index. Most indexes developed focus on finding projections with cluster structure, outliers, or separations between known groups. Here, we are interested in finding projections revealing potentially complex relations between combinations of parameters, by combining the notion of projection pursuit with index functions developed for the detection of interesting bivariate views in the data, including scagnostics and maximum information coefficient.
+  Projection pursuit is used to find interesting low-dimensional projections of high-dimensional data by optimizing an index over all possible projections. Most indexes have been developed to detect departure from known distributions, such as normality, or to find separations between known groups. Here, we are interested in finding projections revealing potentially complex bivariate patterns, using new indexes constructed from scagnostics and a maximum information coefficient, with a purpose to detect unusual relationships between model parameters describing physics phenomena. The performance of these indices is examined with respect to ideal behaviour, using simulated data, and then applied to several physics problems. The implementation builds upon the projection pursuit tools available in the R package, tourr, with indices constructed from code in the R package, scagnostics.
 
 bibliography: bibliography.bib
 output: rticles::asa_article
@@ -218,7 +206,7 @@ A useful projection pursuit index needs to have several properties. This has bee
 <!-- 
   should evolve smoothly between nearby projections, i.e. on an interpolated path we expect to observe slow and consistent change in the index function. \textcolor{red}{maybe can relate this to consistency consition developed by P. Hall, but don't understand this at the moment. In addition this relates to questions of optimiser choice and efficiency.} We evaluate smoothness both for transitions between noise variables and when moving from noise variables to an informative view in Section \ref{sec:smooth}.
 -->
-- **squintability**: \cite{barnett1981interpreting} introduced the idea of squint angle to indicate resolution of structure in the data. Fine structure like the parallel planes in the infamous RANDU data \cite{compaqFortran} (FIXME this is fortran reference, could not find one for the dataset) has a small squint angle because you have to be very close to the optimal projection plane to be able to see the structure. Structures with small squint angle are difficult to find, because the optmisation algorithm needs to get very close to begin hill-climbing to the optimum. The analyst doesn't have control over the data structure, but does have control over the PPI. Squintability is about the shape of the PPI over all projections. It should have smooth low values for noise projections and a clearly larger value, ideally with a big squint angle, for structured projections. The optimiser should be able to clearly see the optimal projections as different from noise. To examine squintability, the PPI values are examined on interpolated tour paths between a noise projection and a distant structured projection. 
+- **squintability**: \cite{barnett1981interpreting} introduced the idea of squint angle to indicate resolution of structure in the data. Fine structure like the parallel planes in the infamous RANDU data \cite{Marsaglia68} has a small squint angle because you have to be very close to the optimal projection plane to be able to see the structure. Structures with small squint angle are difficult to find, because the optmisation algorithm needs to get very close to begin hill-climbing to the optimum. The analyst doesn't have control over the data structure, but does have control over the PPI. Squintability is about the shape of the PPI over all projections. It should have smooth low values for noise projections and a clearly larger value, ideally with a big squint angle, for structured projections. The optimiser should be able to clearly see the optimal projections as different from noise. To examine squintability, the PPI values are examined on interpolated tour paths between a noise projection and a distant structured projection. 
 <!--
 distribution of index values: the distribution of index values when studying data points without structure should have a low variance, and be clearly separated from index values obtained when looking at structured data distributions. \textcolor{red}{I dont really understand this part. I think it can instead be related to the concept of squint angle \cite{barnett1981interpreting}.} We show examples in Section \ref{sec:dist}
 -->
@@ -550,18 +538,19 @@ kable(res_all, format = "latex",  caption = "Comparison of index values between 
       col.names=c("Index","", "lower", "upper", "lower", "upper", "lower", "upper"),
       digits=2, booktabs = T) %>% 
       add_header_above(c(" ", " ", "pipe" = 2, "sine" = 2, "spiral"=2)) %>%
-  group_rows("", 1, 2) %>%
-  group_rows("", 3, 4) %>%
-  group_rows("", 5, 6) %>%
-  group_rows("", 7, 8) %>%
-  group_rows("", 9, 10) %>%
-  group_rows("", 11, 12) %>%
-  group_rows("", 13, 14) %>%
-  group_rows("", 15, 16) %>%
-  kable_styling(position = "center")
+  group_rows("", 1, 2, latex_gap_space = "-0.2cm") %>%
+  group_rows("", 3, 4, latex_gap_space = "-0.2cm") %>%
+  group_rows("", 5, 6, latex_gap_space = "-0.2cm") %>%
+  group_rows("", 7, 8, latex_gap_space = "-0.2cm") %>%
+  group_rows("", 9, 10, latex_gap_space = "-0.2cm") %>%
+  group_rows("", 11, 12, latex_gap_space = "-0.2cm") %>%
+  group_rows("", 13, 14, latex_gap_space = "-0.2cm") %>%
+  group_rows("", 15, 16, latex_gap_space = "-0.2cm") %>% 
+  #row_spec(1:16, font_size = 10) %>%
+  kable_styling(position = "center") 
 ```
 
-The structured projection is in variables 5 and 6 ($x_5, x_6$). Two samples sizes are used: $n=(100, 1000)$. All variables are standardized to have mean 0 and standard deviation 1. Figure \ref{fig:data} shows samples from each of the families, of the nuisance and structured pairs of variables. Table \ref{tab:indexTable} compares the PPIs for structured projections against those for nuisance variables, based on 100 simulated data sets of each type, using sample size 1000. The lower and upper show the 5th and 95th percentile of values. All indexes, except convex show distinctly higher values for the structured projections. The convex index considers the noise projections more interesting than the structured projections, which might be expected, but also provides an argument to use (1-convex) as the PPI. 
+The structured projection is in variables 5 and 6 ($x_5, x_6$). Two samples sizes are used: $n=(100, 1000)$. All variables are standardized to have mean 0 and standard deviation 1. Figure \ref{fig:data} shows samples from each of the families, of the nuisance and structured pairs of variables. Table \ref{tab:indexTable} compares the PPIs for structured projections against those for nuisance variables, based on 100 simulated data sets of each type, using sample size 1000. The lower and upper show the 5th and 95th percentile of values. All indexes, except convex show distinctly higher values for the structured projections. The convex index shows the inverse scale to other indices, thus (1-convex) will be used in the assessment of performance of PPIs. The scale for the holes index is smaller than the others ranging from about 0.7 through 1, so it is re-scaled in the performace assessment so that all indices can be plotted on a common scale of 0-1.
 
 ### Property assessment
 
@@ -570,7 +559,7 @@ The procedures for assessing PPI properties of smoothness, squintability, flexib
 <!-- - Compare the index values for structured vs nuisance variables, by simulating many examples from the model families, and recording the 90% confidence intervals. This checks if the PPI can detect the structure, that it has distinct differences between the sets of values. 
 -->
 1. Compute the PPI values on the tour path along an interpolation between pairs of nuisance variables, $x_1 - x_2$ view either to the $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
-2. Chamge to a tour path between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$, and compute the PPI along this. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
+2. Change to a tour path between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$, and compute the PPI along this. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
 3. Use the guided tour to examine the ease of optimisation. This depends on having a relatovely smooth function, with structure visible from a distance. One index is optimised to show how effectively the maximum is attained, and the values for other PPIs is examined along the same path, to examine the similarity between PPIs. 
 4. Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
 5. Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. The parameters for these PPIs is varied and examined along a tour path between noise and structured projections, to examine the effects of parameter choices and how fiddly the index is to tune. 
@@ -640,11 +629,7 @@ We next compare the various index values for three views: $x_1$ vs $x_2$, $x_5$ 
 ## PPI traces over a tour sequence of interpolated nuisance projections
 \label{sec:smooth}
 
-Figure \ref{fig:plotV1V2toV3V4} shows the traces representing the index values calculated across a tour between a pair of nuisance projections. The range of each axis is set to be the limits of the index, as might be expected over many different data sets, 0 to 1. Each projection in the interpolation will also be noise. Two different sample sizes are show, $n=100$ as a dashed line, and $n=1000$ as a solid line. The ideal trace is a smooth function, with relatively low values, and no difference between the sample sizes. A major feature to notice is that the scagnostics produce noisy functions, which is problematic, because small changes in the projection result in big jumps in the value. This will make them difficult to optimize. TIC also is noisy. On the other hand holes, dcor2d, splines2d and MIC are relatively smooth functions. \textcolor{red}{why is holes so high? it should range between 0-1, maybe needs to be better standardised, too.}
-\textcolor{blue}{Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. Ref \cite{Cook:2007:IDG:1557227} then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximised for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
-I think we can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in \cite{CBC93}. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This appears consistent with the results we have, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
-Proposed rescaling: first have cutoff at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, rescale remaining range to be between zero and one.
-}
+Figure \ref{fig:plotV1V2toV3V4} shows the traces representing the index values calculated across a tour between a pair of nuisance projections. The range of each axis is set to be the limits of the index, as might be expected over many different data sets, 0 to 1. Each projection in the interpolation will also be noise. Two different sample sizes are show, $n=100$ as a dashed line, and $n=1000$ as a solid line. The ideal trace is a smooth function, with relatively low values, and no difference between the sample sizes. A major feature to notice is that the scagnostics produce noisy functions, which is problematic, because small changes in the projection result in big jumps in the value. This will make them difficult to optimize. TIC also is noisy. On the other hand holes, dcor2d, splines2d and MIC are relatively smooth functions. 
 
 Several of the indexes are sensitive to sample size also, the same structured projection with differing numbers of points, produces different values. 
 
@@ -1781,3 +1766,16 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 
 
 # References
+
+# Appendix
+
+XXX Need to make this not numbered
+
+## Re-scaling of holes index
+
+Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. Ref \cite{Cook:2007:IDG:1557227} then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximised for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
+
+We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in \cite{CBC93}. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This appears consistent with the results we have, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
+
+Rescaling: first have cutoff at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, rescale remaining range to be between zero and one.
+
