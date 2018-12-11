@@ -1258,9 +1258,9 @@ Moreover we can either select the mean value, or to avoid large pulls from sharp
 
 This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. We study the potential of smoothing these two for the tour path between normal distributed noise parameters of the Spiral 1000 dataset, varying the $\epsilon$ and $\beta$ parameters.
 
+\textcolor{red}{I fixed the y axis to be between 0 and 1, which highlights that indeed we get much smoother behaviour, on the other hand theres still large relative jumps observed in all traces, and a smaller y axis scale may be preferred to show this more clearely.}
 
-
-```{r spiralScagSmoothing, fig.cap="Comparing the traces of the three scagnostics indices when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (left) or after jittering the projected datapoints with some amount $\\beta$ (right). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered."}
+```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indices skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered."}
 
 jitterScagnostics <-function(proj, d, alpha){
   newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
@@ -1311,16 +1311,23 @@ getScagSmooth <- function(df, tPath){
 }
 
 if(!file.exists("cache/spiralScagSmoothing.rda")){
-  scagSmooth <- getScagSmooth(spiral1000, as.list(t2full))
+  scagSmooth <- getScagSmooth(spiral1000, as.list(t1full))
   scagSmoothMelt <- gather(scagSmooth, variable, value, -t, -method, -alpha)
   save(scagSmooth, scagSmoothMelt, file = "cache/spiralScagSmoothing.rda")
 } else {
   load("cache/spiralScagSmoothing.rda")
 }
 
+scagSmoothMelt <- scagSmoothMelt %>%
+  filter(variable != "convex") %>%
+  mutate(method = factor(method, levels = c("jitterAngle", "jitterPoints")))
 ggplot(scagSmoothMelt, aes(x=t, y=value)) +
-  geom_line(aes(color=factor(alpha))) + 
-  facet_wrap(variable~method, ncol=2, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE))
+  geom_line(aes(linetype=factor(method))) + 
+  theme(legend.position="none") +
+  ylim(0,1) +
+  facet_grid(alpha~variable) +
+  xlab("Sequence of projections (t)") +
+  ylab("PPI value")
 
 ```
 
