@@ -184,7 +184,6 @@ We can now define the following metrics:
 ```{r load}
 library(tourr)
 library(tidyverse)
-library(reshape2)
 library(scagnostics)
 library(gridExtra)
 library(tictoc) #timer
@@ -616,7 +615,7 @@ pL <- list()
 i <- 1
 pLabels <- c("Spiral 100", "Spiral 1000", "Pipe 100", "Pipe 1000", "Sine 100", "Sine 1000")
 for(ds in list(spiral100, spiral1000, pipe100, pipe1000, sin100, sin1000)){
-  distData <- melt(ds)
+  distData <- gather(ds, variable, value)
   pC <- ggplot(distData, aes(value, color=variable)) +
     geom_density() +
     ggtitle(pLabels[i])
@@ -753,7 +752,6 @@ if(!file.exists("cache/plannedtourpath.rda")){
 ```
 
 ```{r plannedtour, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between a nuisance and a structured projection (solid lines: $n=1000$; dashed: $n=100$). Most of the indexes have peaks at the end of the sequence, indicating that they see the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection."}
-#fullResMeltPlanned <- melt(fullResPlanned, id=c("t", "name", "size"))
 fullResMeltPlanned <- fullResPlanned %>%
   mutate(convex = 1-convex) %>% 
   rowwise() %>%
@@ -828,8 +826,10 @@ animate_xy(pipeResc, guided_tour(holes, search_f = tourr:::search_geodesic,
 ```{r pipeFirstRun, fig.width=7, fig.height=7, out.width = "0.8\\textwidth", fig.cap="Scouting for the pipe using optimization method 2 on the TIC index. Other PPI values also shown for interest. Only the values for the target plane are shown because the optimization is done off-line. The TIC maximum value for this data is small,  even though it identifies the pipe. The holes, convex, skinny, and to some extent MIC, mirror the performance of TIC for this structure."}
 if(!file.exists("cache/pipeFirstRun.rda")){
   pipeTourRes <- getProj(pipe1000, pipeTourFull, "Pipe", 1000)
-  pipeTourResMelt <- melt(pipeTourRes, id=c("t", "name", "size"))
-  save(pipeTourRes, pipeTourResMelt, file = "cache/pipeFirstRun.rda")
+  #pipeTourResMelt <- melt(pipeTourRes, id=c("t", "name", "size"))
+  #never used?
+  #save(pipeTourRes, pipeTourResMelt, file = "cache/pipeFirstRun.rda")
+  save(pipeTourRes, file = "cache/pipeFirstRun.rda")
 } else {
   load("cache/pipeFirstRun.rda")
 }
@@ -838,7 +838,7 @@ newBasisPipeTour <- pipeTourRes %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
   select(-cmass) %>%
-  melt(id=c("t", "name", "size")) %>%
+  gather(variable, value, -t, -name, -size) %>%
   filter(t %in% which(attributes(interpolate(pipeTour))$new_basis))
 ggplot(newBasisPipeTour, aes(x=t, y=value)) +
   geom_point(mapping=aes(color=(variable=="TIC"))) + 
@@ -859,8 +859,9 @@ if(!file.exists("cache/refinepipe.rda")){
   pipeTour2 <- save_history(pipeResc, guided_tour(mineIndex("TIC")), start = fProj)
   pipeTourFull2 <- as.list(interpolate(pipeTour2))
   pipeTourRes2 <- getProj(pipe1000, pipeTourFull2, "Pipe", 1000)
-  pipeTourResMelt2 <- melt(pipeTourRes2, id=c("t", "name", "size"))
-  save(pipeTour2, pipeTourFull2, pipeTourRes2, pipeTourResMelt2, file = "cache/refinepipe.rda")
+  #pipeTourResMelt2 <- melt(pipeTourRes2, id=c("t", "name", "size"))
+  #save(pipeTour2, pipeTourFull2, pipeTourRes2, pipeTourResMelt2, file = "cache/refinepipe.rda")
+  save(pipeTour2, pipeTourFull2, pipeTourRes2, file = "cache/refinepipe.rda")
 } else {
   load("cache/refinepipe.rda")
 }
@@ -896,8 +897,9 @@ if(!file.exists("cache/findsine.rda")){
                           guided_tour(splineIndex()))
   sineTourFull <- as.list(interpolate(sineTour))
   sineTourRes <- getProj(sin1000, sineTourFull, "Sine", 1000)
-  sineTourResMelt <- melt(sineTourRes, id=c("t", "name", "size"))
-  save(sineResc, sineTour, sineTourFull, sineTourRes, sineTourResMelt, file = "cache/findsine.rda")
+  #sineTourResMelt <- melt(sineTourRes, id=c("t", "name", "size"))
+  #save(sineResc, sineTour, sineTourFull, sineTourRes, sineTourResMelt, file = "cache/findsine.rda")
+  save(sineResc, sineTour, sineTourFull, sineTourRes, file = "cache/findsine.rda")
 } else {
   load("cache/findsine.rda")
 }
@@ -907,7 +909,7 @@ sineTourResMelt <-sineTourRes %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
   select(-cmass) %>%
-  melt(id=c("t", "name", "size"))
+  gather(variable, value, -t, -name, -size)
 ggplot(sineTourResMelt, aes(x=t, y=value)) +
   geom_line(mapping=aes(color=(variable=="splines2d"))) + 
   facet_wrap(~variable, ncol=1, scales = "free_y") +
@@ -1192,7 +1194,7 @@ getScagComp <- function(df, tPath){
 }
 if(!file.exists("cache/spiralScagBinning.rda")){
   scagBinningDf <- getScagComp(spiral1000, t2full)
-  scagMelt <- melt(scagBinningDf, id=c("t")) %>%
+  scagMelt <- gather(scagBinningDf, variable, value, -t) %>%
     mutate(nbin = as.numeric(str_sub(variable, start = -2))) %>%
     mutate(idx = str_sub(variable, end = -3))
   save(scagBinningDf, scagMelt, file = "cache/spiralScagBinning.rda")
@@ -1310,7 +1312,7 @@ getScagSmooth <- function(df, tPath){
 
 if(!file.exists("cache/spiralScagSmoothing.rda")){
   scagSmooth <- getScagSmooth(spiral1000, as.list(t2full))
-  scagSmoothMelt <- melt(scagSmooth, id=c("t", "method", "alpha"))
+  scagSmoothMelt <- gather(scagSmooth, variable, value, -t, -method, -alpha)
   save(scagSmooth, scagSmoothMelt, file = "cache/spiralScagSmoothing.rda")
 } else {
   load("cache/spiralScagSmoothing.rda")
