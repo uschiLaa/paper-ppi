@@ -1240,10 +1240,19 @@ Big issues: smoothness, rotation invariance
 
 ### Smoothing
 
-Focusing on scagnostics indices, for which the biggest issues with noisy transitions have been observed. Smoothing can be performed by interpolation, or averaging similar views. For example we can use jittering, or we can use tour functionalities to find a set of randomly selected projections within a small angle of the current view. In this way we can generate a number of similar views. We can then select the mean value, or to avoid large pulls from sharp peaks, we can remove the most extreme values and then calulate the mean from the remaining evaluations. Similar to the study of scagnostics binning we now compare different methods of smoothing when moving into the special view of the Spiral 1000 dataset.
+Different methods can be considered for smoothing the index traces over similar views for each basis:
+
+* Jittering points: using the jitter function we move each points by a random amount drawn from a uniform distribution between $\pm \beta$
+* Jittering angles: using the tourr implementation we can draw a random plane and move some small amount $\epsilon$ in that direction
+* Turning axes: given the rotation non-invariance, maybe rotation of basis could be useful also??
+
+Moreover we can either select the mean value, or to avoid large pulls from sharp peaks, we can remove the most extreme values and then calulate the mean from the remaining evaluations. Only the mean will be considered here.
+
+This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. We study the potential of smoothing these two for the tour path between normal distributed noise parameters of the Spiral 1000 dataset, varying the $\epsilon$ and $\beta$ parameters.
 
 
-```{r spiralScagSmoothing, fig.cap="Comparing the traces of the three scagnostics indices when smoothing the index values, either by averaging over the index value after jittering the projection by some angle alpha (left) or after jittering the projected datapoints with some amount alpha (right). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered."}
+
+```{r spiralScagSmoothing, fig.cap="Comparing the traces of the three scagnostics indices when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (left) or after jittering the projected datapoints with some amount $\\beta$ (right). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered."}
 
 jitterScagnostics <-function(proj, d, alpha){
   newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
