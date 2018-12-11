@@ -833,6 +833,9 @@ if(!file.exists("cache/pipeFirstRun.rda")){
 }
 newBasisPipeTour <- pipeTourRes %>%
   mutate(convex = 1-convex) %>% 
+  rowwise() %>%
+  mutate(holes = rescaleHoles(holes)) %>%
+  select(-cmass) %>%
   melt(id=c("t", "name", "size")) %>%
   filter(t %in% which(attributes(interpolate(pipeTour))$new_basis))
 ggplot(newBasisPipeTour, aes(x=t, y=value)) +
@@ -897,7 +900,10 @@ if(!file.exists("cache/findsine.rda")){
 }
 anchorIdx <- as.tibble(which(attributes(interpolate(sineTour))$new_basis))
 sineTourResMelt <-sineTourRes %>%
-  mutate(convex = 1-convex) %>% 
+  mutate(convex = 1-convex) %>%
+  rowwise() %>%
+  mutate(holes = rescaleHoles(holes)) %>%
+  select(-cmass) %>%
   melt(id=c("t", "name", "size"))
 ggplot(sineTourResMelt, aes(x=t, y=value)) +
   geom_line(mapping=aes(color=(variable=="splines2d"))) + 
@@ -1038,6 +1044,10 @@ if(!file.exists("cache/rotationDep.rda")){
 
 scMelt <- sc %>% 
   mutate(convex = 1-convex) %>%
+  rowwise() %>%
+  mutate(holes = rescaleHoles(holes)) %>%
+  rowwise() %>%
+  mutate(cmass = rescaleCmass(cmass)) %>%
   mutate(angle=alpha*360/(2*pi), TIC = TIC) %>%
   select(-alpha) %>%
   gather(PPI, value, -angle) %>%
