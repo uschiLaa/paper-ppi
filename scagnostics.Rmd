@@ -538,14 +538,14 @@ kable(res_all, format = "latex",  caption = "Comparison of index values between 
       col.names=c("Index","", "lower", "upper", "lower", "upper", "lower", "upper"),
       digits=2, booktabs = T) %>% 
       add_header_above(c(" ", " ", "pipe" = 2, "sine" = 2, "spiral"=2)) %>%
-  group_rows("", 1, 2, latex_gap_space = "-0.2cm") %>%
-  group_rows("", 3, 4, latex_gap_space = "-0.2cm") %>%
-  group_rows("", 5, 6, latex_gap_space = "-0.2cm") %>%
-  group_rows("", 7, 8, latex_gap_space = "-0.2cm") %>%
-  group_rows("", 9, 10, latex_gap_space = "-0.2cm") %>%
-  group_rows("", 11, 12, latex_gap_space = "-0.2cm") %>%
-  group_rows("", 13, 14, latex_gap_space = "-0.2cm") %>%
-  group_rows("", 15, 16, latex_gap_space = "-0.2cm") %>% 
+  group_rows("", 1, 2, latex_gap_space = "-0.5cm") %>%
+  group_rows("", 3, 4, latex_gap_space = "-0.5cm") %>%
+  group_rows("", 5, 6, latex_gap_space = "-0.5cm") %>%
+  group_rows("", 7, 8, latex_gap_space = "-0.5cm") %>%
+  group_rows("", 9, 10, latex_gap_space = "-0.5cm") %>%
+  group_rows("", 11, 12, latex_gap_space = "-0.5cm") %>%
+  group_rows("", 13, 14, latex_gap_space = "-0.5cm") %>%
+  group_rows("", 15, 16, latex_gap_space = "-0.5cm") %>% 
   #row_spec(1:16, font_size = 10) %>%
   kable_styling(position = "center") 
 ```
@@ -768,9 +768,11 @@ fullResMeltPlanned %>%
 \label{sec:guided}
 
 
-The guided tour combines optimisation with interpolation between pairs of planes. Target planes of the path are chosen to maximise the PPI. There are three derivative-free optimisation methods available in the guided tour: \verb# search_better_random# (1), \verb# search_better# (2), and \verb# search_geodesic# (3). Method 1 casts a wide net randomly generating projection planes, computing the PPIs and keeping the best projection. Method 2 conducts a localised maximum search. Method 3 is quite different: a local search is conducted to determine a promising direction, and then this direction is followed until the maximum in that direction is found. For all methods the optimisation is iterative, and we record each step where a plane with increased index value has been found. The stopping condition is given as number of tries that did not yield an increased index value at the final step in the optimisation.
-For method 1 and 2 two parameters control the optimisation: the search window $\alpha$, giving the maximum distance from the current plane in which projections are samples, and the cooling factor, giving the incremental decrease in search window size. Method 3 in principle also has two free parameters, which are however fixed in the current implementation. The first is the small step size used when evaluating the most promising direction, it is fixed to 0.01, and the second parameter being the window over which the line search is performed, fixet to $\pm \pi/4$ away from the current plane.
-For distributions and indexes with smooth behaviour and good squinatbaility, method 3 is the most efficient method for optimisation. If these two criteria are not met the method may still be useful, but only given an informed starting point. In such cases we can follow a method similar to that proposed by Friedman, i.e. we break the optimisation in two distinct steps. A first step ("scouting") uses method 2 with large search window and no cooling as a way of stepping over fluctuations and local maxima and yielding an approximation of the global maximum (note here that this also requires large number of tries for the stopping condition in particular in high dimensions, since most randomly picked planes will not be interesting). The second step is then to use method 3 starting from the approximate maximum, which will return the global maximum.
+The guided tour combines optimisation with interpolation between pairs of planes. Target planes of the path are chosen to maximise the PPI. There are three derivative-free optimisation methods available in the guided tour: \verb# search_better_random# (1), \verb# search_better# (2), and \verb# search_geodesic# (3). Method 1 casts a wide net randomly generating projection planes, computing the PPIs and keeping the best projection, and method 2 conducts a localised maximum search. Method 3 is quite different: a local search is conducted to determine a promising direction, and then this direction is followed until the maximum in that direction is found. For all methods the optimisation is iterative, the best projections form target planes in the tour, the tour path is the interpolation to this target, and then a new search for a better projection is made, followed by the interpolation. For each projection during the interpolation steps, the PPI is recorded. 
+
+The stopping rule is that no better projections are found after a fixed number of tries, given a fixed tolerance value measuring difference. For method 1 and 2 two additional parameters control the optimisation: the search window $\alpha$, giving the maximum distance from the current plane in which projections are sampled, and the cooling factor, giving the incremental decrease in search window size. Method 3 in principle also has two free parameters, which are however fixed in the current implementation. The first is the small step size used when evaluating the most promising direction, it is fixed to 0.01, and the second parameter being the window over which the line search is performed, fixed to $\pm \pi/4$ away from the current plane.
+
+For distributions and indexes with smooth behaviour and good squintability, method 3 is the most effective method for optimisation. If these two criteria are not met the method may still be useful, but only given an informed starting projection. In such cases we can follow a method similar to that proposed by Friedman (XXX REF): we break the optimisation in two distinct steps. A first step ("scouting") uses method 2 with large search window and no cooling as a way of stepping over fluctuations and local maxima and yielding an approximation of the global maximum. Note that this likely requires large number of tries, especially as dimension increases, since most randomly picked planes will not be interesting. The second step is uses method 3 starting from the approximate maximum, which will take small steps to refine the result to be closer to the global maximum.
 
 
 ### Looking down the pipe
@@ -1773,7 +1775,7 @@ XXX Need to make this not numbered
 
 ## Re-scaling of holes index
 
-Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. Ref \cite{Cook:2007:IDG:1557227} then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximised for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
+Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. \cite{Cook:2007:IDG:1557227} then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximised for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
 
 We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in \cite{CBC93}. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This appears consistent with the results we have, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
 
