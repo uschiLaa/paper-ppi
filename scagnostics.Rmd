@@ -518,6 +518,12 @@ if(!file.exists("cache/indexTable.rda")){
 } else {
   load("cache/indexTable.rda")
 }
+#rescale holes index first
+res <- res %>%
+  rowwise() %>%
+  mutate(value5 = if_else(index=="holes", rescaleHoles(value5), value5)) %>%
+  rowwise() %>%
+  mutate(value95 = if_else(index=="holes", rescaleHoles(value95), value95))
 resp <- res %>% filter(size == 1000, data == "Pipe") %>%
   select(index, type, value5, value95) %>%
   rename(lower=value5, upper=value95)
@@ -529,7 +535,7 @@ ress <- res %>% filter(size == 1000, data == "Spiral") %>%
   rename(lower=value5, upper=value95)
 res_all <- bind_cols(resp, resi, ress) %>%
   select(-index1, -type1, -index2, -type2) %>%
-  mutate(index = fct_relevel(index, "holes", "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe")) %>%
+  mutate(index = factor(index, c("holes", "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe"))) %>%
   arrange(index) %>%
   mutate(index = c("holes", "", "convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", ""))
 # Good resource for doing tables
