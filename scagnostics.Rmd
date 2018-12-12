@@ -795,6 +795,7 @@ if(!file.exists("cache/wIntermediate.rda")){
 ```
 
 ```{r wIntermediate, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between nuisance and structured projections, following V1-V2 to V1-V5 to V5-V6. Solid lines are the larger sample size, $n=1000$, and dashed are smaller sample size, $n=100$. Peaks at the end of the sequence indicate the index sees the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection. Holes only responds to the pipe, and is a multimodal function for this data with a local maximum at V1-V5. The scagnostics tend to be sensitive to sample size. "}
+intermediatePlane <- which(attributes(interpolate(t3))$new_basis)[2]
 fullResMeltPlanned <- fullResPlanned %>%
   mutate(convex = 1-convex) %>% 
   rowwise() %>%
@@ -806,6 +807,7 @@ fullResMeltPlanned %>%
   ggplot(aes(x=t, y=value)) + 
   geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
   ylim(c(0,1)) +
+  geom_vline(xintercept=intermediatePlane, color="blue", alpha=0.3) +
   facet_grid(PPI~name) + 
   theme(legend.position="none") + xlab("Sequence of projections (t)") + ylab("PPI value")
 ```
