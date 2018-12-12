@@ -970,6 +970,7 @@ distanceToSp <- function(planes, specialPlane){
   }
   return(distL)
   }
+
 if(!file.exists("cache/findspiral.rda")){
   distDf <- tibble(d=numeric(), distance=numeric())
   distToSp <- tibble(d=numeric(), distance=numeric(), t=numeric())
@@ -978,17 +979,21 @@ if(!file.exists("cache/findspiral.rda")){
   fViewL <- list()
   allPlanes <- list()
   i <- 1
-  for(d in c(4,6,8)){
-    set.seed(1779+d)
+  for(d in c(4,5,6)){
+    set.seed(58958)
     specialPlane <- matrix(c(rep(0,d-2),1,0,rep(0,d-1),1),ncol=2)
-    spiralD <- spiralData(d, 1000) %>% scale() %>% as_tibble()
-    spiralTour <- save_history(spiralD, guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better,
+    spiralD <- spiral1000 %>%
+      purrr::when(d<6 ~ select(., -V4), ~ .) %>%
+      purrr::when(d<5 ~ select(., -V3), ~ .)
+    spiralTour <- save_history(as.matrix(spiralD),
+                               guided_tour(scagIndex("Skinny"), search_f = tourr:::search_better,
                                                     max.tries = 5000, cooling = 1, alpha = pi),
                               max_bases = maxBases)
-    if(d==4){maxBases <- min(maxBases, length(spiralTour))}
+    #if(d==4){maxBases <- min(maxBases, length(spiralTour))}
+    nBases <- length(spiralTour)
     distDf <- rbind(distDf, tibble(d=d, distance=distanceDist(spiralTour)))
-    distToSp <- rbind(distToSp, tibble(d=d, distance=distanceToSp(spiralTour, specialPlane), t=1:maxBases))
-    fView <- as.tibble(as.matrix(spiralD) %*% as.list(spiralTour)[[maxBases]])
+    distToSp <- rbind(distToSp, tibble(d=d, distance=distanceToSp(spiralTour, specialPlane), t=1:nBases))
+    fView <- as.tibble(as.matrix(spiralD) %*% as.list(spiralTour)[[nBases]])
     fViewL[[i]] <- ggplot(fView, aes(V1, V2)) + geom_point()
     allPlanes[[i]] <- spiralTour
     i <- i+1
@@ -998,7 +1003,9 @@ if(!file.exists("cache/findspiral.rda")){
   load("cache/findspiral.rda")
 }
 
-p1 <- ggplot(distDf, aes(group=d, y=distance, x=d)) + geom_boxplot()
+p1 <- ggplot(distDf, aes(group=d, y=distance, x=d)) +
+  geom_boxplot() +
+  scale_x_continuous(breaks = c(4, 5, 6))
 p2 <- ggplot(distToSp, aes(color=as.factor(d),x =t, y=distance)) +
   geom_point() +
   labs(y = "Distance to special view", color = "d")
