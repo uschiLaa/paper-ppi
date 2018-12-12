@@ -767,6 +767,46 @@ fullResMeltPlanned %>%
   theme(legend.position="none") + xlab("Sequence of projections (t)") + ylab("PPI value")
 ```
 
+## Tentative
+try how this looks going first to V1 vs V5, then to V5 vs V6
+```{r wIntermediatePath}
+if(!file.exists("cache/wIntermediate.rda")){
+  m1 <- matrix(c(1,0,0,0,0,0,0,1,0,0,0,0),ncol=2)
+  mInt <- matrix(c(1,0,0,0,0,0,0,0,0,0,1,0),ncol=2)
+  m2 <- matrix(c(0,0,0,0,1,0,0,0,0,0,0,1),ncol=2)
+  #this is silly but seems that first two entries are being ignored, so need some fake entries
+  m3 <- matrix(c(1,0,0,0,1,0,0,1,0,0,0,1),ncol=2)
+  m4 <- matrix(c(1,1,1,0,0,0,0,1,1,0,0,0),ncol=2)
+  t3 <- save_history(sin100,tour_path=planned_tour(list(m3,m4,m1,mInt,m2)))
+  t3full <- as.list(interpolate(t3))
+  fullResPlanned <- getProj(sin100, t3full, "sin", 100) %>%
+    rbind(getProj(sin1000, t3full, "sin", 1000)) %>%
+    rbind(getProj(spiral100, t3full, "spiral", 100)) %>%
+    rbind(getProj(spiral1000, t3full, "spiral", 1000)) %>%
+    rbind(getProj(pipe100, t3full, "pipe", 100)) %>%
+    rbind(getProj(pipe1000, t3full, "pipe", 1000))
+  save(t3, t3full, fullResPlanned, file = "cache/wIntermediate.rda")
+} else {
+  load("cache/wIntermediate.rda")
+}
+```
+
+```{r wIntermediate, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between a nuisance and a structured projection (solid lines: $n=1000$; dashed: $n=100$). Most of the indexes have peaks at the end of the sequence, indicating that they see the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection."}
+fullResMeltPlanned <- fullResPlanned %>%
+  mutate(convex = 1-convex) %>% 
+  rowwise() %>%
+  mutate(holes = rescaleHoles(holes)) %>%
+  gather(PPI, value, -t, -name, -size) %>%
+  filter(PPI != "cmass") %>%
+  mutate(PPI = fct_relevel(PPI, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+fullResMeltPlanned %>% 
+  ggplot(aes(x=t, y=value)) + 
+  geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
+  ylim(c(0,1)) +
+  facet_grid(PPI~name) + 
+  theme(legend.position="none") + xlab("Sequence of projections (t)") + ylab("PPI value")
+```
+
 
 ## Optimisation check with the guided tour
 \label{sec:guided}
