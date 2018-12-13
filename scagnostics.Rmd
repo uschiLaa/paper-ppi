@@ -884,7 +884,9 @@ newBasisPipeTour <- pipeTourRes %>%
   mutate(holes = rescaleHoles(holes)) %>%
   select(-cmass) %>%
   gather(variable, value, -t, -name, -size) %>%
-  filter(t %in% which(attributes(interpolate(pipeTour))$new_basis))
+  filter(t %in% which(attributes(interpolate(pipeTour))$new_basis)) %>%
+  mutate(variable = fct_relevel(variable, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+
 ggplot(newBasisPipeTour, aes(x=t, y=value)) +
   geom_point(mapping=aes(color=(variable=="TIC"))) + 
   geom_line(mapping=aes(color=(variable=="TIC"))) + 
@@ -938,7 +940,7 @@ The only complications arise from a lack of rotation invariance of the splines2d
 
 \textcolor{red}{This isn't actually the "ideal" view, could be because of rotation dependence??}-->
 
-```{r findsine, fig.width=6, fig.height=7, fig.cap="Guided tour optimising  the splines2d index, using method 3, for the sine data, with $n=1000$. Anchor planes are marked by the blue vertical lines, and are closer to each other approaching the maxima. The sine is found relatively easily, by splines2D, and it si indicated that MIC, TIC, dcor2D and convex would also likely find this structure.", results="hide"}
+```{r findsine, fig.width=6, fig.height=7, out.width = "0.8\\textwidth", fig.cap="Guided tour optimising  the splines2d index, using method 3, for the sine data, with $n=1000$. Anchor planes are marked by the blue vertical lines, and are closer to each other approaching the maxima. The sine is found relatively easily, by splines2D, and it si indicated that MIC, TIC, dcor2D and convex would also likely find this structure.", results="hide"}
 set.seed(2018)
 if(!file.exists("cache/findsine.rda")){
   sineResc <- as.matrix(sin1000)
@@ -958,12 +960,13 @@ sineTourResMelt <-sineTourRes %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
   select(-cmass) %>%
-  gather(variable, value, -t, -name, -size)
+  gather(variable, value, -t, -name, -size) %>%
+  mutate(variable = fct_relevel(variable, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
 ggplot(sineTourResMelt, aes(x=t, y=value)) +
   geom_line(mapping=aes(color=(variable=="splines2d"))) + 
   facet_wrap(~variable, ncol=1, scales = "free_y") +
   scale_colour_manual(values = c("black", "red")) +
-  facet_wrap(~variable, ncol=1) +
+  facet_wrap(~variable, ncol=1, strip.position = "right") +
   geom_vline(data=anchorIdx, mapping=aes(xintercept=value), color="blue", alpha=0.3) +
   guides(color=FALSE) +
   ylim(c(0,1)) + xlab("Number of projections") + ylab("PPI value")
