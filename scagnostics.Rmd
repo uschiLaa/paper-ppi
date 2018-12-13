@@ -821,7 +821,7 @@ The guided tour combines optimization with interpolation between pairs of planes
 
 The stopping rule is that no better projections are found after a fixed number of tries, given a fixed tolerance value measuring difference. For method 1 and 2 two additional parameters control the optimization: the search window $\alpha$, giving the maximum distance from the current plane in which projections are sampled, and the cooling factor, giving the incremental decrease in search window size. Method 3 in principle also has two free parameters, which are however fixed in the current implementation. The first is the small step size used when evaluating the most promising direction, it is fixed to 0.01, and the second parameter being the window over which the line search is performed, fixed to $\pm \pi/4$ away from the current plane.
 
-For distributions and indexes with smooth behavior and good squintability, method 3 is the most effective method for optimization. If these two criteria are not met the method may still be useful, but only given an informed starting projection. In such cases we can follow a method similar to that proposed by Friedman (XXX REF): we break the optimization in two distinct steps. A first step ("scouting") uses method 2 with large search window and no cooling as a way of stepping over fluctuations and local maxima and yielding an approximation of the global maximum. Note that this likely requires large number of tries, especially as dimension increases, since most randomly picked planes will not be interesting. The second step is uses method 3 starting from the approximate maximum, which will take small steps to refine the result to be closer to the global maximum.
+For distributions and indexes with smooth behavior and good squintability, method 3 is the most effective method for optimization. If these two criteria are not met the method may still be useful, but only given an informed starting projection. In such cases we can follow a method similar to that proposed by Friedman [@f87]: we break the optimization in two distinct steps. A first step ("scouting") uses method 2 with large search window and no cooling as a way of stepping over fluctuations and local maxima and yielding an approximation of the global maximum. Note that this likely requires large number of tries, especially as dimension increases, since most randomly picked planes will not be interesting. The second step is uses method 3 starting from the approximate maximum, which will take small steps to refine the result to be closer to the global maximum.
 
 
 ### Looking down the pipe
@@ -1911,8 +1911,6 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 # Discussion
 
 # Appendix {-} 
-
-XXX Need to make this not numbered
 
 ## Re-scaling of holes index {-} 
 
