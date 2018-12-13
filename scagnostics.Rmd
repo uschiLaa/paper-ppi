@@ -1348,11 +1348,11 @@ Two different methods are considered for smoothing the index values:
 
 The mean value from a sample of projections is recorded as the PPI value. This could be robsitufied by dropping the most extreme values. 
 
-This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using a the tour path between noise variables of the spiral1000 dataset using different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnistics are fast to compute, wither of these methods is feasible.
+This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using a the tour path between noise variables of the spiral1000 dataset using different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnistics are fast to compute, either of these methods is feasible. For this example we have smoothed over 10 randomly selected jittered views, computing time increases linearly with the number of randomly jittered views, as this is mostly determined by the time needed to evaluate the scagnostics indexes which is done separately for each view.
 
 <!--\textcolor{red}{I fixed the y axis to be between 0 and 1, which highlights that indeed we get much smoother behaviour, on the other hand theres still large relative jumps observed in all traces, and a smaller y axis scale may be preferred to show this more clearely.}-->
 
-```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indices skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered."}
+```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indices skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered. For comparison the red line in the background shows the trace without any smoothing applied."}
 
 jitterScagnostics <-function(proj, d, alpha){
   newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
@@ -1410,10 +1410,19 @@ if(!file.exists("cache/spiralScagSmoothing.rda")){
   load("cache/spiralScagSmoothing.rda")
 }
 
+#getting non-smoothed result
+load("cache/V1V2toV3V4.rda")
+noSmoothing <- fullRes %>%
+  filter(size==1000) %>%
+  filter(name=="spiral") %>%
+  select(skinny, stringy, t) %>%
+  gather(variable, value, -t)
+
 scagSmoothMelt <- scagSmoothMelt %>%
   filter(variable != "convex") %>%
   mutate(method = factor(method, levels = c("jitterAngle", "jitterPoints")))
 ggplot(scagSmoothMelt, aes(x=t, y=value)) +
+  geom_line(data=noSmoothing, color="red", alpha=0.5) +
   geom_line(aes(linetype=factor(method))) + 
   theme(legend.position="none") +
   ylim(0,1) +
