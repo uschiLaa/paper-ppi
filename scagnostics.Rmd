@@ -987,14 +987,14 @@ The spiral is the most challenging structure to detect because it has a small sq
 We use a setup similar to that introduced for detecting the pipe structure, i.e.\ we use the search\_better optimization of the guided tour, disabling the cooling and with a large search window, while sampling a large number of random projections (up to 5000) for each step.
 -->
 
-The search is conducted for $d=4,5,6$ which would correspond to 2, 3 and 4 noise dimensions respectively. In addition we examine the distance between planes, using a Frobenius norm, as defined by Equation 2 of @BCAH05, and available in the ```proj_dist``` function in the tourr package, to compare searches with squint angle across dimensions. The distance between planes is related to squint angle, how far away from the ideal projection, can the structure be glimpsed. In order for the optimizer to find the spiral, the distance between planes would need to be smaller than the squint angle. Figure \ref{fig:findspiral} summarizes the results. When $d=4$ the scouting method effectively finds the spiral. Plot (a) shows the side-by-side boxplots of distance between ideal plane and planes examined during the optimization, for $d=4,5,6$. These are on average smaller for the lower dimension, and gradually increase as dimension increases. This is an indication of the extra computation needed to brute force find the spiral as noise dimensions increase. Plot (b) shows these as a function of the optimization procedure, where it can be seen that only when $d=4$ does it converge to the ideal. Its likely that expanding the search space should result in uncovering the spiral in higher dimensions.
+The search is conducted for $p=4,5,6$ which would correspond to 2, 3 and 4 noise dimensions respectively. In addition we examine the distance between planes, using a Frobenius norm, as defined by Equation 2 of @BCAH05, and available in the ```proj_dist``` function in the tourr package, to compare searches with squint angle across dimensions. The distance between planes is related to squint angle, how far away from the ideal projection, can the structure be glimpsed. In order for the optimizer to find the spiral, the distance between planes would need to be smaller than the squint angle. Figure \ref{fig:findspiral} summarizes the results. When $p=4$ the scouting method effectively finds the spiral. Plot (a) shows the side-by-side boxplots of distance between ideal plane and planes examined during the optimization, for $p=4,5,6$. These are on average smaller for the lower dimension, and gradually increase as dimension increases. This is an indication of the extra computation needed to brute force find the spiral as noise dimensions increase. Plot (b) shows these as a function of the optimization procedure, where it can be seen that only when $p=4$ does it converge to the ideal. Its likely that expanding the search space should result in uncovering the spiral in higher dimensions.
 
 <!-- We consider distributions in d=4,5,6 dimensions (subsets of the spiral dataset) and compare features found in the tour.
 In d=4 dimensions the optimization identifies a view showing the spiral after 39 steps. For larger values of d the optimization does not uncover the spiral view, and we limit the optimizer to 100 steps to compare the so obtained bases to the results found in four dimensions.
 Results are shown in the top panel Figure \ref{fig:findspiral}. The top left is showing the pairwise distances between all planes found by the optimization, note that while d=5,6 contains 100 planes, d=4 only contains 39 planes. The top right is then comparing the evolution of the distance from the plane containing the spiral view with progression of the optimization. We see that the pairwise distances grow with d (what do we learn from that?). Moreover we find that the distance to the special view is far from monotonically decreasing towards zero, and large jumps are possible as a consequence of rotation dependence. Note that the spiral itself is approximately rotation invariant, but partial views are not. At medium distances from the special view we often observe a jump to higher distances as consequence of in-plane rotation dependence for such partial views. This stabilizes closer to the special view, however it relies on randomly identifying a projection within this angle. As a consequence increasing dimensionality dramatically reduces the chance of identifying structures with high index values.-->
 
 
-```{r findspiral, out.width="\\textwidth", fig.cap="Guided tour optimising the skinny index for the Sprial dataset with 1000 datapoints, with d = 4, 5, 6. The top left plot shows the distribution of pairwise distances between planes obtained via the guided tour, the top right shows the evolution of distance to the plane containing the spiral as the index is being optimised. The bottom row shows the final view obtained for d = 4 (left), d = 5 (middle) and d = 6 (right).", results="hide"}
+```{r findspiral, out.width="\\textwidth", fig.cap="Guided tour optimising the skinny index for the Sprial dataset with 1000 datapoints, with p = 4, 5, 6. The top left plot shows the distribution of pairwise distances between planes obtained via the guided tour, the top right shows the evolution of distance to the plane containing the spiral as the index is being optimised. The bottom row shows the final view obtained for p = 4 (left), p = 5 (middle) and p = 6 (right).", results="hide"}
 
 distanceDist <- function(planes, nn=F){
   #nn could be used to turn on only distance to nearest neighbour?
@@ -1066,12 +1066,20 @@ if(!file.exists("cache/findspiral.rda")){
   load("cache/findspiral.rda")
 }
 
-p1 <- ggplot(distDf, aes(group=d, y=distance, x=d)) +
+distDf <- distDf %>%
+  mutate(p=d) %>%
+  select(-d)
+
+distToSp <- distToSp %>%
+  mutate(p=d) %>%
+  select(-d)
+
+p1 <- ggplot(distDf, aes(group=p, y=distance, x=p)) +
   geom_boxplot() +
   scale_x_continuous(breaks = c(4, 5, 6)) + ggtitle("(a)")
-p2 <- ggplot(distToSp, aes(color=as.factor(d),x =t, y=distance)) +
+p2 <- ggplot(distToSp, aes(color=as.factor(p),x =t, y=distance)) +
   geom_point() +
-  labs(y = "Distance to special view", color = "d") + ggtitle("(b)")
+  labs(y = "Distance to special view", color = "p") + ggtitle("(b)")
 
 grid.arrange(p1, p2, fViewL[[1]], fViewL[[2]], fViewL[[3]], layout_matrix = rbind(c(1,2,2),c(3,4,5)))
 
