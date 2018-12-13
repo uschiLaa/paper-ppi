@@ -1910,13 +1910,11 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 
 # Discussion
 
-
-
-# Appendix
+# Appendix {-} 
 
 XXX Need to make this not numbered
 
-## Re-scaling of holes index
+## Re-scaling of holes index {-} 
 
 Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. \cite{Cook:2007:IDG:1557227} then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximized for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
 
