@@ -728,7 +728,7 @@ fullResMelt %>%
 ## PPI traces over a tour sequence between nuisance and structured projections
 \label{sec:squintability}
 
-Figure \ref{fig:wIntermediatePath} shows the PPIs for a tour sequence between a nuisance and structured projection. A long sequence is generated where the path runs from V1-V2, V1-V5, V5-V6, in order to see some of the intricacies of holes index. Sample size is indicated by line type: dashed being $n=100$ and solid is $n=1000$. The beginning of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, cor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.  
+Figure \ref{fig:wIntermediatePath} shows the PPIs for a tour sequence between a nuisance and structured projection. A long sequence is generated where the path runs from $x_1$-$x_2$, $x_1$-$x_5$, $x_5$-$x_6$, in order to see some of the intricacies of holes index. Sample size is indicated by line type: dashed being $n=100$ and solid is $n=1000$. The beginning of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, cor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.  
 
 <!--
 ```{r plannedtourpath}
@@ -794,7 +794,7 @@ if(!file.exists("cache/wIntermediate.rda")){
 }
 ```
 
-```{r wIntermediate, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between nuisance and structured projections, following V1-V2 to V1-V5 to V5-V6. Solid lines are the larger sample size, $n=1000$, and dashed are smaller sample size, $n=100$. Peaks at the end of the sequence indicate the index sees the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection. Holes only responds to the pipe, and is a multimodal function for this data with a local maximum at V1-V5. The scagnostics tend to be sensitive to sample size. "}
+```{r wIntermediate, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between nuisance and structured projections, following $x_1$-$x_2$ to $x_1$-$x_5$ to $x_5$-$x_6$ Solid lines are the larger sample size, $n=1000$, and dashed are smaller sample size, $n=100$. Peaks at the end of the sequence indicate the index sees the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection. Holes only responds to the pipe, and is a multimodal function for this data with a local maximum at $x_1$-$x_5$ The scagnostics tend to be sensitive to sample size. "}
 intermediatePlane <- which(attributes(interpolate(t3))$new_basis)[2]
 fullResMeltPlanned <- fullResPlanned %>%
   mutate(convex = 1-convex) %>% 
@@ -919,11 +919,13 @@ if(!file.exists("cache/refinepipe.rda")){
 iLast <- length(pipeTourFull)
 fProj <- pipeTourFull[[iLast]]
 dProj <- as.tibble(pipeResc %*% fProj)
-p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
+  xlab("PP1") + ylab("PP2")
 iLast <- length(pipeTourFull2)
 fProj <- pipeTourFull2[[iLast]]
 dProj <- as.tibble(pipeResc %*% fProj)
-p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
+p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
+  xlab("PP1") + ylab("PP2")
 grid.arrange(p1, p2, ncol=2)
 ```
 
@@ -1084,6 +1086,11 @@ p2 <- ggplot(distToSp, aes(color=as.factor(p),x =t, y=distance)) +
   geom_point() +
   labs(y = "Distance to special view", color = "p") + ggtitle("(b)")
 
+
+fViewL[[1]] <- fViewL[[1]] + xlab("PP1") + ylab("PP2")
+fViewL[[2]] <- fViewL[[2]] + xlab("PP1") + ylab("PP2")
+fViewL[[3]] <- fViewL[[3]] + xlab("PP1") + ylab("PP2")
+
 grid.arrange(p1, p2, fViewL[[1]], fViewL[[2]], fViewL[[3]], layout_matrix = rbind(c(1,2,2),c(3,4,5)))
 
 ```
@@ -1144,14 +1151,16 @@ if(!file.exists("cache/squintAngle.rda")){
 } else {
   load("cache/squintAngle.rda")
 }
-    
-ggplot(allAngles, aes(d, angle, group=d)) + geom_boxplot()
+
+allAngles <- rename(allAngles, p=d)
+
+ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
 ```
 
 ## Rotational invariance or not
 \label{sec:rot}
 
-Rotational invariance is examined using the sine data (V5-V6), computing PPI for different rotations within the 2D plane, parametrized by angle. Results are shown in Figure \ref{fig:rotationDep}. Several indexes are invariant, holes, convex and MIC, because their value is constant around rotations. The dcor2d, splines2d and TIC index are clearly not rotationally invariant because the value changes depending on the rotation. The scagnostics indexes are approximately rotationally invariant, but particularly the skinny index has some random variation depending on rotation. 
+Rotational invariance is examined using the sine data ($x_5$-$x_6$), computing PPI for different rotations within the 2D plane, parametrized by angle. Results are shown in Figure \ref{fig:rotationDep}. Several indexes are invariant, holes, convex and MIC, because their value is constant around rotations. The dcor2d, splines2d and TIC index are clearly not rotationally invariant because the value changes depending on the rotation. The scagnostics indexes are approximately rotationally invariant, but particularly the skinny index has some random variation depending on rotation. 
 
 ```{r rotationDep, out.width=".6\\textwidth", fig.cap="PPI for rotations of the sine 1000 data, to examine rotation invariance. Most are close to rotation invariant, except for dcor2d, splines2d and TIC."}
 if(!file.exists("cache/rotationDep.rda")){
@@ -1303,7 +1312,7 @@ Some parameters must be provided for some PPIs. This can be advantageous, allowi
 
 <!--### Effect of binning in scagnostics -->
 
-The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:sprialScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between V1-V2 to V5-V6, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
+The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:sprialScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
 
 <!--The implementation of scagnostics will always perform a binning step first, before evaluating the measures. The binning will introduce random fluctuations on interpolated tour paths, but we may also consider using it to reduce fluctuations from the discreteness inherent to the index definitions, see in particular the definition of the stringy index. This needs some care however as different values may be preferred for different structures and depending on which index is being considered. Moreover, choosing a binning that is too rough may result in loss of discrimination power as structures can no longer be resolved. As an example we compare in Figure \ref{fig:sprialScagBinning} the scagnostics index traces for the Spiral 1000 dataset when moving from $x_1$-$x_2$ to $x_5$-$x_6$, for three values of the bins parameter entering the hexagonal binning procedure. We find indeed that different values may be preferred depending on the index considered, with the default bins=50 being the better choice for the convex and skinny index, while bins=20 may work better for the stringy index. Note that neither choice results in smooth curves for any of the indexes considered here.-->
 
