@@ -1089,6 +1089,65 @@ grid.arrange(p1, p2, fViewL[[1]], fViewL[[2]], fViewL[[3]], layout_matrix = rbin
 ```
 
 
+```{r squintAngle, out.width="0.5\\textwidth", fig.cap="Estimated squint angles for the Spiral dataset with 1000 datapoints, with p = 4, 5, 6, containing estimates evaluated for 100 randomly selected directions each.", results="hide"}
+
+squintAngleEstimat <- function(data, indexF, cutoff, structurePlane, n = 100, stepSize = 0.01){
+  # data = numerical input with p > 2 dimensions
+  # indexF = the index function used to estimate the squint angle
+  # cutoff = lower bound on the index value to be considered structured (i.e. all lower index values are outside the squint angle)
+  # structuredPlane = projection matrix onto plane containing the 2-d structure
+  # n = number of random starting directions over which the squint angle estimate is averaged
+  # stepSize = accuracy, step size determines where the index is evaluated to find the first plane above cutoff
+  data <- as.matrix(data) # make sure data is in matrix format
+  angles <- numeric(length = n) # collecting all individual estimates
+  i <- 1
+  p <- ncol(data)
+  while(i <= n){
+    # first generate random direction, make sure it is not too close to structure plane
+    dist <- 0.
+    while(dist < 0.1){
+      rBasis <- tourr::basis_random(p)
+      dist <- tourr::proj_dist(rBasis, structurePlane)
+    }
+    # now interpolate from rBasis to structure plane with selected step size
+    # since planned tour ignores first two entries, generate some random planes to be ignored
+    notUsed1 <- tourr::basis_random(p)
+    notUsed2 <- tourr::basis_random(p)
+    tourHist <- save_history(data,tour_path=planned_tour(list(notUsed1, notUsed2, rBasis, structurePlane)))
+    allBases <- as.list(interpolate(tourHist, angle = stepSize))
+    cIndex <- 0.
+    j <- 1
+    while(cIndex < cutoff){
+      cProj <- data %*% allBases[[j]]
+      cIndex <- indexF(cProj)
+      j <- j+1
+    }
+    cDist <- tourr::proj_dist(allBases[[j]], structurePlane)
+    angles[i] <- cDist
+    i <- i+1
+  }
+  return(angles)
+}
+
+if(!file.exists("cache/squintAngle.rda")){
+  allAngles <- tibble(d=numeric(), angle=numeric())
+  for(d in c(4,5,6)){
+    set.seed(58958)
+    specialPlane <- matrix(c(rep(0,d-2),1,0,rep(0,d-1),1),ncol=2)
+    spiralD <- spiral1000 %>%
+      purrr::when(d<6 ~ select(., -V4), ~ .) %>%
+      purrr::when(d<5 ~ select(., -V3), ~ .)
+    cAngles <- squintAngleEstimat(spiralD, scagIndex("Skinny"), 0.6, specialPlane)
+    allAngles <- bind_rows(allAngles, tibble(d=d, angle=cAngles))
+  }
+  save(allAngles, file = "cache/squintAngle.rda")
+} else {
+  load("cache/squintAngle.rda")
+}
+    
+ggplot(allAngles, aes(d, angle, group=d)) + geom_boxplot()
+```
+
 ## Rotational invariance or not
 \label{sec:rot}
 
