@@ -1256,8 +1256,6 @@ Some parameters must be provided for some PPIs. This can be advantageous, allowi
 
 The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:sprialScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
 
-<!--The implementation of scagnostics will always perform a binning step first, before evaluating the measures. The binning will introduce random fluctuations on interpolated tour paths, but we may also consider using it to reduce fluctuations from the discreteness inherent to the index definitions, see in particular the definition of the stringy index. This needs some care however as different values may be preferred for different structures and depending on which index is being considered. Moreover, choosing a binning that is too rough may result in loss of discrimination power as structures can no longer be resolved. As an example we compare in Figure \ref{fig:sprialScagBinning} the scagnostics index traces for the Spiral 1000 dataset when moving from $x_1$-$x_2$ to $x_5$-$x_6$, for three values of the bins parameter entering the hexagonal binning procedure. We find indeed that different values may be preferred depending on the index considered, with the default bins=50 being the better choice for the convex and skinny index, while bins=20 may work better for the stringy index. Note that neither choice results in smooth curves for any of the indexes considered here.-->
-
 ```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example. For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detedction being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice."}
 getScagComp <- function(df, tPath){
   sc <- tibble(
@@ -1306,39 +1304,9 @@ ggplot(scagMelt, aes(x=t, y=value)) +
 
 ```
 
-<!--### Illustrative example-->
+The sensitivity to the binning for calculating the MIC index is examined for one example in the Appendix XXX (add cross reference)
 
-To examine the sensitivity of binning in the MIC PPI, the classic RANDU data [@Marsaglia68], available in R, is used. Binning is defined by $\delta$, where $B(n) = n^{\delta}$. Figure \ref{fig:randuEx} shows the best projection, index value and computing time obtained when optimizing the MIC index with values $\delta = 0.6, 0.7, 0.8$. With small $\delta$, less bins, the structure isn't visible, and with larger $\delta$ the structure is confounded with noise. It does appear that this parameter affects the performace of the MIC index.
 
-<!--Despite the low dimensionality, the small squint angle of the structure means that the identification of the maximum depends strongly on the starting conditions. Empirically we have found that using $\alpha = 0.7$ is most efficient in identifying the structure, while the default value $\alpha = 0.6$ is most likely to miss the structure given equal starting conditions.
-
-\textcolor{red}{Possible interpretation: 0.6 not allowing enough bins to accurately capture the structure, 0.7 good compromise, 0.8 becomes overly sensitive to noise}-->
-
-```{r randuEx, results="hide", fig.cap="Best projection obtained by optimising the MIC index on the RANDU data, using different number of bins, defined by $\\delta$. The smaller the value the fewer bins.  Above each plot is written the value of $\\delta$, time required to optimize (seconds) and the MIC index value. The best $\\delta = 0.7$, and the result indicates that this parameter does affect MIC performance."}
-if(!file.exists("cache/randuEx.rda")){
-  pL <- list()
-  i <- 1
-  for (alpha in c( 0.6, 0.7, 0.8)){
-    set.seed(556677)
-    tic.clearlog()
-    tic() #start timer
-    tP <- save_history(randu, guided_tour(mineIndexAlpha("MIC", alpha)),max_bases = 100000)
-    toc(log=TRUE,quiet=TRUE)
-    optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
-    imax <- length(as.list(tP))
-    fV <- as.tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
-    colnames(fV) <- c("PP1", "PP2")
-    idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
-    pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
-      ggtitle(paste(alpha, toString(format(optT, digits=2)), toString(format(idxV, digits=2)), sep = ", "))
-    i <- i+1
-  }
-  save(pL, file = "cache/randuEx.rda")
-} else {
-  load("cache/randuEx.rda")
-}
-grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
-```
 
 
 
@@ -1445,10 +1413,6 @@ ggplot(scagSmoothMelt, aes(x=t, y=value)) +
 
 ```
 
-<!--
-### Rotation invariance
-Do we want to say anything here? big issue for splines2D measure, but also scagnostics
--->
 
 ## Summary
 
@@ -1906,6 +1870,37 @@ Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in pr
 We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in \cite{CBC93}. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This appears consistent with the results we have, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
 
 Rescaling: first have cutoff at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, rescale remaining range to be between zero and one.
+
+## Binning sensitivity of MIC index
+To examine the sensitivity of binning in the MIC PPI, the classic RANDU data [@Marsaglia68], available in R, is used. Binning is defined by $\delta$, where $B(n) = n^{\delta}$. Figure \ref{fig:randuEx} shows the best projection, index value and computing time obtained when optimizing the MIC index with values $\delta = 0.6, 0.7, 0.8$. With small $\delta$, less bins, the structure isn't visible, and with larger $\delta$ the structure is confounded with noise. It does appear that this parameter affects the performace of the MIC index.
+
+
+```{r randuEx, results="hide", fig.cap="Best projection obtained by optimising the MIC index on the RANDU data, using different number of bins, defined by $\\delta$. The smaller the value the fewer bins.  Above each plot is written the value of $\\delta$, time required to optimize (seconds) and the MIC index value. The best $\\delta = 0.7$, and the result indicates that this parameter does affect MIC performance."}
+if(!file.exists("cache/randuEx.rda")){
+  pL <- list()
+  i <- 1
+  for (alpha in c( 0.6, 0.7, 0.8)){
+    set.seed(556677)
+    tic.clearlog()
+    tic() #start timer
+    tP <- save_history(randu, guided_tour(mineIndexAlpha("MIC", alpha)),max_bases = 100000)
+    toc(log=TRUE,quiet=TRUE)
+    optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+    imax <- length(as.list(tP))
+    fV <- as.tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
+    colnames(fV) <- c("PP1", "PP2")
+    idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
+    pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
+      ggtitle(paste(alpha, toString(format(optT, digits=2)), toString(format(idxV, digits=2)), sep = ", "))
+    i <- i+1
+  }
+  save(pL, file = "cache/randuEx.rda")
+} else {
+  load("cache/randuEx.rda")
+}
+grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
+```
+
 
 ## Additional Figures
 
