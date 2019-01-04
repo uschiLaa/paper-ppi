@@ -1168,8 +1168,6 @@ Computational time is important for using the PPIs with the guided tour, online.
 
 The results are interesting. The scagnostic indexes and splines2D are very fast regardless of sample size. MIC, TIC (both versions) and dcor2D slow rapidly as sample size increases.
 
-<!--\textcolor{red}{Since projection is fast compared to index evaluation, the number of original dimensions is not very important here. On the other hand different distributions may impact the computing time.}
-We see that the evaluation of the spline index shows weak dependence on the sample size, making it the least efficient for very small data sets, but one of the fastest when considering large data sets. The situation is similar for calculating the scagnostics measures, which are however faster to compute on datasets of around 10 points. This is because the implementation is first binning the data points, which is fast compared to the evaluation that requires triangulation of the binned points. The distance correlation based measure exhibits strong increase with sample size, we note however that the implementation also allows for evaluation on binned data points which we have not considered. Finally for the MINE family the computing time increases exponentially as can be expected from the dependence on the sample size, where we see that the improved $MIC_e$ algorithm is somewhat faster than the original implementation, see also @JMLRv1715308.-->
 
 ```{r getTimer}
 
@@ -1198,7 +1196,7 @@ timeThis <- function(d, t, idx, pmax, n, idxName){ #d=data matrix, t=interpolate
 ```
 
 
-```{r timer, fig.cap="Computational perfoamce for PPIs, using sample sizes 100-10000. Colour indicates the PPI. Because the scagnostics calculation is bundled together, the values are the same for all these indexes, and they are really fast to compute. MINE includes the MIC and TIC indexes, and MINE E are computationally more efficient algorithms for these. These, along with dcor2D, are slower with larger sample sizes."}
+```{r timer, fig.cap="Computational perfoamce for PPIs, using sample sizes 100-10000. Colour indicates the PPI. Because the scagnostics calculation is bundled together, the values are the same for all these indexes, and they are really fast to compute. MINE includes the MIC and TIC indexes, and MINE E are computationally more efficient algorithms for these. These, along with dcor2D, are slower with larger sample sizes.", out.width=".6\\textwidth"}
 if(!file.exists("cache/timer.rda")){
   set.seed(2018)
   grandTour100 <- save_history(sphereData(6,100), grand_tour(2), max=4) %>%
@@ -1256,7 +1254,9 @@ Some parameters must be provided for some PPIs. This can be advantageous, allowi
 
 The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:sprialScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
 
-```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example. For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detedction being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice."}
+XXX from caption, remove?:  For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detedction being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice.
+
+```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example.", out.width=".7\\textwidth"}
 getScagComp <- function(df, tPath){
   sc <- tibble(
     convex10=numeric(),
@@ -1305,11 +1305,6 @@ ggplot(scagMelt, aes(x=t, y=value)) +
 ```
 
 The sensitivity to the binning for calculating the MIC index is examined for one example in the Appendix XXX (add cross reference)
-
-
-
-
-
 
 
 ## Ways to refine the PPIs
