@@ -638,10 +638,6 @@ Figure \ref{fig:plotV1V2toV3V4} shows the traces representing the index values c
 
 Several of the indexes are sensitive to sample size also, the same structured projection with differing numbers of points, produces different values. 
 
-<!--
-We first study the smoothness of each measure calculated on a sequence of 2-d projections obtained via an interpolated planned tour path moving between the projection onto $x_1$-$x_2$ to the projection onto $x_3$-$x_4$ and using the default interpolation angle of 0.05. Each time step refers to an interpolation step. Since the value of the TIC index is strongly dependent on the input distribution sample size we have normalised the TIC measure by its maximum for each individual dataset, all other measures are reproduced as reported by the calculation. The results are shown in Figure \ref{fig:plotV1V2toV3V4}. The standard index functions "holes" and "cmass" show the desired behaviour in that the change is smooth over interpolated views. Considering now the indices from the scagnostics family, we first note stronge dependence on the sample size. The convex index is largely sensitive to random fluctuations when considering small samples ($n=100$), while being mostly flat for larger samples, especially in the case of an underlying uniform distribution. The skinny index on the other hand is systematically larger for the smaller samples, while stringy appears not to be sensitive to the sample size, but resulting in large fluctuations and sharp jumps for all datasets. Distance correlation and the spline based index show similar behaviour, i.e. when considering large enough data samples ($n=1000$) the values are consistently close to zero, as expected for a distribution without structure. On the other hand somewhat larger values (but still far from the maximum value of 1) are found when considering small datasets, where distributions are however mostly smooth, with few kinks depending on index function and underlying distribution. Finally the information based metrics also show systematic differences based on the sample size, with sampling fluctuations being significant for small datasets. Note here that fluctuations present in Figure \ref{fig:plotV1V2toV3V4} may be amplified, as maximum values for most index functions are far from the theoretic maximum.
--->
-
 <!-- index values shouldn't be affected by sample size, on average it should be
 same value. Maybe some need to be normalised by n. Something needs fixing here.
 
@@ -730,47 +726,6 @@ fullResMelt %>%
 
 Figure \ref{fig:wIntermediate} shows the PPIs for a tour sequence between a nuisance and structured projection. A long sequence is generated where the path runs from $x_1$-$x_2$, $x_1$-$x_5$, $x_5$-$x_6$, in order to see some of the intricacies of holes index. Sample size is indicated by line type: dashed being $n=100$ and solid is $n=1000$. The beginning of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, cor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.  
 
-<!--
-```{r plannedtourpath}
-if(!file.exists("cache/plannedtourpath.rda")){
-  m1 <- matrix(c(1,0,0,0,0,0,0,1,0,0,0,0),ncol=2)
-  m2 <- matrix(c(0,0,0,0,1,0,0,0,0,0,0,1),ncol=2)
-  #this is silly but seems that first two entries are being ignored, so need some fake entries
-  m3 <- matrix(c(1,0,0,0,1,0,0,1,0,0,0,1),ncol=2)
-  m4 <- matrix(c(1,1,1,0,0,0,0,1,1,0,0,0),ncol=2)
-  t2 <- save_history(sin100,tour_path=planned_tour(list(m3,m4,m1,m2)))
-  t2full <- as.list(interpolate(t2))
-  fullResPlanned <- getProj(sin100, t2full, "sin", 100) %>%
-    rbind(getProj(sin1000, t2full, "sin", 1000)) %>%
-    rbind(getProj(spiral100, t2full, "spiral", 100)) %>%
-    rbind(getProj(spiral1000, t2full, "spiral", 1000)) %>%
-    rbind(getProj(pipe100, t2full, "pipe", 100)) %>%
-    rbind(getProj(pipe1000, t2full, "pipe", 1000))
-  save(t2, t2full, fullResPlanned, file = "cache/plannedtourpath.rda")
-} else {
-  load("cache/plannedtourpath.rda")
-}
-```
-
-```{r plannedtour, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between a nuisance and a structured projection (solid lines: $n=1000$; dashed: $n=100$). Most of the indexes have peaks at the end of the sequence, indicating that they see the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection."}
-fullResMeltPlanned <- fullResPlanned %>%
-  mutate(convex = 1-convex) %>% 
-  rowwise() %>%
-  mutate(holes = rescaleHoles(holes)) %>%
-  gather(PPI, value, -t, -name, -size) %>%
-  filter(PPI != "cmass") %>%
-  mutate(PPI = fct_relevel(PPI, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
-fullResMeltPlanned %>% 
-  ggplot(aes(x=t, y=value)) + 
-  geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
-  ylim(c(0,1)) +
-  facet_grid(PPI~name) + 
-  theme(legend.position="none") + xlab("Sequence of projections (t)") + ylab("PPI value")
-```
-
-## Tentative
-try how this looks going first to V1 vs V5, then to V5 vs V6
--->
 
 ```{r wIntermediatePath}
 if(!file.exists("cache/wIntermediate.rda")){
@@ -828,12 +783,12 @@ For distributions and indexes with smooth behavior and good squintability, metho
 
 Despite the simple structure, the pipe is relatively difficult for the PPIs to find. For the TIC index, there is a fairly small squint angle. For the holes index, there are several local maxima, that divert the optimizer. There is a hint of this from Figure \ref{fig:wIntermediate} because the initial projection (left side of trace) of purely noise variables has a higher index value than the linear combinations of noise and structured variables along the path. The uniform distribution was used to generate the noise variables, which has a higher PPI value than a normal distribution, yielding the higher initial value. In addition, a local maximum is observed whenever the pair of variables is one structured variable and one noise variable, because there is a lighter density in the center of the projection.
 
-The optimization is done in two stages, a scouting phase using method 2, and a refinement stage using method 3.  For the scouting we use $\alpha = 0.5$ and stopping condition of maximum 5000 tries, and we optimist the TIC index. The results are shown in Figures \ref{fig:pipeFirstRun} and \ref{fig:testpipe}. 
+The optimization is done in two stages, a scouting phase using method 2, and a refinement stage using method 3.  For the scouting we use $\alpha = 0.5$ and stopping condition of maximum 5000 tries, and we optimist the TIC index. The results are shown in Figures \ref{fig:pipeFirstRun}.
 
 Figure \ref{fig:pipeFirstRun} shows the target projections (points)  selected during the scouting with method 2 on the TIC index. The focus is on the target projections rather than the interpolation between them, because the optimization is done off-line, and only the targets are used for the next step. The horizontal distance between the points in the plot reflects the relative geodesic distance between the planes in the 6D space. All of the other indexes are shown for interest. The TIC index value is generally low for this data, although it successfully detects the pipe. The holes, convex, skinny, and to some extent MIC, mirror the TIC performance. The holes differs in that it has some intermediate high values which are likely the indication of multi-modality of this index on this data.
 
+The final views obtained in each of the two stages are compared in the Appendix, see Fig. \ref{fig:testpipe}.
 
-Figure \ref{fig:testpipe} shows the projection returned during the scouting phase (left) and the refinement phase (right). It was important to start the method 3 optimizer at the best projection returned during the scouting phase, to smoothly converge more closely to the ideal projection.
 
 
 ```{r findpipe, results="hide"}
@@ -915,19 +870,6 @@ if(!file.exists("cache/refinepipe.rda")){
 ```
 
 
-```{r testpipe,  fig.height=4, fig.width=8, out.width = "0.8\\textwidth",  fig.cap="Projections returned by TIC optimisation: by the scouting phase (left) and refined by  optimisation method 3 (right), starting from the scouting phase projection."}
-iLast <- length(pipeTourFull)
-fProj <- pipeTourFull[[iLast]]
-dProj <- as.tibble(pipeResc %*% fProj)
-p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
-  xlab("PP1") + ylab("PP2")
-iLast <- length(pipeTourFull2)
-fProj <- pipeTourFull2[[iLast]]
-dProj <- as.tibble(pipeResc %*% fProj)
-p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
-  xlab("PP1") + ylab("PP2")
-grid.arrange(p1, p2, ncol=2)
-```
 
 ### Finding sine waves
 
@@ -1547,7 +1489,7 @@ The second example shows data from @Smith:2016qas, generated from a simulation s
 
 ## Neutron star merger
 
-Figure \ref{fig:neutronStarSPLOM} shows the scatterplot matrix (with transparency) of the six parameters. (In astrophysics, scatterplot matrices are often called "corner plots" [@corner].) The diagonal shows a univariate density plot of each parameter, and the upper triangle of cells displays the correlation between variables. From this it can be seen that m1 and m2 are strongly, and slightly, nonlinearly associated. Between the other variables, some linear association (R1, R2), some nonlinear association (L1, L2, R1, R2),  heteroskedastic variance in most variables and some bimodality (R1, L1, L2, m1, m2). 
+Figure \ref{fig:neutronStarSPLOM} in the Appendix shows the scatterplot matrix (with transparency) of the six parameters. (In astrophysics, scatterplot matrices are often called "corner plots" [@corner].) The diagonal shows a univariate density plot of each parameter, and the upper triangle of cells displays the correlation between variables. From this it can be seen that m1 and m2 are strongly, and slightly, nonlinearly associated. Between the other variables, some linear association (R1, R2), some nonlinear association (L1, L2, R1, R2),  heteroskedastic variance in most variables and some bimodality (R1, L1, L2, m1, m2). 
 
 The model describes a neutron star merger and contains 6 free parameters, with each neutron star described by its mass $m$ (m1, m2) and radius $R$ (R1, R2), and a so-called tidal deform ability parameter $\Lambda$ (L1, L2) which is a function of the mass and radius, approximately proportional to $(m/R)^{-5}$. 
 
@@ -1563,30 +1505,11 @@ With only five parameters, a reasonable start is to examine the 5D space using a
 
 Figure \ref{fig:nsePlotOrig} shows the optimal projection found by splines2d, a reconstructed view obtained by manually combining parameters, and a plot of the known relationship between parameters. 
 
-<!--
-(left) clearly recovers functional relations between some of the parameters. From the matrix representation we read off that parameters m1, L1 and R1 are important in this projection. Using the original (non-rescaled) data and taking into account the difference in scale between m1 and R1 we can reproduce a similar picture shown in Fig \ref{fig:nsePlotOrig} (middle), which we compare to the dependence of L1 on the ratio R1/m1 (right). For this example the linear combination can thus recover the approximate relation between these parameters.
--->
-
-<!--
- A posterior sample containing 2538 points is available @ligoData and can be used to constrain the parameters. Here we use the "Parametrized-EoS\_nomaxmass\_posterior\_samples.dat" dataset and aim to recover the dependence between the three parameters of the better constrained system out of a larger parameter set. For details about the modelling and statistical procedure see @Abbott2018exr. A common representation of posterior samples used for interpretation are so-called "corner plots", i.e. density displays for all 2-d parameter combinations as well as the 1-d profile, highlighting empirically evaluated regions of highest posterior density, which correspond to credibility regions at a given level. The information can similarly be presented in a scatter plot matrix using transparency to convey the density information. Since in the following we work with 2-d scatter plots we choose to show the data in this fashion, see Fig. \ref{fig:neutronStarSPLOM}.
--->
-
-```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
-nsD <- read_csv("data/samples.csv") 
-ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
-```
-
-<!-- The following features can be observed: the combination of the two mass parameters is well constrained (a consequence of how a particular combination, the "chirp mass" enters predictions), other parameters also show patterns of dependence, they are however less pronounces. We also see the non-linear relation between the radius $R_1$ and $\Lambda$ parameter $L1$ and the two-pronged disribution for the radius $R_1$.
-For further study we therefore remove the second mass $m2$ from the dataset.
-\textcolor{red}{Looking at the distribution in a grand tour display, using a scatter plot display combined with alpha transparency to study the density distribution in the 5-d parameter space, indicates that the data points are found on a curved surface in the five dimensional space. This stems from the non-linear relation between the parameters, which we will try to uncover using the above developed formalism for new guided tour index functions.}
 
 
-### Results
-
-Since we expect a functional relation between some of the parameters, we optimise the "splines2d" index function. Note that all parameters are standardised to the range $[0,1]$ before running the optimisation, and we do not sphere the data for ease of interpretation of the results.
---> 
 
 ```{r neutronStarEq,  results="hide"}
+nsD <- read_csv("data/samples.csv") 
 nsM <- nsD %>%
   select(-m2) %>% # remove m2 to avoid finding well known correlation
   rescale() # rescaling, this returns a matrix
@@ -1673,13 +1596,8 @@ grid.arrange(p1, p2, p3, ncol=3)
 
 This data contains posterior samples for simulation from a model describing a binary black hole (BBH) merger event. There are twelve model parameters. Flat priors are used for most model parameters. 
 
-Figure \ref{fig:bbhSimulation} shows a scatterplot matrix, of nine of the twelve parameters. (Parameter m2 is not shown because it is strongly linearly associated with m1, phi$\_$jl and psi are not shown because they uniform, and not associated with other parameters.) Among the nine plotted parameters, strong nonlinear relationships can be seen between the parameters ra, dec and time. The first two describe the position of the event in the sky, and time is the merging time (in GPS units). Because of the elliptical relationship between dec and time, the TIC index is used for PP, even though it is slow to compute. Between the other parameters, the main structure seen is multimodality and some skewness. These patterns are representative of the likelihood function, since most priors are flat, or built to capture growth with volume rather than distance. 
+Figure \ref{fig:bbhSimulation} in the Appendix shows a scatterplot matrix, of nine of the twelve parameters. (Parameter m2 is not shown because it is strongly linearly associated with m1, phi$\_$jl and psi are not shown because they uniform, and not associated with other parameters.) Among the nine plotted parameters, strong nonlinear relationships can be seen between the parameters ra, dec and time. The first two describe the position of the event in the sky, and time is the merging time (in GPS units). Because of the elliptical relationship between dec and time, the TIC index is used for PP, even though it is slow to compute. Between the other parameters, the main structure seen is multimodality and some skewness. These patterns are representative of the likelihood function, since most priors are flat, or built to capture growth with volume rather than distance. 
 
-```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300, fig.cap="Scatter plot matrix showing most of the variables included in the BBH dataset. Strong correlation between the parameters time, dec and ra can be observed."}
-bbhD <- read_csv("data/posterior_samples.csv")
-bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
-ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
-```
 
 ### Data pre-processing
 
@@ -1693,6 +1611,7 @@ All seven PP indexes are applied to the data. Figure \ref{fig:bbhGuided} showing
 
 
 ```{r bbhGuided, results="hide", fig.cap="Projections corresponding to the maxima of three indices: TIC, splines2D and 1-convex. Projections a, b found by TIC and splines3D are very similar, and involve the same three parameters, ra, dec and time. The 1-convex index finds a very different view.", dev = "png", dpi=300}
+bbhD <- read_csv("data/posterior_samples.csv")
 bbhM <- rescale(select(bbhD,-m2, -chi_eff))
 if(!file.exists("cache/bbhGuidedTIC.rda")){
   set.seed(2018)
@@ -1980,7 +1899,7 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 
 # Appendix {-} 
 
-## Re-scaling of holes index {-} 
+## Re-scaling of holes index
 
 Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. \cite{Cook:2007:IDG:1557227} then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximized for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
 
@@ -1988,3 +1907,32 @@ We can estimate the values found for normal distribution by comparing values of 
 
 Rescaling: first have cutoff at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, rescale remaining range to be between zero and one.
 
+## Additional Figures
+
+### Final projection of pipe guided tour
+Figure \ref{fig:testpipe} shows the projection returned during the scouting phase (left) and the refinement phase (right). It was important to start the method 3 optimizer at the best projection returned during the scouting phase, to smoothly converge more closely to the ideal projection.
+
+```{r testpipe,  fig.height=4, fig.width=8, out.width = "0.8\\textwidth",  fig.cap="Projections returned by TIC optimisation: by the scouting phase (left) and refined by  optimisation method 3 (right), starting from the scouting phase projection."}
+iLast <- length(pipeTourFull)
+fProj <- pipeTourFull[[iLast]]
+dProj <- as.tibble(pipeResc %*% fProj)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
+  xlab("PP1") + ylab("PP2")
+iLast <- length(pipeTourFull2)
+fProj <- pipeTourFull2[[iLast]]
+dProj <- as.tibble(pipeResc %*% fProj)
+p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
+  xlab("PP1") + ylab("PP2")
+grid.arrange(p1, p2, ncol=2)
+```
+
+### Dataset overview scatter plot matrices
+
+```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
+ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
+```
+
+```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300, fig.cap="Scatter plot matrix showing most of the variables included in the BBH dataset. Strong correlation between the parameters time, dec and ra can be observed."}
+bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
+ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
+```
