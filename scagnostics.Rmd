@@ -192,7 +192,7 @@ A useful projection pursuit index needs to have several properties. This has bee
 
 - **speed**: Being fast to compute allows the index to be used in real-time in a guided tour, where the optimization can be watched. When the computations are shifted off-line, to watch in replay, computation times matter less. This is checked  by comparing times for benchmark scenarios with varying sample size. 
     
-## Simulation study
+## Simulation study setup
 
 ### Data construction
 \label{sec:dataOv}
@@ -533,18 +533,14 @@ The structured projection is in variables 5 and 6 ($x_5, x_6$). Two samples size
 
 The procedures for assessing the PPI properties of smoothness, squintability, flexibility, rotation invariance, and speed are examined for samples from the family of data sets are:
 
-<!-- - Compare the index values for structured vs nuisance variables, by simulating many examples from the model families, and recording the 90% confidence intervals. This checks if the PPI can detect the structure, that it has distinct differences between the sets of values. 
--->
-1. Compute the PPI values on the tour path along an interpolation between pairs of nuisance variables, $x_1 - x_2$ view either to the $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
-2. Change to a tour path between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$, and compute the PPI along this. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
+
+1. Compute the PPI values on the tour path along an interpolation between pairs of nuisance variables, $x_1 - x_2$ view to $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
+2. Change to a tour path between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$ via the intermediate projection onto $x_1 - x_5$, and compute the PPI along this. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
 3. Use the guided tour to examine the ease of optimization. This depends on having a relatively smooth function, with structure visible from a distance. One index is optimized to show how effectively the maximum is attained, and the values for other PPIs is examined along the same path, to examine the similarity between PPIs. 
 4. Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
 5. Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. The parameters for these PPIs is varied and examined along a tour path between noise and structured projections, to examine the effects of parameter choices and how fiddly the index is to tune. 
 6. Computational speed for the selected indices is examined on a range of sample sizes.
 
-<!--
-\textcolor{red}{\cite{posse95a} uses simulations with "strongly hidden structure", i.e. truncated Gaussian distributions with approximately identity covariance matrix, such that they don't appear in any of the principal component planes. In particular seems that spiral is hardest to identify based on results from Posse, maybe I can add this to my sphere dataset? or instead of it?}
--->
 
 
 ```{r dataPlotsV1V2, fig.width=6, fig.height=7, fig.cap="Projection of all data sets considered onto the first two parameters $x_1$ and $x_2$, i.e. showing a typical uninformed view for each dataset.", eval=FALSE}
@@ -578,9 +574,6 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
              ncol=2)
 ```
 
-<!--
-its possible to do a single figure legend - need to look up code for this
--->
 
 ```{r dataPlotsDensity, fig.width=6, fig.height=7, fig.cap="One dimensional density distribution for all parameters and all data sets considered. Apart from statistical fluctuations we see that for the Pipe datasets the parameters $x_5$ and $x_6$ are pushed towards more extreme values by vetoing points away from the circle outline, and for the Sine (and Spiral) dataset the parameter $x_6$ (and $x_5$) follows a very distinct distribution.", eval=FALSE}
 pL <- list()
@@ -598,9 +591,6 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
              ncol=2)
 ```
 
-<!--
-We next compare the various index values for three views: $x_1$ vs $x_2$, $x_5$ vs $x_6$ and $x_1$ vs $x_6$ (capturing differences from the different distribution in $x_6$). For the Spiral distribution the scagnostics indices skinny and stringy are large and close to their theoretic maximum for the special view. On the other hand while dcor2d is larger is also increased for the special view, the value is far from the theoretic maximum and larger values may be found in other views. MIC and TIC are also found to be sensitive to the spiral distribution. Considering next the Pipe distribution, we see that skinny, stringy and dcor2d are increased for the special view, but in particular MIC and TIC index are much larger and may be used to detect this type of structure in the dataset. Moreover, minimising the convex index (or maximising 1-convex) should also allow us to detect the special view. Finally the Sine distribution shows that several of the indices are maximised in the special view, in particular also the splines2d index designed for the detection of fictional dependence.
--->
 
 
 ## PPI traces over a tour sequence of interpolated nuisance projections
@@ -610,11 +600,6 @@ Figure \ref{fig:plotV1V2toV3V4} shows the traces representing the index values c
 
 Several of the indexes are sensitive to sample size also, the same structured projection with differing numbers of points, produces different values. 
 
-<!-- index values shouldn't be affected by sample size, on average it should be
-same value. Maybe some need to be normalised by n. Something needs fixing here.
-
-can we get "theoretical" min/max values, to assess the scale of the index for any particular data set.
--->
 
 ```{r getProj}
 getProj <- function(df, tPath, nameStr, size){
@@ -696,7 +681,7 @@ fullResMelt %>%
 ## PPI traces over a tour sequence between nuisance and structured projections
 \label{sec:squintability}
 
-Figure \ref{fig:wIntermediate} shows the PPIs for a tour sequence between a nuisance and structured projection. A long sequence is generated where the path runs from $x_1$-$x_2$, $x_1$-$x_5$, $x_5$-$x_6$, in order to see some of the intricacies of holes index. Sample size is indicated by line type: dashed being $n=100$ and solid is $n=1000$. The beginning of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, cor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.  
+Figure \ref{fig:wIntermediate} shows the PPIs for a tour sequence between a nuisance and structured projection. A long sequence is generated where the path runs from $x_1$-$x_2$, $x_1$-$x_5$, $x_5$-$x_6$, in order to see some of the intricacies of holes index. Sample size is indicated by line type: dashed being $n=100$ and solid is $n=1000$. The beginning of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, dcor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance, but also has local maxima along the tour path. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.
 
 
 ```{r wIntermediatePath}
@@ -721,7 +706,7 @@ if(!file.exists("cache/wIntermediate.rda")){
 }
 ```
 
-```{r wIntermediate, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between nuisance and structured projections, following $x_1$-$x_2$ to $x_1$-$x_5$ to $x_5$-$x_6$ Solid lines are the larger sample size, $n=1000$, and dashed are smaller sample size, $n=100$. Peaks at the end of the sequence indicate the index sees the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection. Holes only responds to the pipe, and is a multimodal function for this data with a local maximum at $x_1$-$x_5$ The scagnostics tend to be sensitive to sample size. "}
+```{r wIntermediate, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between nuisance and structured projections, following $x_1$-$x_2$ to $x_1$-$x_5$ to $x_5$-$x_6$ (solid lines: $n=1000$; dashed: $n=100$). Peaks at the end of the sequence indicate the index sees the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection. Holes only responds to the pipe, and is a multimodal function for this data with a local maximum at $x_1$-$x_5$. "}
 intermediatePlane <- which(attributes(interpolate(t3))$new_basis)[2]
 fullResMeltPlanned <- fullResPlanned %>%
   mutate(convex = 1-convex) %>% 
@@ -755,13 +740,11 @@ For distributions and indexes with smooth behavior and good squintability, metho
 
 Despite the simple structure, the pipe is relatively difficult for the PPIs to find. For the TIC index, there is a fairly small squint angle. For the holes index, there are several local maxima, that divert the optimizer. There is a hint of this from Figure \ref{fig:wIntermediate} because the initial projection (left side of trace) of purely noise variables has a higher index value than the linear combinations of noise and structured variables along the path. The uniform distribution was used to generate the noise variables, which has a higher PPI value than a normal distribution, yielding the higher initial value. In addition, a local maximum is observed whenever the pair of variables is one structured variable and one noise variable, because there is a lighter density in the center of the projection.
 
-The optimization is done in two stages, a scouting phase using method 2, and a refinement stage using method 3.  For the scouting we use $\alpha = 0.5$ and stopping condition of maximum 5000 tries, and we optimist the TIC index. The results are shown in Figures \ref{fig:pipeFirstRun}.
+The optimization is done in two stages, a scouting phase using method 2, and a refinement stage using method 3.  For the scouting we use $\alpha = 0.5$ and stopping condition of maximum 5000 tries, and we optimist the TIC index.
 
 Figure \ref{fig:pipeFirstRun} shows the target projections (points)  selected during the scouting with method 2 on the TIC index. The focus is on the target projections rather than the interpolation between them, because the optimization is done off-line, and only the targets are used for the next step. The horizontal distance between the points in the plot reflects the relative geodesic distance between the planes in the 6D space. All of the other indexes are shown for interest. The TIC index value is generally low for this data, although it successfully detects the pipe. The holes, convex, skinny, and to some extent MIC, mirror the TIC performance. The holes differs in that it has some intermediate high values which are likely the indication of multi-modality of this index on this data.
 
 The final views obtained in each of the two stages are compared in the Appendix, see Fig. \ref{fig:testpipe}.
-
-
 
 ```{r findpipe, results="hide"}
 if(!file.exists("cache/findpipe.rda")){
@@ -795,7 +778,7 @@ animate_xy(pipeResc, guided_tour(holes, search_f = tourr:::search_geodesic,
       cooling=0.8, alpha = pi, max.tries = 500))
 ```
 
-```{r pipeFirstRun, fig.width=7, fig.height=7, out.width = "0.8\\textwidth", fig.cap="Scouting for the pipe using optimization method 2 on the TIC index. Other PPI values also shown for interest. Only the values for the target plane are shown because the optimization is done off-line. The TIC maximum value for this data is small,  even though it identifies the pipe. The holes, convex, skinny, and to some extent MIC, mirror the performance of TIC for this structure."}
+```{r pipeFirstRun, fig.width=7, fig.height=7, out.width = "0.8\\textwidth", fig.cap="Scouting for the pipe using optimization method 2 on the TIC index, other PPI values also shown for interest. Only the values for the target planes are shown. Despite the small maximum value of TIC for this data, it identifies the pipe."}
 if(!file.exists("cache/pipeFirstRun.rda")){
   pipeTourRes <- getProj(pipe1000, pipeTourFull, "Pipe", 1000)
   #pipeTourResMelt <- melt(pipeTourRes, id=c("t", "name", "size"))
@@ -845,18 +828,12 @@ if(!file.exists("cache/refinepipe.rda")){
 
 ### Finding sine waves
 
-Given the patterns in Figure\ref{fig:wIntermediate} it would be expected that the sine could be found easily, using only optimization method 3 using the splines2d, dcor2d, MIC or TIC indexes. This is examined in Figure \ref{fig:findsine}. Optimization is conducted using the splines2d index, and the trace of the PPI over the optimisation is shown, along with the PPI values for the other indexes over that path. The vertical blue lines indicate anchor bases, where the optimizer stops, and does a new search. The distance between anchor planes is smaller as the maximum is neared.
+Given the patterns in Figure \ref{fig:wIntermediate} it would be expected that the sine could be found easily, using only optimization method 3 using the splines2d, dcor2d, MIC or TIC indexes. This is examined in Figure \ref{fig:findsine}. Optimization is conducted using the splines2d index, and the trace of the PPI over the optimisation is shown, along with the PPI values for the other indexes over that path. The vertical blue lines indicate anchor bases, where the optimizer stops, and does a new search. The distance between anchor planes is smaller as the maximum is neared.
 
 The only complications arise from a lack of rotation invariance of the splines2d index. It is not easily visible here, but it is possible that the best projection will have a lower PPI. The index changes depending on the basis used to define the plane, but the geodesic interpolation conducted by the tour uses any suitable basis to describe the plane, ignoring that which optimizes the PPI. This is discussed in section \ref{sec:rot}.
 
-<!--, this will be discussed in some more details below. Here we only note that even for anchor planes highlighted by blue vertical lines the index sometimes decreases because of this dependence. These are however not dramatic effects because this search method is closely related to how interpolation is done (a different picture would be obtained using method 2 which often leads to large drops in index values after the interpolation step).-->
 
-
-<!-- Here there are four index functions that appear to be suitable for the optimization: splines2d, dcor2d, MIC and TIC. On the other hand, while some of the scagnostics indices are reaching their maximum/minimum in the final projection, they do not show a smooth increase/decrease thus preventing efficient optimization when considering them as index functions. The final view identified by the guided tour is shown in Figure \ref{fig:findsine}.
-
-\textcolor{red}{This isn't actually the "ideal" view, could be because of rotation dependence??}-->
-
-```{r findsine, fig.width=6, fig.height=7, out.width = "0.8\\textwidth", fig.cap="Guided tour optimising  the splines2d index, using method 3, for the sine data, with $n=1000$. Anchor planes are marked by the blue vertical lines, and are closer to each other approaching the maxima. The sine is found relatively easily, by splines2D, and it si indicated that MIC, TIC, dcor2D and convex would also likely find this structure.", results="hide"}
+```{r findsine, fig.width=6, fig.height=7, out.width = "0.8\\textwidth", fig.cap="Guided tour optimising  the splines2d index, using method 3, for the sine data, with $n=1000$. Anchor planes are marked by the blue vertical lines, and are closer to each other approaching the maxima. The sine is found relatively easily, by splines2D, and it is indicated that MIC, TIC, dcor2D and convex would also likely find this structure.", results="hide"}
 set.seed(2018)
 if(!file.exists("cache/findsine.rda")){
   sineResc <- as.matrix(sin1000)
@@ -888,32 +865,18 @@ ggplot(sineTourResMelt, aes(x=t, y=value)) +
   ylim(c(0,1)) + xlab("Number of projections") + ylab("PPI value")
 ```
 
-<!--
-Di says probably we can skip this plot
-```{r testsine, out.width=".5\\textwidth", fig.cap="Final view identified by the optimisation."}
-iLast <- length(sineTourFull)
-fProj <- sineTourFull[[iLast]]
-dProj <- as.tibble(sineResc %*% fProj)
-ggplot(dProj, aes(V1,V2)) + geom_point()
-```
--->
 
 ### Spiral detection
 
-The spiral is the most challenging structure to detect because it has a small squint angle [@posse95a], especially as the ratio of noise to structure dimensions increases. This is explored in this section, using optimisation method 2 to scout the space for approximate maxima first. The skinny scagnostic index is used because it was observed (Figure \ref{fig:wIntermediate}) to be sensitive to this structure, although the noisiness of the index might be problematic. The stringy appears to be more sensitive to the spiral, but it has a much small squint angle. 
+The spiral is the most challenging structure to detect because it has a small squint angle [@posse95a], especially as the ratio of noise to structure dimensions increases. This is explored using optimisation method 2 to scout the space for approximate maxima. The skinny scagnostic index is used because it was observed (Figure \ref{fig:wIntermediate}) to be sensitive to this structure, although the noisiness of the index might be problematic. The stringy appears to be more sensitive to the spiral, but it has a much small squint angle. 
 
-<!-- Here we explore the role of dimensionality in the index optimization, using the skinny index that was found to be sensitive to this structure.
-We use a setup similar to that introduced for detecting the pipe structure, i.e.\ we use the search\_better optimization of the guided tour, disabling the cooling and with a large search window, while sampling a large number of random projections (up to 5000) for each step.
--->
+The search is conducted for $p=4,5,6$ which would correspond to 2, 3 and 4 noise dimensions respectively. In addition we examine the distance between planes, using a Frobenius norm, as defined by Equation 2 of @BCAH05, and available in the ```proj_dist``` function in the tourr package, to compare searches across dimensions. The distance between planes is related to squint angle, how far away from the ideal projection can the structure be glimpsed. We estimate the squint angle depending on the number of noise dimensions in the appendix. In order for the optimizer to find the spiral, the distance between planes would need to be smaller than the squint angle. Figure \ref{fig:findspiral} summarizes the results. When $p=4$ the scouting method effectively finds the spiral. Plot (a) shows the side-by-side boxplots of pairwise distances between planes examined during the optimization, for $p=4,5,6$. These are on average smaller for the lower dimension, and gradually increase as dimension increases. This is an indication of the extra computation needed to brute force find the spiral as noise dimensions increase. Plot (b) shows the distance of the plane in each iteration of the optimisation to the ideal plane, where it can be seen that only when $p=4$ does it converge to the ideal. Its likely that expanding the search space should result in uncovering the spiral in higher dimensions, which however requires tuning of the stopping conditions and long run times.
 
-The search is conducted for $p=4,5,6$ which would correspond to 2, 3 and 4 noise dimensions respectively. In addition we examine the distance between planes, using a Frobenius norm, as defined by Equation 2 of @BCAH05, and available in the ```proj_dist``` function in the tourr package, to compare searches with squint angle across dimensions. The distance between planes is related to squint angle, how far away from the ideal projection, can the structure be glimpsed. In order for the optimizer to find the spiral, the distance between planes would need to be smaller than the squint angle. Figure \ref{fig:findspiral} summarizes the results. When $p=4$ the scouting method effectively finds the spiral. Plot (a) shows the side-by-side boxplots of distance between ideal plane and planes examined during the optimization, for $p=4,5,6$. These are on average smaller for the lower dimension, and gradually increase as dimension increases. This is an indication of the extra computation needed to brute force find the spiral as noise dimensions increase. Plot (b) shows these as a function of the optimization procedure, where it can be seen that only when $p=4$ does it converge to the ideal. Its likely that expanding the search space should result in uncovering the spiral in higher dimensions.
-
-<!-- We consider distributions in d=4,5,6 dimensions (subsets of the spiral dataset) and compare features found in the tour.
-In d=4 dimensions the optimization identifies a view showing the spiral after 39 steps. For larger values of d the optimization does not uncover the spiral view, and we limit the optimizer to 100 steps to compare the so obtained bases to the results found in four dimensions.
-Results are shown in the top panel Figure \ref{fig:findspiral}. The top left is showing the pairwise distances between all planes found by the optimization, note that while d=5,6 contains 100 planes, d=4 only contains 39 planes. The top right is then comparing the evolution of the distance from the plane containing the spiral view with progression of the optimization. We see that the pairwise distances grow with d (what do we learn from that?). Moreover we find that the distance to the special view is far from monotonically decreasing towards zero, and large jumps are possible as a consequence of rotation dependence. Note that the spiral itself is approximately rotation invariant, but partial views are not. At medium distances from the special view we often observe a jump to higher distances as consequence of in-plane rotation dependence for such partial views. This stabilizes closer to the special view, however it relies on randomly identifying a projection within this angle. As a consequence increasing dimensionality dramatically reduces the chance of identifying structures with high index values.-->
+XXX update the plots, maybe resulting views on top?
 
 
-```{r findspiral, out.width="\\textwidth", fig.cap="Guided tour optimising the skinny index for the Sprial dataset with 1000 datapoints, with p = 4, 5, 6. The top left plot shows the distribution of pairwise distances between planes obtained via the guided tour, the top right shows the evolution of distance to the plane containing the spiral as the index is being optimised. The bottom row shows the final view obtained for p = 4 (left), p = 5 (middle) and p = 6 (right).", results="hide"}
+
+```{r findspiral, out.width="\\textwidth", fig.cap="Guided tour optimising the skinny index for the Sprial dataset with 1000 datapoints, with p = 4, 5, 6. The top left plot shows the distribution of pairwise distances between planes obtained via the guided tour, the top right shows the evolution of distance to the ideal plane as the index is being optimised. The bottom row shows the final view obtained for p = 4 (left), p = 5 (middle) and p = 6 (right).", results="hide"}
 
 distanceDist <- function(planes, nn=F){
   #nn could be used to turn on only distance to nearest neighbour?
@@ -1009,67 +972,6 @@ grid.arrange(p1, p2, fViewL[[1]], fViewL[[2]], fViewL[[3]], layout_matrix = rbin
 
 ```
 
-
-```{r squintAngle, out.width="0.5\\textwidth", fig.cap="Estimated squint angles for the Spiral dataset with 1000 datapoints, with p = 4, 5, 6, containing estimates evaluated for 100 randomly selected directions each.", results="hide"}
-
-squintAngleEstimat <- function(data, indexF, cutoff, structurePlane, n = 100, stepSize = 0.01){
-  # data = numerical input with p > 2 dimensions
-  # indexF = the index function used to estimate the squint angle
-  # cutoff = lower bound on the index value to be considered structured (i.e. all lower index values are outside the squint angle)
-  # structuredPlane = projection matrix onto plane containing the 2-d structure
-  # n = number of random starting directions over which the squint angle estimate is averaged
-  # stepSize = accuracy, step size determines where the index is evaluated to find the first plane above cutoff
-  data <- as.matrix(data) # make sure data is in matrix format
-  angles <- numeric(length = n) # collecting all individual estimates
-  i <- 1
-  p <- ncol(data)
-  while(i <= n){
-    # first generate random direction, make sure it is not too close to structure plane
-    dist <- 0.
-    while(dist < 0.1){
-      rBasis <- tourr::basis_random(p)
-      dist <- tourr::proj_dist(rBasis, structurePlane)
-    }
-    # now interpolate from rBasis to structure plane with selected step size
-    # since planned tour ignores first two entries, generate some random planes to be ignored
-    notUsed1 <- tourr::basis_random(p)
-    notUsed2 <- tourr::basis_random(p)
-    tourHist <- save_history(data,tour_path=planned_tour(list(notUsed1, notUsed2, rBasis, structurePlane)))
-    allBases <- as.list(interpolate(tourHist, angle = stepSize))
-    cIndex <- 0.
-    j <- 1
-    while(cIndex < cutoff){
-      cProj <- data %*% allBases[[j]]
-      cIndex <- indexF(cProj)
-      j <- j+1
-    }
-    cDist <- tourr::proj_dist(allBases[[j]], structurePlane)
-    angles[i] <- cDist
-    i <- i+1
-  }
-  return(angles)
-}
-
-if(!file.exists("cache/squintAngle.rda")){
-  allAngles <- tibble(d=numeric(), angle=numeric())
-  for(d in c(4,5,6)){
-    set.seed(58958)
-    specialPlane <- matrix(c(rep(0,d-2),1,0,rep(0,d-1),1),ncol=2)
-    spiralD <- spiral1000 %>%
-      purrr::when(d<6 ~ select(., -V4), ~ .) %>%
-      purrr::when(d<5 ~ select(., -V3), ~ .)
-    cAngles <- squintAngleEstimat(spiralD, scagIndex("Skinny"), 0.6, specialPlane)
-    allAngles <- bind_rows(allAngles, tibble(d=d, angle=cAngles))
-  }
-  save(allAngles, file = "cache/squintAngle.rda")
-} else {
-  load("cache/squintAngle.rda")
-}
-
-allAngles <- rename(allAngles, p=d)
-
-ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
-```
 
 ## Rotational invariance or not
 \label{sec:rot}
@@ -1847,6 +1749,72 @@ Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in pr
 We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in \cite{CBC93}. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This appears consistent with the results we have, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
 
 Rescaling: first have cutoff at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, rescale remaining range to be between zero and one.
+
+## Extimating the squint angle of the spiral
+
+We estimate the squint angle of the spiral (for p = 4, 5, 6) as follows. First pick a random starting plane and generate a tour path from the starting plane to the ideal plane containing the spiral. Using skinny as the reference index we fix a lower index value that is attributed to indicate squintability at $0.6$, and we move along the tour path towards the ideal plane until this value is reached. The distance between the thus identified plane and the ideal plane is used as an estimate of the squint angle in this direction. Since this will strongly depend on the random starting plane, i.e. the considered direction, we repeat the estimation 100 times and present the results in the form of a box plot in Figure \ref{fig:squintAngle}. The result shows a large drop in squint angle when going from p = 4 to higher dimensions, and generally a large spread of squint angles depending on the direction.
+
+```{r squintAngle, out.width="0.5\\textwidth", fig.cap="Estimated squint angles for the Spiral dataset with 1000 datapoints, with p = 4, 5, 6, containing estimates evaluated for 100 randomly selected directions each.", results="hide"}
+
+squintAngleEstimat <- function(data, indexF, cutoff, structurePlane, n = 100, stepSize = 0.01){
+  # data = numerical input with p > 2 dimensions
+  # indexF = the index function used to estimate the squint angle
+  # cutoff = lower bound on the index value to be considered structured (i.e. all lower index values are outside the squint angle)
+  # structuredPlane = projection matrix onto plane containing the 2-d structure
+  # n = number of random starting directions over which the squint angle estimate is averaged
+  # stepSize = accuracy, step size determines where the index is evaluated to find the first plane above cutoff
+  data <- as.matrix(data) # make sure data is in matrix format
+  angles <- numeric(length = n) # collecting all individual estimates
+  i <- 1
+  p <- ncol(data)
+  while(i <= n){
+    # first generate random direction, make sure it is not too close to structure plane
+    dist <- 0.
+    while(dist < 0.1){
+      rBasis <- tourr::basis_random(p)
+      dist <- tourr::proj_dist(rBasis, structurePlane)
+    }
+    # now interpolate from rBasis to structure plane with selected step size
+    # since planned tour ignores first two entries, generate some random planes to be ignored
+    notUsed1 <- tourr::basis_random(p)
+    notUsed2 <- tourr::basis_random(p)
+    tourHist <- save_history(data,tour_path=planned_tour(list(notUsed1, notUsed2, rBasis, structurePlane)))
+    allBases <- as.list(interpolate(tourHist, angle = stepSize))
+    cIndex <- 0.
+    j <- 1
+    while(cIndex < cutoff){
+      cProj <- data %*% allBases[[j]]
+      cIndex <- indexF(cProj)
+      j <- j+1
+    }
+    cDist <- tourr::proj_dist(allBases[[j]], structurePlane)
+    angles[i] <- cDist
+    i <- i+1
+  }
+  return(angles)
+}
+
+if(!file.exists("cache/squintAngle.rda")){
+  allAngles <- tibble(d=numeric(), angle=numeric())
+  for(d in c(4,5,6)){
+    set.seed(58958)
+    specialPlane <- matrix(c(rep(0,d-2),1,0,rep(0,d-1),1),ncol=2)
+    spiralD <- spiral1000 %>%
+      purrr::when(d<6 ~ select(., -V4), ~ .) %>%
+      purrr::when(d<5 ~ select(., -V3), ~ .)
+    cAngles <- squintAngleEstimat(spiralD, scagIndex("Skinny"), 0.6, specialPlane)
+    allAngles <- bind_rows(allAngles, tibble(d=d, angle=cAngles))
+  }
+  save(allAngles, file = "cache/squintAngle.rda")
+} else {
+  load("cache/squintAngle.rda")
+}
+
+allAngles <- rename(allAngles, p=d)
+
+ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
+```
+
 
 ## Binning sensitivity of MIC index
 To examine the sensitivity of binning in the MIC PPI, the classic RANDU data [@Marsaglia68], available in R, is used. Binning is defined by $\delta$, where $B(n) = n^{\delta}$. Figure \ref{fig:randuEx} shows the best projection, index value and computing time obtained when optimizing the MIC index with values $\delta = 0.6, 0.7, 0.8$. With small $\delta$, less bins, the structure isn't visible, and with larger $\delta$ the structure is confounded with noise. It does appear that this parameter affects the performace of the MIC index.
