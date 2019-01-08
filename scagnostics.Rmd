@@ -872,11 +872,8 @@ The spiral is the most challenging structure to detect because it has a small sq
 
 The search is conducted for $p=4,5,6$ which would correspond to 2, 3 and 4 noise dimensions respectively. In addition we examine the distance between planes, using a Frobenius norm, as defined by Equation 2 of @BCAH05, and available in the ```proj_dist``` function in the tourr package, to compare searches across dimensions. The distance between planes is related to squint angle, how far away from the ideal projection can the structure be glimpsed. We estimate the squint angle depending on the number of noise dimensions in the appendix. In order for the optimizer to find the spiral, the distance between planes would need to be smaller than the squint angle. Figure \ref{fig:findspiral} summarizes the results. When $p=4$ the scouting method effectively finds the spiral. Plot (a) shows the side-by-side boxplots of pairwise distances between planes examined during the optimization, for $p=4,5,6$. These are on average smaller for the lower dimension, and gradually increase as dimension increases. This is an indication of the extra computation needed to brute force find the spiral as noise dimensions increase. Plot (b) shows the distance of the plane in each iteration of the optimisation to the ideal plane, where it can be seen that only when $p=4$ does it converge to the ideal. Its likely that expanding the search space should result in uncovering the spiral in higher dimensions, which however requires tuning of the stopping conditions and long run times.
 
-XXX update the plots, maybe resulting views on top?
 
-
-
-```{r findspiral, out.width="\\textwidth", fig.cap="Guided tour optimising the skinny index for the Sprial dataset with 1000 datapoints, with p = 4, 5, 6. The top left plot shows the distribution of pairwise distances between planes obtained via the guided tour, the top right shows the evolution of distance to the ideal plane as the index is being optimised. The bottom row shows the final view obtained for p = 4 (left), p = 5 (middle) and p = 6 (right).", results="hide"}
+```{r findspiral, out.width="0.9\\textwidth", fig.cap="Guided tour optimising the skinny index for the Sprial dataset with 1000 datapoints, with p = 4, 5, 6. The left plot shows the distribution of pairwise distances between planes obtained via the guided tour, the right shows the evolution of distance to the ideal plane as the index is being optimised.", results="hide", fig.width=7, fig.height=2.5}
 
 distanceDist <- function(planes, nn=F){
   #nn could be used to turn on only distance to nearest neighbour?
@@ -968,8 +965,8 @@ fViewL[[1]] <- fViewL[[1]] + xlab("PP1") + ylab("PP2")
 fViewL[[2]] <- fViewL[[2]] + xlab("PP1") + ylab("PP2")
 fViewL[[3]] <- fViewL[[3]] + xlab("PP1") + ylab("PP2")
 
-grid.arrange(p1, p2, fViewL[[1]], fViewL[[2]], fViewL[[3]], layout_matrix = rbind(c(1,2,2),c(3,4,5)))
-
+#grid.arrange(p1, p2, fViewL[[1]], fViewL[[2]], fViewL[[3]], layout_matrix = rbind(c(1,2,2),c(3,4,5)))
+grid.arrange(p1, p2, layout_matrix = rbind(c(1,2,2)))
 ```
 
 
