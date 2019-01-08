@@ -538,8 +538,8 @@ The procedures for assessing the PPI properties of smoothness, squintability, fl
 2. Change to a tour path between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$ via the intermediate projection onto $x_1 - x_5$, and compute the PPI along this. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
 3. Use the guided tour to examine the ease of optimization. This depends on having a relatively smooth function, with structure visible from a distance. One index is optimized to show how effectively the maximum is attained, and the values for other PPIs is examined along the same path, to examine the similarity between PPIs. 
 4. Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
-5. Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. The parameters for these PPIs is varied and examined along a tour path between noise and structured projections, to examine the effects of parameter choices and how fiddly the index is to tune. 
-6. Computational speed for the selected indices is examined on a range of sample sizes.
+5. Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. The parameters for these PPIs is varied and examined along a tour path between noise and structured projections, to examine the effects of parameter choices and how fiddly the index is to tune. Results of this study can be found in the appendix together with preliminary evaluation of potential improvements via smoothing.
+6. Computational speed for the selected indices is examined on a range of sample sizes. Results are presented in the appendix.
 
 
 
@@ -975,7 +975,7 @@ grid.arrange(p1, p2, layout_matrix = rbind(c(1,2,2)))
 
 Rotational invariance is examined using the sine data ($x_5$-$x_6$), computing PPI for different rotations within the 2D plane, parametrized by angle. Results are shown in Figure \ref{fig:rotationDep}. Several indexes are invariant, holes, convex and MIC, because their value is constant around rotations. The dcor2d, splines2d and TIC index are clearly not rotationally invariant because the value changes depending on the rotation. The scagnostics indexes are approximately rotationally invariant, but particularly the skinny index has some random variation depending on rotation. 
 
-```{r rotationDep, out.width=".6\\textwidth", fig.cap="PPI for rotations of the sine 1000 data, to examine rotation invariance. Most are close to rotation invariant, except for dcor2d, splines2d and TIC."}
+```{r rotationDep, out.width=".6\\textwidth", fig.cap="PPI for rotations of the sine 1000 data, to examine rotation invariance. Most are close to rotation invariant, except for skinny, dcor2d, splines2d and TIC."}
 if(!file.exists("cache/rotationDep.rda")){
   sineM <- as.matrix(select(sin1000, V5, V6))
   sc <- tibble(
@@ -1029,256 +1029,6 @@ ggplot(scMelt, aes(x=angle, y=value)) +
   coord_polar() +
   xlab("") + ylab("")
 ```
-
-
-
-## Computational performance
-
-\label{sec:timer}
-Computational time is important for using the PPIs with the guided tour, online. Figure \ref{fig:timer} summarizes performance for each PPI. For simplicity, data with sample sizes ranging from 100-10000 are drawn from a 6-d solid sphere, using the geozoo package [@geozoo].  The time to compute the PPIs over 100 interpolated grand tour projections is recorded. The scagnostics PPI are computed as a bundle, since this is the code base, and that major computational constraint is common to all the scagnostics. There are two versions of the MIC and TIC algorithm, labelled MINE and MINE E, the second being a newer algorithm which improves their computational performance. 
-
-The results are interesting. The scagnostic indexes and splines2D are very fast regardless of sample size. MIC, TIC (both versions) and dcor2D slow rapidly as sample size increases.
-
-
-```{r getTimer}
-
-mineE <- function(x,y){
-  return(mine(x=x, y=y, est = "mic_e"))
-}
-
-
-timeThis <- function(d, t, idx, pmax, n, idxName){ #d=data matrix, t=interpolated tour path, idx=index function, pmax=max number of projections, n=sample size, idxName=str name of idx funciton
-    i <- 1
-    dfTimer = data.frame( t= numeric(), i=numeric(), n = numeric(), name=character())
-    for(pMatrix in t){
-      if(i>pmax) break
-      tic.clearlog()
-      tic() #start timer
-      dProj <- d %*% pMatrix
-      sgnst <- idx(dProj[,1],dProj[,2])
-      toc(log=TRUE,quiet=TRUE)
-      scTd <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
-      dfTimer <- add_row(dfTimer, t=scTd, i=i, n= n, name=idxName)
-      i = i+1
-    }
-    return(dfTimer)
-}
-
-```
-
-
-```{r timer, fig.cap="Computational perfoamce for PPIs, using sample sizes 100-10000. Colour indicates the PPI. Because the scagnostics calculation is bundled together, the values are the same for all these indexes, and they are really fast to compute. MINE includes the MIC and TIC indexes, and MINE E are computationally more efficient algorithms for these. These, along with dcor2D, are slower with larger sample sizes.", out.width=".6\\textwidth"}
-if(!file.exists("cache/timer.rda")){
-  set.seed(2018)
-  grandTour100 <- save_history(sphereData(6,100), grand_tour(2), max=4) %>%
-    interpolate() %>%
-    as.list()
-
-  sizeL <- c(10, 100, 500, 1000, 5000, 10000)
-  t <- 1
-  dfTimer <- NULL
-  for(sampleSize in sizeL){
-    set.seed(sampleSize + 11) # new seed for each sample size
-    if(sampleSize == 0) sampleSize = 10 # smallest considered sample has 10 points
-    thisMatrix <-  sphereData(6, sampleSize) %>% rescale()
-    scagT <- timeThis(thisMatrix, grandTour100, scagnostics.default, 100, sampleSize, "scagnostics")
-    dcorT <- timeThis(thisMatrix, grandTour100, dcor2d, 100, sampleSize, "dcor2D")
-    splineT <- timeThis(thisMatrix, grandTour100, splines2d, 100, sampleSize, "splines2D")
-    mineT <- timeThis(thisMatrix, grandTour100, mine, 100, sampleSize, "MINE")
-    mineeT <- timeThis(thisMatrix, grandTour100, mineE, 100, sampleSize, "MINE E")
-    dfTimerC <- list(scagT, dcorT, splineT, mineT,mineeT) %>%
-      reduce(rbind)
-    dfTimer <- rbind(dfTimer, dfTimerC)
-    t <-  t+1
-  }
-  save(dfTimer, file = "cache/timer.rda")
-} else {
-  load("cache/timer.rda")
-}
-
-timerMeans <- dfTimer %>%
-  group_by(name, n) %>%
-  summarise(t=mean(t))
-
-ggplot(dfTimer, aes(x = n, y = t)) + 
-  geom_point(alpha=0.1, aes(color=name, shape=name)) +
-  geom_point(data=timerMeans, aes(color=name, shape=name)) +
-  geom_line(data=timerMeans, aes(linetype=name, color=name)) +
-  scale_x_log10(limits=c(90,10100)) +
-#  scale_y_log10(limits=c(0.00001,1)) + 
-  labs(x = "Sample Size", y = "Time [s]", color = "Index family", 
-       linetype = "Index family", shape = "Index family") + 
-  scale_colour_brewer(palette="Dark2")
-```
-
-
-## Effect of parameter choice in index value
-\label{sec:params}
-Some parameters must be provided for some PPIs. This can be advantageous, allowing the index to more flexibly work for different types of structure, controlling trade-offs between noise and fine structure detection, and affecting computing time and precision.
-
-- Binning:
-    - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
-    - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points, see Equation \ref{eq:MIC}. The default is chosen such as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
-- Spline knots: for the splines2D measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
-
-<!--### Effect of binning in scagnostics -->
-
-The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:sprialScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
-
-XXX from caption, remove?:  For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detedction being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice.
-
-```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example.", out.width=".7\\textwidth"}
-getScagComp <- function(df, tPath){
-  sc <- tibble(
-    convex10=numeric(),
-    skinny10=numeric(),
-    stringy10=numeric(),
-    convex20=numeric(),
-    skinny20=numeric(),
-    stringy20=numeric(),
-    convex50=numeric(),
-    skinny50=numeric(),
-    stringy50=numeric(),
-    t=numeric())
-  n <- length(tPath)
-  for (i in 1:n) {
-    dprj <- as.matrix(df) %*% tPath[[i]]
-    scagRes10 <- scagnostics.default(dprj[,1], dprj[,2], bins=10)$s
-    scagRes20 <- scagnostics.default(dprj[,1], dprj[,2], bins=20)$s
-    scagRes50 <- scagnostics.default(dprj[,1], dprj[,2], bins=50)$s
-    sc <- add_row(sc,
-                  convex10=scagRes10["Convex"], skinny10=scagRes10["Skinny"],
-                  stringy10=scagRes10["Stringy"],
-                  convex20=scagRes20["Convex"], skinny20=scagRes20["Skinny"],
-                  stringy20=scagRes20["Stringy"],
-                  convex50=scagRes50["Convex"], skinny50=scagRes50["Skinny"],
-                  stringy50=scagRes50["Stringy"],
-                  t=i)
-  }
-  
-  return(sc)
-}
-if(!file.exists("cache/spiralScagBinning.rda")){
-  scagBinningDf <- getScagComp(spiral1000, t2full)
-  scagMelt <- gather(scagBinningDf, variable, value, -t) %>%
-    mutate(nbin = as.numeric(str_sub(variable, start = -2))) %>%
-    mutate(idx = str_sub(variable, end = -3))
-  save(scagBinningDf, scagMelt, file = "cache/spiralScagBinning.rda")
-} else {
-  load("cache/spiralScagBinning.rda")
-}
-ggplot(scagMelt, aes(x=t, y=value)) +
-  geom_line(aes(color=factor(nbin))) + 
-  facet_wrap(~idx, ncol=1, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
-  scale_colour_discrete("Num bins") + xlab("Number of projections") + 
-  ylab("PPI value")
-
-```
-
-The sensitivity to the binning for calculating the MIC index is examined for one example in the Appendix XXX (add cross reference)
-
-
-## Ways to refine the PPIs
-
-The biggest issues revealed by the investigation into the new PPIs are a lack of smoothness, particularly for the scagnostics indexes, and the rotation invariance of Grimm's indexes. To fix the smoothness of an index function, it is possible to calculate the PPI for a small neighbourhood of projections and average the value, or alternatively average the PPI for several jittered projections. This is investigated in Fig. \ref{fig:spiralScagSmoothing}. Rotation invariance is more difficult to fix, but an alternative tour interpolation method could be useful. The geodesic interpolation transitions between planes, and it ignores the basis defining the plane, creating a problem with rotation invariant indices. Alternative interpolations based on Givens or Householder rotations could be implemented to transition between bases, which should alleviate the need for rotationally invariant indices. 
-
-<!-- ### Smoothing-->
-
-Two different methods are considered for smoothing the index values:
-
-* Jittering points: using the jitter function we move each points by a random amount drawn from a uniform distribution between $\pm \beta$.
-* Jittering angles: using the tourr implementation we can draw a random plane and move some small amount $\epsilon$ in that direction.
-
-<!--
-* Turning axes: given the rotation non-invariance, maybe rotation of basis could be useful also??
--->
-
-The mean value from a sample of projections is recorded as the PPI value. This could be robsitufied by dropping the most extreme values. 
-
-This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using a the tour path between noise variables of the spiral1000 dataset using different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnistics are fast to compute, either of these methods is feasible. For this example we have smoothed over 10 randomly selected jittered views, computing time increases linearly with the number of randomly jittered views, as this is mostly determined by the time needed to evaluate the scagnostics indexes which is done separately for each view.
-
-<!--\textcolor{red}{I fixed the y axis to be between 0 and 1, which highlights that indeed we get much smoother behaviour, on the other hand theres still large relative jumps observed in all traces, and a smaller y axis scale may be preferred to show this more clearely.}-->
-
-```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indices skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered. For comparison the red line in the background shows the trace without any smoothing applied."}
-
-jitterScagnostics <-function(proj, d, alpha){
-  newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
-  newD <- d %*% newProj
-  return(as.vector(scagnostics.default(newD[,1],newD[,2])$s))
-}
-
-jitterPointsScagnostics <-function(projData, alpha){
-  newD <- jitter(projData, amount=alpha)
-  return(as.vector(scagnostics.default(newD[,1],newD[,2])$s))
-}
-
-
-getSgnMean <- function(proj, d, alpha, method){
-  dProj <- d %*% proj
-  orig <- as.vector(scagnostics.default(dProj[,1],dProj[,2])$s)
-  if(method == "jitterAngle"){
-    sgnVec <- replicate(10, jitterScagnostics(proj, d, alpha))
-  } else if (method=="jitterPoints"){
-    sgnVec <- replicate(10, jitterPointsScagnostics(dProj, alpha))
-  }
-  return(rowMeans(cbind(orig, sgnVec)))
-}
-
-getScagSmooth <- function(df, tPath){
-  sc <- tibble(
-    convex=numeric(),
-    skinny=numeric(),
-    stringy=numeric(),
-    t=numeric(),
-    method=character(),
-    alpha=numeric())
-  n <- length(tPath)
-  for (method in c("jitterAngle", "jitterPoints")){
-    for (alpha in c(0.01, 0.05, 0.1)){
-      for (i in 1:n) {
-        scagMean <- getSgnMean(tPath[[i]], as.matrix(df), alpha, method)
-        convex <- scagMean[6]
-        skinny <- scagMean[7]
-        stringy <- scagMean[8]
-        sc <- sc %>% add_row(convex=convex, skinny=skinny, stringy=stringy,
-                             t=i, method=method, alpha=alpha)
-      }
-    }
-  }
-  
-  return(sc)
-}
-
-if(!file.exists("cache/spiralScagSmoothing.rda")){
-  scagSmooth <- getScagSmooth(spiral1000, as.list(t1full))
-  scagSmoothMelt <- gather(scagSmooth, variable, value, -t, -method, -alpha)
-  save(scagSmooth, scagSmoothMelt, file = "cache/spiralScagSmoothing.rda")
-} else {
-  load("cache/spiralScagSmoothing.rda")
-}
-
-#getting non-smoothed result
-load("cache/V1V2toV3V4.rda")
-noSmoothing <- fullRes %>%
-  filter(size==1000) %>%
-  filter(name=="spiral") %>%
-  select(skinny, stringy, t) %>%
-  gather(variable, value, -t)
-
-scagSmoothMelt <- scagSmoothMelt %>%
-  filter(variable != "convex") %>%
-  mutate(method = factor(method, levels = c("jitterAngle", "jitterPoints")))
-ggplot(scagSmoothMelt, aes(x=t, y=value)) +
-  geom_line(data=noSmoothing, color="red", alpha=0.5) +
-  geom_line(aes(linetype=factor(method))) + 
-  theme(legend.position="none") +
-  ylim(0,1) +
-  facet_grid(alpha~variable) +
-  xlab("Sequence of projections (t)") +
-  ylab("PPI value")
-
-```
-
 
 ## Summary
 
@@ -1811,6 +1561,249 @@ allAngles <- rename(allAngles, p=d)
 
 ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
 ```
+
+
+## Computational performance
+
+\label{sec:timer}
+Computational time is important for using the PPIs with the guided tour, online. Figure \ref{fig:timer} summarizes performance for each PPI. For simplicity, data with sample sizes ranging from 100-10000 are drawn from a 6-d solid sphere, using the geozoo package [@geozoo].  The time to compute the PPIs over 100 interpolated grand tour projections is recorded. The scagnostics PPI are computed as a bundle, since this is the code base, and that major computational constraint is common to all the scagnostics. There are two versions of the MIC and TIC algorithm, labelled MINE and MINE E, the second being a newer algorithm which improves their computational performance. 
+
+The results are interesting. The scagnostic indexes and splines2D are very fast regardless of sample size. MIC, TIC (both versions) and dcor2D slow rapidly as sample size increases.
+
+
+```{r getTimer}
+
+mineE <- function(x,y){
+  return(mine(x=x, y=y, est = "mic_e"))
+}
+
+
+timeThis <- function(d, t, idx, pmax, n, idxName){ #d=data matrix, t=interpolated tour path, idx=index function, pmax=max number of projections, n=sample size, idxName=str name of idx funciton
+    i <- 1
+    dfTimer = data.frame( t= numeric(), i=numeric(), n = numeric(), name=character())
+    for(pMatrix in t){
+      if(i>pmax) break
+      tic.clearlog()
+      tic() #start timer
+      dProj <- d %*% pMatrix
+      sgnst <- idx(dProj[,1],dProj[,2])
+      toc(log=TRUE,quiet=TRUE)
+      scTd <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+      dfTimer <- add_row(dfTimer, t=scTd, i=i, n= n, name=idxName)
+      i = i+1
+    }
+    return(dfTimer)
+}
+
+```
+
+
+```{r timer, fig.cap="Computational perfoamce for PPIs, using sample sizes 100-10000. Colour indicates the PPI. Because the scagnostics calculation is bundled together, the values are the same for all these indexes, and they are really fast to compute. MINE includes the MIC and TIC indexes, and MINE E are computationally more efficient algorithms for these. These, along with dcor2D, are slower with larger sample sizes.", out.width=".6\\textwidth"}
+if(!file.exists("cache/timer.rda")){
+  set.seed(2018)
+  grandTour100 <- save_history(sphereData(6,100), grand_tour(2), max=4) %>%
+    interpolate() %>%
+    as.list()
+
+  sizeL <- c(10, 100, 500, 1000, 5000, 10000)
+  t <- 1
+  dfTimer <- NULL
+  for(sampleSize in sizeL){
+    set.seed(sampleSize + 11) # new seed for each sample size
+    if(sampleSize == 0) sampleSize = 10 # smallest considered sample has 10 points
+    thisMatrix <-  sphereData(6, sampleSize) %>% rescale()
+    scagT <- timeThis(thisMatrix, grandTour100, scagnostics.default, 100, sampleSize, "scagnostics")
+    dcorT <- timeThis(thisMatrix, grandTour100, dcor2d, 100, sampleSize, "dcor2D")
+    splineT <- timeThis(thisMatrix, grandTour100, splines2d, 100, sampleSize, "splines2D")
+    mineT <- timeThis(thisMatrix, grandTour100, mine, 100, sampleSize, "MINE")
+    mineeT <- timeThis(thisMatrix, grandTour100, mineE, 100, sampleSize, "MINE E")
+    dfTimerC <- list(scagT, dcorT, splineT, mineT,mineeT) %>%
+      reduce(rbind)
+    dfTimer <- rbind(dfTimer, dfTimerC)
+    t <-  t+1
+  }
+  save(dfTimer, file = "cache/timer.rda")
+} else {
+  load("cache/timer.rda")
+}
+
+timerMeans <- dfTimer %>%
+  group_by(name, n) %>%
+  summarise(t=mean(t))
+
+ggplot(dfTimer, aes(x = n, y = t)) + 
+  geom_point(alpha=0.1, aes(color=name, shape=name)) +
+  geom_point(data=timerMeans, aes(color=name, shape=name)) +
+  geom_line(data=timerMeans, aes(linetype=name, color=name)) +
+  scale_x_log10(limits=c(90,10100)) +
+#  scale_y_log10(limits=c(0.00001,1)) + 
+  labs(x = "Sample Size", y = "Time [s]", color = "Index family", 
+       linetype = "Index family", shape = "Index family") + 
+  scale_colour_brewer(palette="Dark2")
+```
+
+
+## Effect of parameter choice in index value
+\label{sec:params}
+Some parameters must be provided for some PPIs. This can be advantageous, allowing the index to more flexibly work for different types of structure, controlling trade-offs between noise and fine structure detection, and affecting computing time and precision.
+
+- Binning:
+    - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
+    - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points, see Equation \ref{eq:MIC}. The default is chosen such as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
+- Spline knots: for the splines2D measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
+
+<!--### Effect of binning in scagnostics -->
+
+The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:sprialScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
+
+XXX from caption, remove?:  For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detedction being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice.
+
+```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example.", out.width=".7\\textwidth"}
+getScagComp <- function(df, tPath){
+  sc <- tibble(
+    convex10=numeric(),
+    skinny10=numeric(),
+    stringy10=numeric(),
+    convex20=numeric(),
+    skinny20=numeric(),
+    stringy20=numeric(),
+    convex50=numeric(),
+    skinny50=numeric(),
+    stringy50=numeric(),
+    t=numeric())
+  n <- length(tPath)
+  for (i in 1:n) {
+    dprj <- as.matrix(df) %*% tPath[[i]]
+    scagRes10 <- scagnostics.default(dprj[,1], dprj[,2], bins=10)$s
+    scagRes20 <- scagnostics.default(dprj[,1], dprj[,2], bins=20)$s
+    scagRes50 <- scagnostics.default(dprj[,1], dprj[,2], bins=50)$s
+    sc <- add_row(sc,
+                  convex10=scagRes10["Convex"], skinny10=scagRes10["Skinny"],
+                  stringy10=scagRes10["Stringy"],
+                  convex20=scagRes20["Convex"], skinny20=scagRes20["Skinny"],
+                  stringy20=scagRes20["Stringy"],
+                  convex50=scagRes50["Convex"], skinny50=scagRes50["Skinny"],
+                  stringy50=scagRes50["Stringy"],
+                  t=i)
+  }
+  
+  return(sc)
+}
+if(!file.exists("cache/spiralScagBinning.rda")){
+  scagBinningDf <- getScagComp(spiral1000, t2full)
+  scagMelt <- gather(scagBinningDf, variable, value, -t) %>%
+    mutate(nbin = as.numeric(str_sub(variable, start = -2))) %>%
+    mutate(idx = str_sub(variable, end = -3))
+  save(scagBinningDf, scagMelt, file = "cache/spiralScagBinning.rda")
+} else {
+  load("cache/spiralScagBinning.rda")
+}
+ggplot(scagMelt, aes(x=t, y=value)) +
+  geom_line(aes(color=factor(nbin))) + 
+  facet_wrap(~idx, ncol=1, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
+  scale_colour_discrete("Num bins") + xlab("Number of projections") + 
+  ylab("PPI value")
+
+```
+
+The sensitivity to the binning for calculating the MIC index is examined for one example in the Appendix XXX (add cross reference)
+
+
+## Ways to refine the PPIs
+
+The biggest issues revealed by the investigation into the new PPIs are a lack of smoothness, particularly for the scagnostics indexes, and the rotation invariance of Grimm's indexes. To fix the smoothness of an index function, it is possible to calculate the PPI for a small neighbourhood of projections and average the value, or alternatively average the PPI for several jittered projections. This is investigated in Fig. \ref{fig:spiralScagSmoothing}. Rotation invariance is more difficult to fix, but an alternative tour interpolation method could be useful. The geodesic interpolation transitions between planes, and it ignores the basis defining the plane, creating a problem with rotation invariant indices. Alternative interpolations based on Givens or Householder rotations could be implemented to transition between bases, which should alleviate the need for rotationally invariant indices. 
+
+
+Two different methods are considered for smoothing the index values:
+
+* Jittering points: using the jitter function we move each points by a random amount drawn from a uniform distribution between $\pm \beta$.
+* Jittering angles: using the tourr implementation we can draw a random plane and move some small amount $\epsilon$ in that direction.
+
+The mean value from a sample of projections is recorded as the PPI value. This could be robsitufied by dropping the most extreme values. 
+
+This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using a the tour path between noise variables of the spiral1000 dataset using different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnistics are fast to compute, either of these methods is feasible. For this example we have smoothed over 10 randomly selected jittered views, computing time increases linearly with the number of randomly jittered views, as this is mostly determined by the time needed to evaluate the scagnostics indexes which is done separately for each view.
+
+
+```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indices skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered. For comparison the red line in the background shows the trace without any smoothing applied."}
+
+jitterScagnostics <-function(proj, d, alpha){
+  newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
+  newD <- d %*% newProj
+  return(as.vector(scagnostics.default(newD[,1],newD[,2])$s))
+}
+
+jitterPointsScagnostics <-function(projData, alpha){
+  newD <- jitter(projData, amount=alpha)
+  return(as.vector(scagnostics.default(newD[,1],newD[,2])$s))
+}
+
+
+getSgnMean <- function(proj, d, alpha, method){
+  dProj <- d %*% proj
+  orig <- as.vector(scagnostics.default(dProj[,1],dProj[,2])$s)
+  if(method == "jitterAngle"){
+    sgnVec <- replicate(10, jitterScagnostics(proj, d, alpha))
+  } else if (method=="jitterPoints"){
+    sgnVec <- replicate(10, jitterPointsScagnostics(dProj, alpha))
+  }
+  return(rowMeans(cbind(orig, sgnVec)))
+}
+
+getScagSmooth <- function(df, tPath){
+  sc <- tibble(
+    convex=numeric(),
+    skinny=numeric(),
+    stringy=numeric(),
+    t=numeric(),
+    method=character(),
+    alpha=numeric())
+  n <- length(tPath)
+  for (method in c("jitterAngle", "jitterPoints")){
+    for (alpha in c(0.01, 0.05, 0.1)){
+      for (i in 1:n) {
+        scagMean <- getSgnMean(tPath[[i]], as.matrix(df), alpha, method)
+        convex <- scagMean[6]
+        skinny <- scagMean[7]
+        stringy <- scagMean[8]
+        sc <- sc %>% add_row(convex=convex, skinny=skinny, stringy=stringy,
+                             t=i, method=method, alpha=alpha)
+      }
+    }
+  }
+  
+  return(sc)
+}
+
+if(!file.exists("cache/spiralScagSmoothing.rda")){
+  scagSmooth <- getScagSmooth(spiral1000, as.list(t1full))
+  scagSmoothMelt <- gather(scagSmooth, variable, value, -t, -method, -alpha)
+  save(scagSmooth, scagSmoothMelt, file = "cache/spiralScagSmoothing.rda")
+} else {
+  load("cache/spiralScagSmoothing.rda")
+}
+
+#getting non-smoothed result
+load("cache/V1V2toV3V4.rda")
+noSmoothing <- fullRes %>%
+  filter(size==1000) %>%
+  filter(name=="spiral") %>%
+  select(skinny, stringy, t) %>%
+  gather(variable, value, -t)
+
+scagSmoothMelt <- scagSmoothMelt %>%
+  filter(variable != "convex") %>%
+  mutate(method = factor(method, levels = c("jitterAngle", "jitterPoints")))
+ggplot(scagSmoothMelt, aes(x=t, y=value)) +
+  geom_line(data=noSmoothing, color="red", alpha=0.5) +
+  geom_line(aes(linetype=factor(method))) + 
+  theme(legend.position="none") +
+  ylim(0,1) +
+  facet_grid(alpha~variable) +
+  xlab("Sequence of projections (t)") +
+  ylab("PPI value")
+
+```
+
 
 
 ## Binning sensitivity of MIC index
