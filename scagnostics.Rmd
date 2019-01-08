@@ -1063,9 +1063,9 @@ MINE & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
 
 This section describes the application of these projection pursuit indices to find two-dimensional structure in two multidimensional gravitational waves problems. 
 
-The first example shows 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. There are six parameters of physical interest (6D) with some known relationships. Projection pursuit is used to find the known relationships. 
+The first example contains 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. There are six parameters of physical interest (6D) with some known relationships. Projection pursuit is used to find the known relationships. 
 
-The second example shows data from @Smith:2016qas, generated from a simulation study of a binary black hole (BBH) merger event. (XXX More info needed.) There are 12 parameters (12-D), with multiple nuisance parameters. Projection pursuit uncovers several new relationships between parameters. 
+The second example contains data generated from a simulation study of a binary black hole (BBH) merger event according to @Smith:2016qa. (XXX More info needed.) There are 12 parameters (12-D), with multiple nuisance parameters. Projection pursuit uncovers several new relationships between parameters. 
 
 ## Neutron star merger
 
@@ -1356,11 +1356,11 @@ grid.arrange(p1, p2, p3, ncol=3)
 
 #### Effect of random starts, and subsets used
 
-The initial conditions for the optimization, and the subset of variables used, can have a large effect on the projections returned. We illustrate this using only the splines2D index, and find that there is one more association that can be learned that was masked earlier. 
+The initial conditions for the optimization, and the subset of variables used, can have a large effect on the projections returned. We illustrate this using only the splines2D index, and find that there is one more association that can be learned that was masked earlier.
 
-Figure \ref{fig:bbhGuided3} shows six maxima obtained by different starts, for two types of parameters: first, spin related parameters (i.e. alpha, theta\_jn, chi\_tot and chi\_p), and second position related parameters (i.e. ra, dec and distance). Four of the six (a-d) are almost identical, but not interesting projections. Projection f has the highest PP index value but it is primarily the view seen in the bivariate plot of dec and ra.  
+Figure \ref{fig:bbhGuided3} shows six maxima obtained by different starts, for two types of parameters: first, spin related parameters (i.e. alpha, theta\_jn, chi\_tot and chi\_p), and second position related parameters (i.e. ra, dec and distance). Four of the six (a-d) are almost identical, but not interesting projections. Projection f has the highest PP index value but it is primarily the view seen in the bivariate plot of dec and ra.  \textcolor{red}{Actually I don't think any of the obtained projections is particularly interesting on its own, but a good point to make here is that these are local maxima and moving between them should be revealing. E.g. I looked at a planned tour moving from views a-c-e-f which shows relation of multimodality in the high-D space, so maybe that is the point to make here?}
 
-Choosing a different subset of variables reveals something new. The subspace of m1, ra, chi\_tot, alpha, distance, dec produces a more refined view of Figure \ref{fig:bbhGuided3} projection f. When alpha contributes in contrast to dec, the relationship between the points is almost perfectly on a curve. This is shown in Figure \ref{constructedExample}. Manually reconstructing this can be done by differencing the two parameters, in their original units. \textcolor{red}{This result is unexpected, it can be understood from ????? (Does it mean that knowing the precision angle gives more precise information about the location? Knowing ra uniquely determines dec-alpha rather than dec it seems.)}
+Choosing a different subset of variables reveals something new. The subspace of m1, ra, chi\_tot, alpha, distance, dec produces a more refined view of Figure \ref{fig:bbhGuided3} projection f. When alpha contributes in contrast to dec, the relationship between the points is almost perfectly on a curve. This is shown in Figure \ref{constructedExample}. Manually reconstructing this can be done by differencing the two parameters, in their original units. \textcolor{red}{This result is unexpected, it can be understood from ????? (Does it mean that knowing the precision angle gives more precise information about the location? Knowing ra uniquely determines dec-alpha rather than dec it seems.) Also highlighting why finding global maxima is important, ra, dec and alpha were present in the above example but the optimiser did not converge ot the the global maximum, thus the refined relationship was not revealed.}
 
 ```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane."), dev = "png", dpi=300}
 bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
@@ -1416,6 +1416,26 @@ for (r in resList){
 }
 grid.arrange(pList[[1]], pList[[2]], pList[[3]],pList[[4]], pList[[6]], pList[[5]], ncol=3)
 ```
+
+```{r eval=FALSE}
+m3 <- matrix(c(1,0,0,0,1,0,0,0,1,0,0,0,1,0),ncol=2)
+m4 <- matrix(c(1,1,1,0,0,0,0,0,1,1,0,0,0,0),ncol=2)
+planeL <- list(m3, m4)
+li <- 3
+for(i in c(1, 3, 6, 5)){
+  r <- resList[[i]]
+  iLast <- length(r)
+  fProj <- r[[iLast]]
+  planeL[[li]] <- fProj
+  li <- li+1
+}
+tP <- tourr::planned_tour(planeL[3:6]) # only need dummy planes when using history tour
+dPoints <- attributes(r)$data
+quartz()
+animate_xy(dPoints, tP, pch=".")
+```
+
+
 
 ```{r constructedExample, results="hide", fig.cap="Selecting subset of 6 parameters, for which spline index can be used to improve constraint on parameter combination wrt ra vs dec.", dev = "png", dpi=300}
 bbhC <- rescale(select(bbhD, m1, ra, chi_tot, alpha, distance, dec))
