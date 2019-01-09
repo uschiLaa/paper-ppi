@@ -1507,9 +1507,12 @@ Concretely we see three frontiers for future work building on our study. First, 
 
 As a final remark we point out that small changes to the implementation of the guided tour algorithm would already be helpful, and we plan on implementing the following: allowing for a stopping condition based on index value, and making the step size for the selection of the most promising direction an argument when calling the geodesic optimiser.
 
+
+\appendix
+
 # Appendix {-} 
 
-## Re-scaling of holes index
+# Re-scaling of holes index
 
 Holes and cmass indexes are derived from $I_0^N$ of \cite{CBC93}. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. \cite{Cook:2007:IDG:1557227} then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximized for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
 
@@ -1517,7 +1520,7 @@ We can estimate the values found for normal distribution by comparing values of 
 
 Rescaling: first have cutoff at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, rescale remaining range to be between zero and one.
 
-## Extimating the squint angle of the spiral
+# Extimating the squint angle of the spiral
 
 We estimate the squint angle of the spiral (for p = 4, 5, 6) as follows. First pick a random starting plane and generate a tour path from the starting plane to the ideal plane containing the spiral. Using skinny as the reference index we fix a lower index value that is attributed to indicate squintability at $0.6$, and we move along the tour path towards the ideal plane until this value is reached. The distance between the thus identified plane and the ideal plane is used as an estimate of the squint angle in this direction. Since this will strongly depend on the random starting plane, i.e. the considered direction, we repeat the estimation 100 times and present the results in the form of a box plot in Figure \ref{fig:squintAngle}. The result shows a large drop in squint angle when going from p = 4 to higher dimensions, and generally a large spread of squint angles depending on the direction.
 
@@ -1583,7 +1586,7 @@ ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
 ```
 
 
-## Computational performance
+# Computational performance
 
 \label{sec:timer}
 Computational time is important for using the PPIs with the guided tour, online. Figure \ref{fig:timer} summarizes performance for each PPI. For simplicity, data with sample sizes ranging from 100-10000 are drawn from a 6-d solid sphere, using the geozoo package [@geozoo].  The time to compute the PPIs over 100 interpolated grand tour projections is recorded. The scagnostics PPI are computed as a bundle, since this is the code base, and that major computational constraint is common to all the scagnostics. There are two versions of the MIC and TIC algorithm, labelled MINE and MINE E, the second being a newer algorithm which improves their computational performance. 
@@ -1663,7 +1666,7 @@ ggplot(dfTimer, aes(x = n, y = t)) +
 ```
 
 
-## Effect of parameter choice in index value
+# Effect of parameter choice in index value
 \label{sec:params}
 Some parameters must be provided for some PPIs. This can be advantageous, allowing the index to more flexibly work for different types of structure, controlling trade-offs between noise and fine structure detection, and affecting computing time and precision.
 
@@ -1729,7 +1732,7 @@ ggplot(scagMelt, aes(x=t, y=value)) +
 The sensitivity to the binning for calculating the MIC index is examined for one example in the Appendix XXX (add cross reference)
 
 
-## Ways to refine the PPIs
+# Ways to refine the PPIs
 
 The biggest issues revealed by the investigation into the new PPIs are a lack of smoothness, particularly for the scagnostics indexes, and the rotation invariance of Grimm's indexes. To fix the smoothness of an index function, it is possible to calculate the PPI for a small neighbourhood of projections and average the value, or alternatively average the PPI for several jittered projections. This is investigated in Fig. \ref{fig:spiralScagSmoothing}. Rotation invariance is more difficult to fix, but an alternative tour interpolation method could be useful. The geodesic interpolation transitions between planes, and it ignores the basis defining the plane, creating a problem with rotation invariant indices. Alternative interpolations based on Givens or Householder rotations could be implemented to transition between bases, which should alleviate the need for rotationally invariant indices. 
 
@@ -1826,7 +1829,7 @@ ggplot(scagSmoothMelt, aes(x=t, y=value)) +
 
 
 
-## Binning sensitivity of MIC index
+# Binning sensitivity of MIC index
 To examine the sensitivity of binning in the MIC PPI, the classic RANDU data [@Marsaglia68], available in R, is used. Binning is defined by $\delta$, where $B(n) = n^{\delta}$. Figure \ref{fig:randuEx} shows the best projection, index value and computing time obtained when optimizing the MIC index with values $\delta = 0.6, 0.7, 0.8$. With small $\delta$, less bins, the structure isn't visible, and with larger $\delta$ the structure is confounded with noise. It does appear that this parameter affects the performace of the MIC index.
 
 
@@ -1857,9 +1860,9 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
 ```
 
 
-## Additional Figures
+# Additional Figures
 
-### Final projection of pipe guided tour
+## Final projection of pipe guided tour
 Figure \ref{fig:testpipe} shows the projection returned during the scouting phase (left) and the refinement phase (right). It was important to start the method 3 optimizer at the best projection returned during the scouting phase, to smoothly converge more closely to the ideal projection.
 
 ```{r testpipe,  fig.height=4, fig.width=8, out.width = "0.8\\textwidth",  fig.cap="Projections returned by TIC optimisation: by the scouting phase (left) and refined by  optimisation method 3 (right), starting from the scouting phase projection."}
@@ -1876,7 +1879,7 @@ p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
 grid.arrange(p1, p2, ncol=2)
 ```
 
-### Dataset overview scatter plot matrices
+## Dataset overview scatter plot matrices
 
 ```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
 ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
