@@ -1040,7 +1040,8 @@ We identified two potential improvements. First, the issue of noisy index functi
 
 ## Summary
 
-Our results can be summarized by evaluating and comparing the advantages and disadvantages of each index function according to the criteria presented above. An overview is given in Table \ref{tab:summary}. The first three entries are from the scagnostics family. The advantages are good scaling of computing time with sample size and that the set of index functions covers general signatures, making the set flexible in applications (the same is however not true for each single index viewed on its own). On the other hand we have found that they are typically too noisy making optimization of the function challenging, which also results in poor squint ability. In particular the stringy index cannot be used with current optimizers. The index functions from @mbgraphic share similar behavior as they are both found to evolve fairly smoothly between interpolated projections, but have been shown to be strongly rotation dependent. The splines2D index is fast to calculate and found to be the most efficient method for identifying functional dependence. We have only considered the non-binned implementation of dcor2D which is slow to calculate on large datasets. While this index is in principle general, we have found it to be too sensitive to noise to be applicable in most realistic examples, therefore we consider flexibility limited. Finally the MINE indexes are found to be smooth only for large datasets, with some rotation dependence observed for the TIC index. While these indexes are slow to compute especially on large datasets, we have found them to be the most general, allowing good discrimination even with noisy structures. In addition we observed good squintability for all three examples considered, given large datasets. Results in the appendix \ref{sec:params} suggest that tuning of the MINE parameters may result in improved behavior for smaller datasets.
+Our results can be summarized by evaluating and comparing the advantages and disadvantages of each index function according to the criteria presented above. Such an overview is given in Table \ref{tab:summary}, listing if the criteria is fully met (\checkmark), there are some shortcomings ($\cdot$) or failure ($\times$).
+We find that none of the indexes considered meet all criteria, and in particular rotation invariance is often not fullfilled. In addition the limited flexibility of most indices highlights the importance of index selection in the projection pursuit setup. Table \ref{tab:summary} further suggests that there is much room for the improvement of index functions detecting unusual association between model parameters.
 
 \begin{table}
 \begin{center}
@@ -1050,7 +1051,7 @@ Our results can be summarized by evaluating and comparing the advantages and dis
 \hline
 Index & smooth & squintability & flexible & rotation invariant & speed \\
 \hline
-Convex & $\cdot$ & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
+Convex & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark & \checkmark \\
 Skinny & $\cdot$ & $\cdot$ & $\cdot$ & $\times$ & \checkmark \\
 Stringy & $\times$ & $\times$ & $\cdot$ & $\cdot$ & \checkmark \\
 \hline
