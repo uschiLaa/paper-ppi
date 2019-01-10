@@ -1065,7 +1065,7 @@ This section describes the application of these projection pursuit indices to fi
 
 The first example contains 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. There are six parameters of physical interest (6D) with some known relationships. Projection pursuit is used to find the known relationships. 
 
-The second example contains data generated from a simulation study of a binary black hole (BBH) merger event according to @Smith:2016qa. (XXX More info needed.) There are 12 parameters (12-D), with multiple nuisance parameters. Projection pursuit uncovers several new relationships between parameters. 
+The second example contains data generated from a simulation study of a binary black hole (BBH) merger event according to @Smith:2016qas. (XXX More info needed.) There are 12 parameters (12-D), with multiple nuisance parameters. Projection pursuit uncovers several new relationships between parameters. 
 
 ## Neutron star merger
 
@@ -1889,3 +1889,5 @@ ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
 bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
 ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
 ```
+
+# References {-}
