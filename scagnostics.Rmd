@@ -538,8 +538,7 @@ The procedures for assessing the PPI properties of smoothness, squintability, fl
 2. Change to a tour path between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$ via the intermediate projection onto $x_1 - x_5$, and compute the PPI along this. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
 3. Use the guided tour to examine the ease of optimization. This depends on having a relatively smooth function, with structure visible from a distance. One index is optimized to show how effectively the maximum is attained, and the values for other PPIs is examined along the same path, to examine the similarity between PPIs. 
 4. Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
-5. Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. The parameters for these PPIs is varied and examined along a tour path between noise and structured projections, to examine the effects of parameter choices and how fiddly the index is to tune. Results of this study can be found in the appendix together with preliminary evaluation of potential improvements via smoothing.
-6. Computational speed for the selected indices is examined on a range of sample sizes. Results are presented in the appendix.
+5. Computational speed for the selected indices is examined on a range of sample sizes.
 
 
 
@@ -1029,6 +1028,15 @@ ggplot(scMelt, aes(x=angle, y=value)) +
   coord_polar() +
   xlab("") + ylab("")
 ```
+
+## Speed
+Examining the computing time as a function of sample size we find that scagnostics and splines2D are fast even for large samples, while all other index functions slow rapidly with increasing sample size. Detailed results are shown in Appendix XXX (cross reference).
+
+## Parameter choices
+Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. In Appendix XXX (cross reference) we examine the dependence on the scagnostics indexes on the binning, showing that even with small number of bins the indexes are noisy, while they lose ability to see structure. Sensitivity to the number of bins in the MIC index is also examined, showing that tuning the parameter can improve the final result.
+
+## Index enhancement
+We identified two potential improvements. First, the issue of noisy index functions may be addressed via smoothing, and we explore different smoothing options for the examples of the skinny and stringy index in Appendix XXX (cross reference). In addition, rotation dependent indexes may be enhanced by redefining them in a rotation invariant way.
 
 ## Summary
 
