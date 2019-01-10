@@ -529,7 +529,7 @@ kable(res_all, format = "latex",  caption = "Comparison of index values between 
 
 The structured projection is in variables 5 and 6 ($x_5, x_6$). Two samples sizes are used: $n=(100, 1000)$. All variables are standardized to have mean 0 and standard deviation 1. Figure \ref{fig:data} shows samples from each of the families, of the nuisance and structured pairs of variables. Table \ref{tab:indexTable} compares the PPIs for structured projections against those for nuisance variables, based on 100 simulated data sets of each type, using sample size 1000. The lower and upper show the 5th and 95th percentile of values. All indexes, except convex show distinctly higher values for the structured projections. The convex index shows the inverse scale to other indices, thus (1-convex) will be used in the assessment of performance of PPIs. The scale for the holes index in its original implementation is smaller than the others ranging from about 0.7 through 1, so it is re-scaled in the performance assessment so that all indices can be plotted on a common scale of 0-1 (details in Appendix). Similarly, the TIC index is re-scaled depending on sample size. 
 
-### Property assessment
+### Property assessment {#sec:propAss}
 
 The procedures for assessing the PPI properties of smoothness, squintability, flexibility, rotation invariance, and speed are examined for samples from the family of data sets are:
 
@@ -1030,13 +1030,13 @@ ggplot(scMelt, aes(x=angle, y=value)) +
 ```
 
 ## Speed
-Examining the computing time as a function of sample size we find that scagnostics and splines2D are fast even for large samples, while all other index functions slow rapidly with increasing sample size. Detailed results are shown in Appendix XXX (cross reference).
+Examining the computing time as a function of sample size we find that scagnostics and splines2D are fast even for large samples, while all other index functions slow rapidly with increasing sample size. Detailed results are shown in Appendix \ref{app:speed}.
 
 ## Parameter choices
-Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. In Appendix XXX (cross reference) we examine the dependence on the scagnostics indexes on the binning, showing that even with small number of bins the indexes are noisy, while they lose ability to see structure. Sensitivity to the number of bins in the MIC index is also examined, showing that tuning the parameter can improve the final result.
+Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. In Appendix \ref{app:param} we examine the dependence on the scagnostics indexes on the binning, showing that even with small number of bins the indexes are noisy, while they lose ability to see structure. Sensitivity to the number of bins in the MIC index is also examined, showing that tuning the parameter can improve the final result.
 
 ## Index enhancement
-We identified two potential improvements. First, the issue of noisy index functions may be addressed via smoothing, and we explore different smoothing options for the examples of the skinny and stringy index in Appendix XXX (cross reference). In addition, rotation dependent indexes may be enhanced by redefining them in a rotation invariant way.
+We identified two potential improvements. First, the issue of noisy index functions may be addressed via smoothing, and we explore different smoothing options for the examples of the skinny and stringy index in Appendix \ref{app:enh}. In addition, rotation dependent indexes may be enhanced by redefining them in a rotation invariant way.
 
 ## Summary
 
@@ -1506,7 +1506,7 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 
 # Discussion
 
-Physics examples motivate us to investigate projection pursuit indexes that detect complex patterns in two dimensional projections. In this context we have investigated the use of indexes developed for variable selection as projection pursuit indexes. The set of relevant criteria that define a good index function includes: smoothness, squintability, flexibility, rotation invariance and speed. To evaluate these criteria we used three different sets of simulated data, defined to have different underlying noise distributions (uniform or normal) and different structures (circle, sine and spiral which can be considered as large, medium and fine structure respectively). The properties were assessed by a list of procedures introduced in Section (XXX cross reference?) and we have evaluated several index functions proposed in the literature for variable selection: scagnostics indexes, maximum information based indexes, distance correlation and a spline based index. While all index functions are found to fall short on at least some of the criteria, we have shown that combined with the optimisation available via the guided tour they can already be used to identify interesting views, in particular the built-in structures in the simulated data sets.
+Physics examples motivate us to investigate projection pursuit indexes that detect complex patterns in two dimensional projections. In this context we have investigated the use of indexes developed for variable selection as projection pursuit indexes. The set of relevant criteria that define a good index function includes: smoothness, squintability, flexibility, rotation invariance and speed. To evaluate these criteria we used three different sets of simulated data, defined to have different underlying noise distributions (uniform or normal) and different structures (circle, sine and spiral which can be considered as large, medium and fine structure respectively). The properties were assessed by a list of procedures introduced in Section \ref{sec:propAss} and we have evaluated several index functions proposed in the literature for variable selection: scagnostics indexes, maximum information based indexes, distance correlation and a spline based index. While all index functions are found to fall short on at least some of the criteria, we have shown that combined with the optimisation available via the guided tour they can already be used to identify interesting views, in particular the built-in structures in the simulated data sets.
 
 Our primary interest is in multidimensional physics models, and we have shown two examples from gravitational wave detection. In the first example, studying a neutron star merger, we have sucessfully used the developped methods to re-discover the non-linear relation between three of the parameters. The second example, stemming from a black hole simulation, has a large parameter space. We used this dataset to explore the results obtained depending on parameter selection, index selection and starting conditions. Interestingly, when working with a small parameter space (six dimensions), projection pursuit uncovers a new relation that has not been anticipated.
 
@@ -1595,9 +1595,7 @@ ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
 ```
 
 
-# Computational performance
-
-\label{sec:timer}
+# Computational performance {#app:speed}
 Computational time is important for using the PPIs with the guided tour, online. Figure \ref{fig:timer} summarizes performance for each PPI. For simplicity, data with sample sizes ranging from 100-10000 are drawn from a 6-d solid sphere, using the geozoo package [@geozoo].  The time to compute the PPIs over 100 interpolated grand tour projections is recorded. The scagnostics PPI are computed as a bundle, since this is the code base, and that major computational constraint is common to all the scagnostics. There are two versions of the MIC and TIC algorithm, labelled MINE and MINE E, the second being a newer algorithm which improves their computational performance. 
 
 The results are interesting. The scagnostic indexes and splines2D are very fast regardless of sample size. MIC, TIC (both versions) and dcor2D slow rapidly as sample size increases.
@@ -1675,8 +1673,7 @@ ggplot(dfTimer, aes(x = n, y = t)) +
 ```
 
 
-# Effect of parameter choice in index value
-\label{sec:params}
+# Effect of parameter choice in index value {#app:param}
 Some parameters must be provided for some PPIs. This can be advantageous, allowing the index to more flexibly work for different types of structure, controlling trade-offs between noise and fine structure detection, and affecting computing time and precision.
 
 - Binning:
@@ -1738,10 +1735,39 @@ ggplot(scagMelt, aes(x=t, y=value)) +
 
 ```
 
-The sensitivity to the binning for calculating the MIC index is examined for one example in the Appendix XXX (add cross reference)
+## Binning sensitivity of MIC index
+To examine the sensitivity of binning in the MIC PPI, the classic RANDU data [@Marsaglia68], available in R, is used. Binning is defined by $\delta$, where $B(n) = n^{\delta}$. Figure \ref{fig:randuEx} shows the best projection, index value and computing time obtained when optimizing the MIC index with values $\delta = 0.6, 0.7, 0.8$. With small $\delta$, less bins, the structure isn't visible, and with larger $\delta$ the structure is confounded with noise. It does appear that this parameter affects the performace of the MIC index.
 
 
-# Ways to refine the PPIs
+```{r randuEx, results="hide", fig.cap="Best projection obtained by optimising the MIC index on the RANDU data, using different number of bins, defined by $\\delta$. The smaller the value the fewer bins.  Above each plot is written the value of $\\delta$, time required to optimize (seconds) and the MIC index value. The best $\\delta = 0.7$, and the result indicates that this parameter does affect MIC performance."}
+if(!file.exists("cache/randuEx.rda")){
+  pL <- list()
+  i <- 1
+  for (alpha in c( 0.6, 0.7, 0.8)){
+    set.seed(556677)
+    tic.clearlog()
+    tic() #start timer
+    tP <- save_history(randu, guided_tour(mineIndexAlpha("MIC", alpha)),max_bases = 100000)
+    toc(log=TRUE,quiet=TRUE)
+    optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+    imax <- length(as.list(tP))
+    fV <- as.tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
+    colnames(fV) <- c("PP1", "PP2")
+    idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
+    pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
+      ggtitle(paste(alpha, toString(format(optT, digits=2)), toString(format(idxV, digits=2)), sep = ", "))
+    i <- i+1
+  }
+  save(pL, file = "cache/randuEx.rda")
+} else {
+  load("cache/randuEx.rda")
+}
+grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
+```
+
+
+
+# Ways to refine the PPIs {#app:enh}
 
 The biggest issues revealed by the investigation into the new PPIs are a lack of smoothness, particularly for the scagnostics indexes, and the rotation invariance of Grimm's indexes. To fix the smoothness of an index function, it is possible to calculate the PPI for a small neighbourhood of projections and average the value, or alternatively average the PPI for several jittered projections. This is investigated in Fig. \ref{fig:spiralScagSmoothing}. Rotation invariance is more difficult to fix, but an alternative tour interpolation method could be useful. The geodesic interpolation transitions between planes, and it ignores the basis defining the plane, creating a problem with rotation invariant indices. Alternative interpolations based on Givens or Householder rotations could be implemented to transition between bases, which should alleviate the need for rotationally invariant indices. 
 
@@ -1836,37 +1862,6 @@ ggplot(scagSmoothMelt, aes(x=t, y=value)) +
 
 ```
 
-
-
-# Binning sensitivity of MIC index
-To examine the sensitivity of binning in the MIC PPI, the classic RANDU data [@Marsaglia68], available in R, is used. Binning is defined by $\delta$, where $B(n) = n^{\delta}$. Figure \ref{fig:randuEx} shows the best projection, index value and computing time obtained when optimizing the MIC index with values $\delta = 0.6, 0.7, 0.8$. With small $\delta$, less bins, the structure isn't visible, and with larger $\delta$ the structure is confounded with noise. It does appear that this parameter affects the performace of the MIC index.
-
-
-```{r randuEx, results="hide", fig.cap="Best projection obtained by optimising the MIC index on the RANDU data, using different number of bins, defined by $\\delta$. The smaller the value the fewer bins.  Above each plot is written the value of $\\delta$, time required to optimize (seconds) and the MIC index value. The best $\\delta = 0.7$, and the result indicates that this parameter does affect MIC performance."}
-if(!file.exists("cache/randuEx.rda")){
-  pL <- list()
-  i <- 1
-  for (alpha in c( 0.6, 0.7, 0.8)){
-    set.seed(556677)
-    tic.clearlog()
-    tic() #start timer
-    tP <- save_history(randu, guided_tour(mineIndexAlpha("MIC", alpha)),max_bases = 100000)
-    toc(log=TRUE,quiet=TRUE)
-    optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
-    imax <- length(as.list(tP))
-    fV <- as.tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
-    colnames(fV) <- c("PP1", "PP2")
-    idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
-    pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
-      ggtitle(paste(alpha, toString(format(optT, digits=2)), toString(format(idxV, digits=2)), sep = ", "))
-    i <- i+1
-  }
-  save(pL, file = "cache/randuEx.rda")
-} else {
-  load("cache/randuEx.rda")
-}
-grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
-```
 
 
 # Additional Figures
