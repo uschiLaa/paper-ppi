@@ -294,7 +294,7 @@ rescaleCmass <- function(x){
 ```{r datasetFunctions}
 sphereData <- function(n, p){
   dRet <- geozoo::sphere.solid.random(n,p)
-  return(as.tibble(dRet$points))
+  return(as_tibble(dRet$points))
 }
 
 pipeData <- function(n, p){
@@ -307,14 +307,14 @@ pipeData <- function(n, p){
       i <- i+1
     }
   }
-  return(as.tibble(dRet))
+  return(as_tibble(dRet))
 }
 
 sinData <- function(n, p){
   vName <- paste0("V",n)
   vNameM1 <- paste0("V",n-1)
   expr <- paste0(vName,"=sin(",vNameM1,")") # need string expression if I want to use tibble here
-  dRet <- as.tibble(matrix(rnorm((n-1)*p), ncol=(n-1))) #generate normal distributed n-1 dim data
+  dRet <- as_tibble(matrix(rnorm((n-1)*p), ncol=(n-1))) #generate normal distributed n-1 dim data
   dRet <- mutate_(dRet, expr) #string evaluation calculates var(n) as tan(var(n-1))
   colnames(dRet)[n] <- vName #correct name of new variable
   dRet[vName] <- jitter(dRet[[vName]]) #adding noise
@@ -846,7 +846,7 @@ if(!file.exists("cache/findsine.rda")){
 } else {
   load("cache/findsine.rda")
 }
-anchorIdx <- as.tibble(which(attributes(interpolate(sineTour))$new_basis))
+anchorIdx <- as_tibble(which(attributes(interpolate(sineTour))$new_basis))
 sineTourResMelt <-sineTourRes %>%
   mutate(convex = 1-convex) %>%
   rowwise() %>%
@@ -934,7 +934,7 @@ if(!file.exists("cache/findspiral.rda")){
     nBases <- length(spiralTour)
     distDf <- rbind(distDf, tibble(d=d, distance=distanceDist(spiralTour)))
     distToSp <- rbind(distToSp, tibble(d=d, distance=distanceToSp(spiralTour, specialPlane), t=1:nBases))
-    fView <- as.tibble(as.matrix(spiralD) %*% as.list(spiralTour)[[nBases]])
+    fView <- as_tibble(as.matrix(spiralD) %*% as.list(spiralTour)[[nBases]])
     fViewL[[i]] <- ggplot(fView, aes(V1, V2)) + geom_point()
     allPlanes[[i]] <- spiralTour
     i <- i+1
@@ -1112,7 +1112,7 @@ if(!file.exists("cache/neutronStarEq.rda")){
 }
 iLast <- length(nseTourFull)
 fProj <- nseTourFull[[iLast]]
-dProj <- as.tibble(nsM %*% fProj)
+dProj <- as_tibble(nsM %*% fProj)
 colnames(fProj) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj <- as_tibble(fProj) %>%
@@ -1165,17 +1165,17 @@ if(!file.exists("cache/neutronRemL1.rda")){
 tL <- as.list(nseTour2)
 iLast <- length(tL)
 fProj <- tL[[iLast]]
-dProj <- as.tibble(nsM2 %*% fProj)
+dProj <- as_tibble(nsM2 %*% fProj)
 colnames(fProj) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj <- as_tibble(fProj) %>%
   add_column(label=colnames(nsM2))
-p1 <- ggplot(as.tibble(dProj), aes(PP1, PP2))+geom_point(alpha=0.1)+ theme(aspect.ratio=1) + 
+p1 <- ggplot(as_tibble(dProj), aes(PP1, PP2))+geom_point(alpha=0.1)+ theme(aspect.ratio=1) + 
   geom_path(data=getCircle(0.5,0.6,0.3,0.18), aes(x=x, y=y), color="grey") + 
   xlim(0, 1.5) + ylim(-0.1, 0.8) +
   geom_segment(data=getAxes(fProj, 0.5,0.6,0.3,0.18), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj, 0.5,0.6,0.3,0.18), aes(x=x2, y=y2, label=label), size=2.5)
-p2 <- ggplot(as.tibble(nsM2), aes(m1+R1+1.5*R2, L2)) + geom_point(alpha=0.1)+ theme(aspect.ratio=1)
+p2 <- ggplot(as_tibble(nsM2), aes(m1+R1+1.5*R2, L2)) + geom_point(alpha=0.1)+ theme(aspect.ratio=1)
 p3 <- ggplot(nsD, aes(R2/m2, L2))+ geom_point(alpha=0.1)+ theme(aspect.ratio=1)
 grid.arrange(p1, p2, p3, ncol=3)
 ```
@@ -1229,7 +1229,7 @@ if(!file.exists("cache/bbhGuidedConvex.rda")){
 
 iLast <- length(bbhTourFull1)
 fProj1 <- bbhTourFull1[[iLast]]
-dProj1 <- as.tibble(bbhM %*% fProj1)
+dProj1 <- as_tibble(bbhM %*% fProj1)
 colnames(fProj1) <- c("PP1", "PP2")
 colnames(dProj1) <- c("PP1", "PP2")
 fProj1 <- as_tibble(fProj1) %>%
@@ -1241,7 +1241,7 @@ p1 <- ggplot(dProj1, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.rat
   geom_text(data=getAxes(fProj1, 0.4,0.5,0.26,0.24), aes(x=x2, y=y2, label=label), size=2.5) + ggtitle("a. TIC: 779.46")
 iLast <- length(bbhTourFull2)
 fProj2 <- bbhTourFull2[[iLast]]
-dProj2 <- as.tibble(bbhM %*% fProj2)
+dProj2 <- as_tibble(bbhM %*% fProj2)
 colnames(fProj2) <- c("PP1", "PP2")
 colnames(dProj2) <- c("PP1", "PP2")
 fProj2 <- as_tibble(fProj2) %>%
@@ -1253,7 +1253,7 @@ p2 <- ggplot(dProj2, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.rat
   geom_text(data=getAxes(fProj2, 0.3,-1,0.24,0.22), aes(x=x2, y=y2, label=label), size=2.5) + ggtitle("b. splines2D: 0.97")
 iLast <- length(bbhTourFull3)
 fProj3 <- bbhTourFull3[[iLast]]
-dProj3 <- as.tibble(bbhM %*% fProj3)
+dProj3 <- as_tibble(bbhM %*% fProj3)
 colnames(fProj3) <- c("PP1", "PP2")
 colnames(dProj3) <- c("PP1", "PP2")
 fProj3 <- as_tibble(fProj3) %>%
@@ -1320,7 +1320,7 @@ if(!file.exists("cache/bbhGuidedConvex2.rda")){
 
 iLast <- length(bbhTourFull12)
 fProj1 <- bbhTourFull12[[iLast]]
-dProj <- as.tibble(bbhM2 %*% fProj1)
+dProj <- as_tibble(bbhM2 %*% fProj1)
 colnames(fProj1) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj1 <- as_tibble(fProj1) %>%
@@ -1334,7 +1334,7 @@ p1 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.rati
   ggtitle(paste0("a, TIC: ", toString(format(iv, digits=2))))
 iLast <- length(bbhTourFull22)
 fProj2 <- bbhTourFull22[[iLast]]
-dProj <- as.tibble(bbhM2 %*% fProj2)
+dProj <- as_tibble(bbhM2 %*% fProj2)
 colnames(fProj2) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj2 <- as_tibble(fProj2) %>%
@@ -1348,7 +1348,7 @@ p2 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.rati
   ggtitle(paste0("b, splines2D: ", toString(format(iv, digits=2))))
 iLast <- length(bbhTourFull32)
 fProj3 <- bbhTourFull32[[iLast]]
-dProj <- as.tibble(bbhM2 %*% fProj3)
+dProj <- as_tibble(bbhM2 %*% fProj3)
 colnames(fProj3) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj3 <- as_tibble(fProj3) %>%
@@ -1409,7 +1409,7 @@ titleL <- c("a: ","b: ","c: ","d: ","f: ","e: ")
 for (r in resList){
   iLast <- length(r)
   fProj <- r[[iLast]]
-  dProj <- as.tibble(bbhM3 %*% fProj)
+  dProj <- as_tibble(bbhM3 %*% fProj)
   colnames(fProj) <- c("PP1", "PP2")
   colnames(dProj) <- c("PP1", "PP2")
   fProj <- as_tibble(fProj) %>%
@@ -1462,13 +1462,13 @@ colnames(fProj) <- c("PP1", "PP2")
 colnames(dProj) <- c("PP1", "PP2")
 fProj <- as_tibble(fProj) %>%
   add_column(label=colnames(bbhC))
-p1 <- ggplot(as.tibble(dProj), aes(PP1, PP2))+geom_point(alpha=0.02) + theme(aspect.ratio=1)+ 
+p1 <- ggplot(as_tibble(dProj), aes(PP1, PP2))+geom_point(alpha=0.02) + theme(aspect.ratio=1)+ 
   geom_path(data=getCircle(-0.7, 0.6, 0.2, 0.24), aes(x=x, y=y), color="grey") + 
   xlim(-0.9, 0.1) + ylim(-0.1, 1.1) +
   geom_segment(data=getAxes(fProj, -0.7, 0.6, 0.2, 0.24), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj, -0.7, 0.6, 0.2, 0.24), aes(x=x2, y=y2, label=label), size=2.5)
-p2 <- ggplot(as.tibble(bbhD),aes(dec-alpha, ra)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
-p3 <- ggplot(as.tibble(bbhD),aes(dec, ra)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+p2 <- ggplot(as_tibble(bbhD),aes(dec-alpha, ra)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
+p3 <- ggplot(as_tibble(bbhD),aes(dec, ra)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
 grid.arrange(p1, p2, p3, ncol=3)
 ```
 
@@ -1492,7 +1492,7 @@ musicTour <- save_history(music,
 musicTourFull <- as.list(interpolate(musicTour))
 iLast <- length(musicTourFull)
 fProj <- musicTourFull[[iLast]]
-dProj <- as.tibble(as.matrix(music) %*% fProj)
+dProj <- as_tibble(as.matrix(music) %*% fProj)
 ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1)
 fullRes <- getProj(as.matrix(music), musicTourFull, "TIC", 100)
 fullResMelt <- melt(fullRes, id=c("t", "name", "size"))
@@ -1751,7 +1751,7 @@ if(!file.exists("cache/randuEx.rda")){
     toc(log=TRUE,quiet=TRUE)
     optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
     imax <- length(as.list(tP))
-    fV <- as.tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
+    fV <- as_tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
     colnames(fV) <- c("PP1", "PP2")
     idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
     pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
@@ -1872,12 +1872,12 @@ Figure \ref{fig:testpipe} shows the projection returned during the scouting phas
 ```{r testpipe,  fig.height=4, fig.width=8, out.width = "0.8\\textwidth",  fig.cap="Projections returned by TIC optimisation: by the scouting phase (left) and refined by  optimisation method 3 (right), starting from the scouting phase projection."}
 iLast <- length(pipeTourFull)
 fProj <- pipeTourFull[[iLast]]
-dProj <- as.tibble(pipeResc %*% fProj)
+dProj <- as_tibble(pipeResc %*% fProj)
 p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
   xlab("PP1") + ylab("PP2")
 iLast <- length(pipeTourFull2)
 fProj <- pipeTourFull2[[iLast]]
-dProj <- as.tibble(pipeResc %*% fProj)
+dProj <- as_tibble(pipeResc %*% fProj)
 p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
   xlab("PP1") + ylab("PP2")
 grid.arrange(p1, p2, ncol=2)
