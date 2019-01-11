@@ -64,7 +64,7 @@ Organisation of this section:
 
 The term "projection pursuit" was coined by @FT74 to describe a procedure for searching high (say $p-$)dimensional data for "interesting" low-dimensional projections ($d=1$ or $2$ usually). The procedure, originally suggested by @kr69, involves defining a criterion function, or index, that measures the "interestingness" of each $d$-dimensional projection of $p$-dimensional data. This criterion function is optimized over the space of all $d$-dimensional projections of $p$-space, searching for both global and local maxima. It is hoped that the resulting solutions reveal low-dimensional structure in the data not found by methods such as principal component analysis.
 
-A large number of projection pursuit indexes have been developed, primarily based on departure from normality, which includes clusters, outliers and skewness, and also for finding separations between known groups (e.g. @f87, @hall89 @CBC92, @lckl2005, @AHC02, @CEM:CEM2568, @JS87, @5508437, @LOPERFIDO201842).  Less work has been done on indexes to find nonlinear dependence between variables, when $d>1$. 
+A large number of projection pursuit indexes have been developed, primarily based on departure from normality, which includes clusters, outliers and skewness, and also for finding separations between known groups (e.g. @f87, @hall89 @CBC92, @naito1997, @lckl2005, @AHC02, @CEM:CEM2568, @JS87, @5508437, @PAN2000153, @FER13, @LOPERFIDO201842).  Less work has been done on indexes to find nonlinear dependence between variables, when $d>1$. 
 
 <!-- check Perisic and Posse (2012) and recent paper by Austrian guys -->
 
