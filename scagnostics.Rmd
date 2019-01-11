@@ -79,7 +79,7 @@ These indices are all available in R packages [@rref]: scagnostics [@HWscagR], m
 ^[\textcolor{red}{The second component in implementing a projection pursuit method is the optimisation algorithm. Several algorithms have been suggested, some tailored to specific applications, see e.g. XXX references?. In this work our focus is on the index functions, and we will only use optimisation algorithms available via the guided tour implementation of tourr.}]
 -->
 
-The paper investigates the behavior of these newly-defined indexes. Section \ref{sec:construct} discusses index construction, and how they fit into the guided tour. Section \ref{sec:investigate} investigates the behavior of the indexes, particularly in relation to optimization. The new guided tour methods are applied to an example where the posterior distributions from physics models (Section \ref{sec:phys}) are explored.
+The paper investigates the behavior of these indexes. Section \ref{sec:construct} discusses index construction, and how they fit into the guided tour. Section \ref{sec:investigate} investigates the behavior of the indexes, explored primarily using tour methods (@As85, @BCAH05, @CBCH94). The new guided tour with these indexes are applied to two examples from physics models (Section \ref{sec:phys}).
 
 # Constructing a projection pursuit index
 \label{sec:construct}
