@@ -29,6 +29,7 @@ output: rticles::springer_article
 header-includes:
   - \usepackage{booktabs}
   - \usepackage{longtable}
+  - \usepackage{amsmath}
   - \usepackage{amssymb}
   - \usepackage{xcolor}
   - \usepackage{bm}
@@ -143,16 +144,16 @@ Concretely here we consider the following types of index functions:^[We note tha
 
 * **scagnostics**: The first step to computing the scagnostics is that the bivariate data is binned, and scaled between [0,1] for calculations. The convex and alpha hulls, and the minimal spanning tree (MST), are computed. 
     + *convex*: The ratio of the area of alpha to convenx hull, $I_{\bm{F}, convex}= \frac{area(A(Y))}{area(H(Y))}$. In this is the only measure where interesting projections will take low values, with a maximum of 1 if both areas are the same. Thus $1-c_{convex}$ is used.
-    + *skinny*: The ratio of the perimeter to the area of the alpha hull, $I_{\bm{F}, skinny} = 1 -  \frac{\sqrt{4\pi area(A)}}{perimeter(A)}$, where the normalization is chosen such that $c_{skinny} = 0$ for a full circle. Values close to 1 indicate a skinny polygon.
+    + *skinny*: The ratio of the perimeter to the area of the alpha hull, $I_{\bm{F}, skinny} = 1 -  \frac{\sqrt{4\pi area(A)}}{perimeter(A)}$, where the normalization is chosen such that $I_{\bm{F}, skinny} = 0$ for a full circle. Values close to 1 indicate a skinny polygon.
     + *stringy*: Based on the MST, $I_{\bm{F}, stringy} = \frac{diameter(MST)}{length(MST)}$ where the diameter is the longest connected path, and the length is the total length (sum of all edges). If the MST contains no branches $I_{\bm{F}, skinny} = 1$.
 
-* **association**: New index functions available in @mbgraphic are defined to fall between [0,1]:
-    + *dcor2D*: This function is based on distance correlation [@szekely2007], which is designed to find both linear and nonlinear dependencies between variables. It involves computing the distances between pairs of observations, conducting an analysis of variance type breakdown of the distances relative to each variable, and the result is then passed to the usual covariance and hence correlation formula. The function ***wdcor*** in the R package, extracat [@extracat], computes the statistic, and the mbgraphic package utilises this function. There is a possibility to bin the data before computing the statistic, which could manage computational performance with large data sets.
-    + *splines2D*: iven a spline model of the data distribution that is obtained via the R implantation in the \texttt{gam} function in the mgcv R package [@w16], we define the index based on the variance of the residuals:
+* **association**: The index functions are available in @mbgraphic, and are defined to range in [0,1]. Both fucntions in the mbgraphic package can bin the data before computing the index, for computational performance.
+    + *dcor2D*: This function is based on distance correlation [@szekely2007], which is designed to find both linear and nonlinear dependencies between variables. It involves computing the distances between pairs of observations, conducting an analysis of variance type breakdown of the distances relative to each variable, and the result is then passed to the usual covariance and hence correlation formula. The function wdcor, in the R package, extracat [@extracat], computes the statistic, and the mbgraphic package utilises this function. 
+    + *splines2D*: Measures nonlinear dependence by fitting a spline model of $\bm{Y}_2$ on $\bm{Y}_1$ and also $\bm{Y}_1$ on $\bm{Y}_2$, using the \texttt{gam} function in the R package, mgcv [@w16]. The index compares the variance of the residuals:
     \begin{equation}
-    splines_{2d} = max(1- \frac{Var(res_{X\sim Y})}{Var(X)}, 1-\frac{Var(res_{Y\sim X})}{Var(Y)}),
+    I_{\bm{F}, splines2d} = max(1- \frac{Var(res_{\bm{Y}_1\sim \bm{Y}_2)}}{Var(\bm{Y}_1)}, 1-\frac{Var(res_{\bm{Y}_2\sim {\bm{Y}_1})}}{Var(\bm{Y}_2)}),
     \end{equation}
-    which takes large values if the distribution is well described by the spline model, indicating functional dependence.
+    which takes large values if functional dependence is strong.
 <!--
 \begin{equation}
  I_{(\bm{F}, dcor2D)} = \begin{cases}
@@ -174,7 +175,7 @@ Concretely here we consider the following types of index functions:^[We note tha
  and reads
  -->
     
-* Information based index functions from @Reshef1518 are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as
+* **Information**:  The index functions [@Reshef1518] measure nonlinear association using a nonparametric computation of information. It is strictly a 2D measure, which observations are binned and the relative count of the bin is used to compute entropy. are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as
 \begin{equation}
 M(D)_{x,y} = \frac{I^{\ast} (D, x, y)}{\log \min{x,y}},
 \end{equation}
