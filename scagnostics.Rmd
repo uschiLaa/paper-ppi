@@ -175,7 +175,7 @@ Concretely here we consider the following types of index functions:^[We note tha
  and reads
  -->
     
-* **Information**:  The index functions [@Reshef1518] measure nonlinear association using a nonparametric computation of information. It is strictly a 2D measure, which observations are binned and the relative count of the bin is used to compute entropy. are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as
+* **Information**:  The index functions [@Reshef1518] measure nonlinear association by finding an optimal grid to separate empty cells from cells containing observations. It is strictly a 2D measure, which observations are binned and the relative count of the bin is used to compute entropy. are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as
 \begin{equation}
 M(D)_{x,y} = \frac{I^{\ast} (D, x, y)}{\log \min{x,y}},
 \end{equation}
