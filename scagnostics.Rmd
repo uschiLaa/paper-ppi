@@ -22,7 +22,7 @@ keywords:
 - guided tour
 
 abstract: |
-  Projection pursuit is used to find interesting low-dimensional projections of high-dimensional data by optimizing an index over all possible projections. Most indexes have been developed to detect departure from known distributions, such as normality, or to find separations between known groups. Here, we are interested in finding projections revealing potentially complex bivariate patterns, using new indexes constructed from scagnostics and a maximum information coefficient, with a purpose to detect unusual relationships between model parameters describing physics phenomena. The performance of these indices is examined with respect to ideal behaviour, using simulated data, and then applied to several physics problems. The implementation builds upon the projection pursuit tools available in the R package, tourr, with indexes constructed from code in the R packages, scagnostics, minerva and mbgraphics.
+  Projection pursuit is used to find interesting low-dimensional projections of high-dimensional data by optimizing an index over all possible projections. Most indexes have been developed to detect departure from known distributions, such as normality, or to find separations between known groups. Here, we are interested in finding projections revealing potentially complex bivariate patterns, using new indexes constructed from scagnostics and a maximum information coefficient, with a purpose to detect unusual relationships between model parameters describing physics phenomena. The performance of these indices is examined with respect to ideal behaviour, using simulated data, and then applied to several physics problems. The implementation builds upon the projection pursuit tools available in the R package, tourr, with indexes constructed from code in the R packages, scagnostics, minerva and mbgraphic.
 
 bibliography: bibliography.bib
 output: rticles::springer_article
@@ -134,24 +134,32 @@ $A$ & Alpha hull \\\hline
 ## New projection pursuit index functions
 \label{sec:indexDef}
 
-Table \ref{notation} summarises the notation used for this section. This an overview of the functions that are converted into projection pursuit indexes. Full details of the functions can be found inthe original sources. 
+Table \ref{notation} summarises the notation used for this section. This an overview of the functions that are converted into projection pursuit indexes. Full details of the functions can be found in the original sources. 
 
 <!--
 Focusing now on $d=2$ dimensional projections, we aim to identify projections that reveal interesting structures or correlations between combinations of variables. We therefore draw on index functions that have been developed for the selection of variable pairs that show interesting features in a scatter plot, but we generalist the notion such that instead of variable pairs we consider any $2$ dimensional projection of the multivariate data distribution. It means that we consider the projection axes as input to the index functions, which will thus score the interestingness of the given projection. What we are optimizing over are then the entries of the $p\times2$ dimensional projection matrix, considering that they obey orthonormality conditions.
 Concretely here we consider the following types of index functions:^[We note that all descriptions are idealized, while in practice approximations and binning are used to obtain reasonable computing time, we refer to original references and package documentation for details.]
 -->
 
-* From the scagnostics family select those best suited to detect shapes, with definitions given below. They are defined to take values between [0,1].
-    + Convex: The convex measure is defined as $c_{convex}= \frac{area(A)}{area(H)}$ where $A$ is the alpha hull and $H$ the convex hull. This is the only measure where interesting projections will take low values and one may either minimize the index function or maximize $1-c_{convex}$.
-    + Skinny: The skinnyness of a polygon can be measured as the ratio of the perimeter to the area. We define $c_{skinny} = 1 -  \frac{\sqrt{4\pi area(A)}}{perimeter(A)}$, where the normalization is chosen such that $c_{skinny} = 0$ for a full circle, and values close to one or skinny polygons.
-    + Stringy: The stringy index is a measure of the branching structure of the minimal spanning tree (MST), $c_{stringy} = \frac{diameter(MST)}{length(MST)}$ where the diameter is the longest connected path, and the length is the total length (sum of all edges), i.e. $c_{stringy}=1$ if the MST contains no branches.
+* **scagnostics**: The first step to computing the scagnostics is that the bivariate data is binned, and scaled between [0,1] for calculations. The convex and alpha hulls, and the minimal spanning tree (MST), are computed. 
+    + *convex*: The ratio of the area of alpha to convenx hull, $I_{\bm{F}, convex}= \frac{area(A(Y))}{area(H(Y))}$. In this is the only measure where interesting projections will take low values, with a maximum of 1 if both areas are the same. Thus $1-c_{convex}$ is used.
+    + *skinny*: The ratio of the perimeter to the area of the alpha hull, $I_{\bm{F}, skinny} = 1 -  \frac{\sqrt{4\pi area(A)}}{perimeter(A)}$, where the normalization is chosen such that $c_{skinny} = 0$ for a full circle. Values close to 1 indicate a skinny polygon.
+    + *stringy*: Based on the MST, $I_{\bm{F}, stringy} = \frac{diameter(MST)}{length(MST)}$ where the diameter is the longest connected path, and the length is the total length (sum of all edges). If the MST contains no branches $I_{\bm{F}, skinny} = 1$.
 
-* New index functions available in @mbgraphic, defined to fall between [0,1]:
-    + Distance correlation defined in @szekely2007: The definition is based on empiric measures of distance covariance and variance defined on the dataset 
+* **association**: New index functions available in @mbgraphic are defined to fall between [0,1]:
+    + *dcor2D*: This function is based on distance correlation [@szekely2007], which is designed to find both linear and nonlinear dependencies between variables. It involves computing the distances between pairs of observations, conducting an analysis of variance type breakdown of the distances relative to each variable, and the result is then passed to the usual covariance and hence correlation formula. The function ***wdcor*** in the R package, extracat [@extracat], computes the statistic, and the mbgraphic package utilises this function. There is a possibility to bin the data before computing the statistic, which could manage computational performance with large data sets.
+    + *splines2D*: iven a spline model of the data distribution that is obtained via the R implantation in the \texttt{gam} function in the mgcv R package [@w16], we define the index based on the variance of the residuals:
     \begin{equation}
-(X,Y) = \{(x_1,y_1), ..., (x_n, y_n) \in \mathbb{R}^p \times \mathbb{R}^q\}
-\end{equation}
- as
+    splines_{2d} = max(1- \frac{Var(res_{X\sim Y})}{Var(X)}, 1-\frac{Var(res_{Y\sim X})}{Var(Y)}),
+    \end{equation}
+    which takes large values if the distribution is well described by the spline model, indicating functional dependence.
+<!--
+\begin{equation}
+ I_{(\bm{F}, dcor2D)} = \begin{cases}
+ \frac{Cov(F_1,F_2)}{\sqrt{Var(F_1)Var(F_2)}} & Var(F_1)Var(F_2) > 0\\
+ 0 & Var(F_1)Var(F_2) = 0
+ \end{cases}
+ \end{equation}
  \begin{equation}
  Cov^2(X,Y) = \frac{1}{n^2} \sum_{k,l=1}^{n} A_{kl}B_{kl},\\
  Var^2(X) = \frac{1}{n^2} \sum_{k,l=1}^{n} A_{kl}^2
@@ -164,17 +172,7 @@ Concretely here we consider the following types of index functions:^[We note tha
  \bar{a}_{..} = \frac{1}{n^2}\sum_{k,l=1}^n a_{kl}
  \end{equation}
  and reads
- \begin{equation}
- dCor(X,Y) = \begin{cases}
- \frac{Cov(X,Y)}{\sqrt{Var(X)Var(Y)}} & Var(X)Var(Y) > 0\\
- 0 & Var(X)Var(Y) = 0
- \end{cases}
- \end{equation}
-    + Spline based measure: Given a spline model of the data distribution that is obtained via the R implantation in the \texttt{gam} function in the mgcv R package [@w16], we define the index based on the variance of the residuals:
-    \begin{equation}
-    splines_{2d} = max(1- \frac{Var(res_{X\sim Y})}{Var(X)}, 1-\frac{Var(res_{Y\sim X})}{Var(Y)}),
-    \end{equation}
-    which takes large values if the distribution is well described by the spline model, indicating functional dependence.
+ -->
     
 * Information based index functions from @Reshef1518 are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as
 \begin{equation}
