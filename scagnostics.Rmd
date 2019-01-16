@@ -176,13 +176,13 @@ Concretely here we consider the following types of index functions:^[We note tha
  -->
     
 * **information**:  The index functions [@Reshef1518] nonparametricly measure nonlinear association by computing the mutual information, 
-
-\[
+\begin{equation}
 \bm{I} = \sum_{by_1}\sum_{by_2} p(by_1, by_2) log(p(by_1, by_2)/(p(by_1)p{by_2})),
-\]
-
+\end{equation}
 where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$ on a range of bin resolutions of the data. It is strictly a 2D measure. For a fixed binning, e.g. $2\times 2$ or $10\times 4$, the optimal binning is found by maximizing $I$. The values of I range between $[0,1]$ because they are normalized across bins by dividing by $log min(\# bins_{y_1}, \# bins_{y_2})$.  
-
+    - *Maximum Information Coefficient (MIC)*: uses the maximum normalized $I$ across all bin resolutions. 
+    - *Total Information Coefficient (TIC)*: sums the normalized $I$ for all bin resolutions computed. This creates a problem of scaling - there is no upper limit, although it is related to number of bins, and number of bin resolutions used. In the work below we have made empirical estimates of the maximum and scaled the TIC index using this to get it in the range $[0,1]$. This index should be more stable than MIC. 
+  
 <!--
 finding an optimal grid to separate empty cells from cells containing observations. It is strictly a 2D measure, and the optimum corresponds to the maximum mutual information, $\bm{I} = \sum_{by_1}\sum_{by_2} p(by_1, by_2) log(p(by_1, by_2)/(p(by_1)p{by_2}))$, where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$ is the relative bin count in each cell, and $p(by_1), p(by_2)$ are the row and column relative counts.
 
@@ -203,9 +203,7 @@ We can now define the following metrics:
     TIC(D) = \sum_{xy<B(n)} M(D)_{x,y}
     \end{equation}
 -->
-    + *Maximum Information Coefficient (MIC)*: uses the maximum normalized $I$ across all bin resolutions. 
-    + *Total Information Coefficient (TIC)*,: sums the normalized $I$ for all bin resolutions computed. This creates a problem of scaling - there is no upper limit, although it is related to number of bins, and number of bin resolutions used. In the work below we have made empirical estimates of the maximum and scaled the TIC index using this to get it in the range $[0,1]$. This index should be more stable than MIC. 
-    
+  
 <!--
   While $MIC$ is normalized to fall between $[0,1]$, the upper bound of $TIC$ depends on the sample size via the bounding function $B(n)$. $TIC$ was designed to be more stable test against null hypothesis of independence, using the full information of the characteristic matrix rather than just the maximum, and as such is expected to be better suited as a PPI.
 \textcolor{red}{What is upper bound of TIC as function of sample size? It seems from checking by putting in identical parameters as x, y that max(TIC) = 16 for 100 datapoints and max(TIC) = 148 for 1000 datapoints. Don't know how to derive this though, should depend also on c parameter and how the algorithm is approximating the true matrix?.}
