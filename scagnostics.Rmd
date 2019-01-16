@@ -175,7 +175,9 @@ Concretely here we consider the following types of index functions:^[We note tha
  and reads
  -->
     
-* **Information**:  The index functions [@Reshef1518] measure nonlinear association by finding an optimal grid to separate empty cells from cells containing observations. It is strictly a 2D measure, which observations are binned and the relative count of the bin is used to compute entropy. are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as
+* **Information**:  The index functions [@Reshef1518] nonparametricly measure nonlinear association by finding an optimal grid to separate empty cells from cells containing observations. It is strictly a 2D measure, where the relative bin counts are used to compute mutual information, $\bm{I} = \sum_{by_1}\sum_{by_2} p(by_1, by_2) log(p(by_1, by_2)/(p(by_1)p{by_2}))$, where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$ is the relative bin count in each cell, and $p(by_1), p(by_2)$ are the row and column relative counts.
+
+are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as
 \begin{equation}
 M(D)_{x,y} = \frac{I^{\ast} (D, x, y)}{\log \min{x,y}},
 \end{equation}
