@@ -22,7 +22,7 @@ keywords:
 - guided tour
 
 abstract: |
-  Projection pursuit is used to find interesting low-dimensional projections of high-dimensional data by optimizing an index over all possible projections. Most indexes have been developed to detect departure from known distributions, such as normality, or to find separations between known groups. Here, we are interested in finding projections revealing potentially complex bivariate patterns, using new indexes constructed from scagnostics and a maximum information coefficient, with a purpose to detect unusual relationships between model parameters describing physics phenomena. The performance of these indices is examined with respect to ideal behaviour, using simulated data, and then applied to several physics problems. The implementation builds upon the projection pursuit tools available in the R package, tourr, with indexes constructed from code in the R packages, scagnostics, minerva and mbgraphic.
+  Projection pursuit is used to find interesting low-dimensional projections of high-dimensional data by optimizing an index over all possible projections. Most indexes have been developed to detect departure from known distributions, such as normality, or to find separations between known groups. Here, we are interested in finding projections revealing potentially complex bivariate patterns, using new indexes constructed from scagnostics and a maximum information coefficient, with a purpose to detect unusual relationships between model parameters describing physics phenomena. The performance of these indexes is examined with respect to ideal behaviour, using simulated data, and then applied to several physics problems. The implementation builds upon the projection pursuit tools available in the R package, tourr, with indexes constructed from code in the R packages, scagnostics, minerva and mbgraphic.
 
 bibliography: bibliography.bib
 output: rticles::springer_article
@@ -70,16 +70,10 @@ A large number of projection pursuit indexes have been developed, primarily base
 
 <!-- check Perisic and Posse (2012) and recent paper by Austrian guys -->
 
-The motivation is based on physics applications, to aid the interpretation of model fits on experimental results. A physical model can be considered to be a set of $p$ free parameters, that cannot be measured directly and are determined by fitting a set of $q (p<q)$ experimental observations, for which predictions can be made once the $p$ parameters are estimated. Different model fits ($n$) yield the data to be examined using projection pursuit. (Note here, that while we often have analytic expressions for the predictions, this is not always the case and we may have to rely on numerical computation.) A single prediction can be a complicated function of all of the free parameters, and typically $q \in [100,1000]$ and $p \sim 10$. Current practice is to examine pairs of parameters, or combinations produced by intuition or prior knowledge. This begs the question, whether important nonlinear associations are missed because tools to search are not available.
+The motivation is based on physics applications, to aid the interpretation of model fits on experimental results. A physical model can be considered to be a set of $p$ free parameters, that cannot be measured directly and are determined by fitting a set of $q (p<q)$ experimental observations, for which predictions can be made once the $p$ parameters are estimated. (Note here, that while we often have analytic expressions for the predictions, this is not always the case and we may have to rely on numerical computation.) Different model fits compatible with the experimental results ($n$) yield the data to be examined using projection pursuit. A single prediction can be a complicated function of all of the free parameters, and typically $q \in [100,1000]$ and $p \sim 10$. Current practice is to examine pairs of parameters, or combinations produced by intuition or prior knowledge. This begs the question, whether important nonlinear associations are missed because tools to search are not available.
 
-To find appropriate projections pursuit indexes, literature on variable selection was examined. With high-dimensional data, even plotting all pairs of variables can lead to many plots, which is what "scagnostics" (@scag, @WW08) were developed to address by providing metrics from which to select the most interesting variable pairs. There are eight scagnostics, of which three ("convex", "skinny" and "stringy") are used here. The question is whether these can be adapted into projection pursuit indexes, to search for unusual features in two-dimensional projections of high-dimensional data. Recent PhD research by @Grimm2016 explored the behaviour of scagnostics for selecting variables, and proposed two more that have nicer properties, based on smoothing splines and distance correlation. In addition, two more indexes for measuring dependence have been proposed in the machine learning literature, based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518], with computationally more efficient versions (MIC_e, TIC_e) [@JMLRv1715308]. These are related to original 1D projection pursuit indexes based on entropy (e.g. @huber85, @JS87). This provides seven current indexes for measuring dependence between two variables, and each is available in an R [@rref] package: scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr] provides optimisation routines, and visualization.
+To find appropriate projections pursuit indexes, literature on variable selection was examined. With high-dimensional data, even plotting all pairs of variables can lead to many plots, which is what "scagnostics" (@scag, @WW08) were developed to address by providing metrics from which to select the most interesting variable pairs. There are eight scagnostics, of which three ("convex", "skinny" and "stringy") are used here. The question is whether these can be adapted into projection pursuit indexes, to search for unusual features in two-dimensional projections of high-dimensional data. Recent PhD research by @Grimm2016 explored the behaviour of scagnostics for selecting variables, and proposed two more that have nicer properties, based on smoothing splines and distance correlation. In addition, two more indexes for measuring dependence have been proposed in the machine learning literature, based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518], with computationally more efficient versions (MIC_e, TIC_e) [@JMLRv1715308]. These are related to original 1D projection pursuit indexes based on entropy (e.g. @huber85, @JS87). This provides seven current indexes for measuring dependence between two variables, and each is available in an R [@rref] package: scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr], and provides optimisation routines, and visualization.
 
-<!--
-^[It is interesting to note that entropy, closely related to the notion of mutual information, has previously been considered as a projection pursuit index when searching for interesting one-dimensional projections, see discussion in @huber85 and @JS87.]
-These indices are all available in R packages [@rref]: scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. The projection pursuit guided tour is available in the R package, tourr [@tourr].
-
-^[\textcolor{red}{The second component in implementing a projection pursuit method is the optimisation algorithm. Several algorithms have been suggested, some tailored to specific applications, see e.g. XXX references?. In this work our focus is on the index functions, and we will only use optimisation algorithms available via the guided tour implementation of tourr.}]
--->
 
 The paper investigates the behaviour of these indexes. Section \ref{sec:construct} discusses index construction, and how they fit into the guided tour. Section \ref{sec:investigate} investigates the behaviour of the indexes, explored primarily using tour methods (@As85, @BCAH05, @CBCH94). The new guided tour with these indexes are applied to two examples from physics models (Section \ref{sec:phys}).
 
@@ -88,7 +82,6 @@ The paper investigates the behaviour of these indexes. Section \ref{sec:construc
 
 A projection pursuit index (PPI) is a scalar function $f$ defined on an $d$-dimensional data set, computed by taking a $d$-dimensional projection of an $n\times p$ data matrix. Typically the definition is such that larger values of $f$ indicate a more interesting distribution of observations, and therefore maximizing $f$ over all possible $d$ dimensional projections of a data set with $p>d$ variables will find the most interesting projections. This section describes the seven indexes that are to be used to explore bivariate association. Some data pre-processing, including standardization, is advisable, prior to optimizing the PPI. 
 
-<!-- As most indices characterize deviations from a normal distribution, one would first map the empiric data distribution onto a density for which such deviations can then be defined in different ways, see e.g. @CBC93. When departing from the idea of characterizing differences to the normal distribution it may however be preferred to work directly with the empirical data distribution and instead characterize it by measures based on e.g. the minimal spanning tree or the mutual information.-->
 
 ## Scaling and standardization
 
@@ -103,15 +96,6 @@ With high dimensional data, and particularly projections, it is also necessary t
 - Possibly remove noise dimensions, which is also likely to be an iterative process. Directions where the distribution is purely noise make optimization of a PPI more difficult. If a variable is suspected to have little structure and relationship with other variables, conducting PP on the subset of variables without them may improve the efficiency of the search.
 - Centering and scaling of the projected data, can be helpful visually. If the data has a small amount of non-normal distribution in some directions, the projected data can appear to wander around the plot window during a tour. It doesn't matter what the centre of the projected data is, so centering removes a wandering scatterplot. Less commonly, it may be useful to scale the projected data to standard values, which would be done to remove any linear dependence remaining in the data. 
 
-<!--
-Lower dimensional projections are highly sensitive to standardization performed on the original distribution. We want to avoid e.g.  highlighting directions based only on different scales, or artificially extending the parameter range by including outliers, which may result in seemingly linear behavior for most points. Methods to consider include rescaling of individual directions to a common interval (e.g. to fall between $[0,1]$), sphering, outlier removal or transformation to a logarithmic scale. The method(s) of choice should be informed by the distributions found in the data set as well as aims of the analysis. \textcolor{red}{particular challenges: noise only directions, identification of outliers?}
-\textcolor{red}{for holes/cmass index they are only well defined when data is standardized, how about the other index functions?}
-\textcolor{red}{When keeping in mind the concrete example of posterior samples outliers should not be an issue, if extreme outliers are found one should probably investigate origin. Also noise only directions, e.g. nuisance parameters, are also not an issue as they contain no structure, see BBH example.}
-
-\textcolor{red}{\cite{JS87} discusses centering and sphering of the data points. Centering is needed if index is not translational invariant (should not be the case for any index considered here). Arguments for sphering are that scale effects should be extracted, we don't want to reproduce information already obtained by PCA. To my mind rescaling to an overall interval is more appropriate here. Rotations between parameters should not affect the outcome, but will make interpretation more difficult. Standardizing the variance will remove information about the posterior variance. Overall we are interested in strong association only, if these structures were affected by the standardization procedure, it would most likely be unwelcome effects?}
-
-## Notation
--->
 
 \begin{table}[htp]
 \caption{Summary of notation}
@@ -122,7 +106,7 @@ $d (=2) $ & projection dimension. For studying physics models, typically $d=2$ a
 $n$ & Number of observations, which for the physics models is the number of fitted models being examined and compared. \\
 &\\
 $\bm{X}_{n\times p} = (\bm{X}_1, ..., \bm{X}_p)$ & $n\times p$-dimensional data matrix, where variables $\bm{X}_j$ may be scaled or standardised, and $\bm{X}$ may be sphered\\
-$\bm{Y}_{n\times 2} = (\bm{Y}_1, ..., \bm{Y}_2)$ & projected data matrix. where $Y_j = (\alpha_1 X_1, ..., \alpha_p X_p$ \\
+$\bm{Y}_{n\times 2} = (\bm{Y}_1, ..., \bm{Y}_2)$ & projected data matrix. where $Y_j = (\alpha_1 X_1, ..., \alpha_p X_p)$ \\
 $\bm{F}_{p\times 2} = (\bm{\alpha}_1, ..., \bm{\alpha}_2)$ & orthonomal projection matrix\\ 
 &\\
 $H$ & Convex hull \\
@@ -137,13 +121,9 @@ $A$ & Alpha hull \\\hline
 
 Table \ref{notation} summarises the notation used for this section. This an overview of the functions that are converted into projection pursuit indexes. Full details of the functions can be found in the original sources. 
 
-<!--
-Focusing now on $d=2$ dimensional projections, we aim to identify projections that reveal interesting structures or correlations between combinations of variables. We therefore draw on index functions that have been developed for the selection of variable pairs that show interesting features in a scatter plot, but we generalist the notion such that instead of variable pairs we consider any $2$ dimensional projection of the multivariate data distribution. It means that we consider the projection axes as input to the index functions, which will thus score the interestingness of the given projection. What we are optimizing over are then the entries of the $p\times2$ dimensional projection matrix, considering that they obey orthonormality conditions.
-Concretely here we consider the following types of index functions:^[We note that all descriptions are idealized, while in practice approximations and binning are used to obtain reasonable computing time, we refer to original references and package documentation for details.]
--->
 
 * **scagnostics**: The first step to computing the scagnostics is that the bivariate data is binned, and scaled between [0,1] for calculations. The convex and alpha hulls, and the minimal spanning tree (MST), are computed. 
-    + *convex*: The ratio of the area of alpha to convex hull, $I_{\bm{F}, convex}= \frac{area(A(Y))}{area(H(Y))}$. In this is the only measure where interesting projections will take low values, with a maximum of 1 if both areas are the same. Thus $1-c_{convex}$ is used.
+    + *convex*: The ratio of the area of alpha to convex hull, $I_{\bm{F}, convex}= \frac{area(A(Y))}{area(H(Y))}$. This is the only measure where interesting projections will take low values, with a maximum of 1 if both areas are the same. Thus $1-c_{convex}$ is used.
     + *skinny*: The ratio of the perimeter to the area of the alpha hull, $I_{\bm{F}, skinny} = 1 -  \frac{\sqrt{4\pi area(A)}}{perimeter(A)}$, where the normalization is chosen such that $I_{\bm{F}, skinny} = 0$ for a full circle. Values close to 1 indicate a skinny polygon.
     + *stringy*: Based on the MST, $I_{\bm{F}, stringy} = \frac{diameter(MST)}{length(MST)}$ where the diameter is the longest connected path, and the length is the total length (sum of all edges). If the MST contains no branches $I_{\bm{F}, skinny} = 1$.
 
@@ -151,66 +131,22 @@ Concretely here we consider the following types of index functions:^[We note tha
     + *dcor2D*: This function is based on distance correlation [@szekely2007], which is designed to find both linear and nonlinear dependencies between variables. It involves computing the distances between pairs of observations, conducting an analysis of variance type breakdown of the distances relative to each variable, and the result is then passed to the usual covariance and hence correlation formula. The function wdcor, in the R package, extracat [@extracat], computes the statistic, and the mbgraphic package utilises this function. 
     + *splines2D*: Measures nonlinear dependence by fitting a spline model of $\bm{Y}_2$ on $\bm{Y}_1$ and also $\bm{Y}_1$ on $\bm{Y}_2$, using the \texttt{gam} function in the R package, mgcv [@w16]. The index compares the variance of the residuals:
     \begin{equation}
-    I_{\bm{F}, splines2d} = max(1- \frac{Var(res_{\bm{Y}_1\sim \bm{Y}_2)}}{Var(\bm{Y}_1)}, 1-\frac{Var(res_{\bm{Y}_2\sim {\bm{Y}_1})}}{Var(\bm{Y}_2)}),
+    I_{\bm{F}, splines2d} = max(1- \frac{Var(res_{\bm{Y}_1\sim \bm{Y}_2})}{Var(\bm{Y}_1)}, 1-\frac{Var(res_{\bm{Y}_2\sim {\bm{Y}_1}})}{Var(\bm{Y}_2)}),
     \end{equation}
     which takes large values if functional dependence is strong.
-<!--
-\begin{equation}
- I_{(\bm{F}, dcor2D)} = \begin{cases}
- \frac{Cov(F_1,F_2)}{\sqrt{Var(F_1)Var(F_2)}} & Var(F_1)Var(F_2) > 0\\
- 0 & Var(F_1)Var(F_2) = 0
- \end{cases}
- \end{equation}
- \begin{equation}
- Cov^2(X,Y) = \frac{1}{n^2} \sum_{k,l=1}^{n} A_{kl}B_{kl},\\
- Var^2(X) = \frac{1}{n^2} \sum_{k,l=1}^{n} A_{kl}^2
- \end{equation}
- where $A_{kl}=a_{kl}-\bar{a}_{k.}-\bar{a}_{l.}+\bar{a}_{..}$ with
- \begin{equation}
- a_{kl} = | x_k - x_l|_p,\\
- \bar{a}_{k.} = \frac{1}{n} \sum_{l=1}^n a_{kl},\\
-  \bar{a}_{.l} = \frac{1}{n} \sum_{k=1}^n a_{kl},\\
- \bar{a}_{..} = \frac{1}{n^2}\sum_{k,l=1}^n a_{kl}
- \end{equation}
- and reads
- -->
     
 * **information**:  The index functions [@Reshef1518] nonparametricly measure nonlinear association by computing the mutual information, 
 \begin{equation}
-\bm{I} = \sum_{by_1}\sum_{by_2} p(by_1, by_2) log(p(by_1, by_2)/(p(by_1)p{by_2})),
+\bm{I} = \sum_{by_1}\sum_{by_2} p(by_1, by_2) log(p(by_1, by_2)/(p(by_1)p(by_2))),
 \end{equation}
-where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$ on a range of bin resolutions of the data. It is strictly a 2D measure. For a fixed binning, e.g. $2\times 2$ or $10\times 4$, the optimal binning is found by maximizing $I$. The values of I range between $[0,1]$ because they are normalized across bins by dividing by $log min(\# bins_{y_1}, \# bins_{y_2})$.  
+where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$is the relative bin count in each cell, and $p(by_1), p(by_2)$ are the row and column relative counts, on a range of bin resolutions of the data. It is strictly a 2D measure. For a fixed binning, e.g. $2\times 2$ or $10\times 4$, the optimal binning is found by maximizing $I$. The values of I range between $[0,1]$ because they are normalized across bins by dividing by $log(min(\# bins_{y_1}, \# bins_{y_2}))$.  
     - *Maximum Information Coefficient (MIC)*: uses the maximum normalized $I$ across all bin resolutions. 
     - *Total Information Coefficient (TIC)*: sums the normalized $I$ for all bin resolutions computed. This creates a problem of scaling - there is no upper limit, although it is related to number of bins, and number of bin resolutions used. In the work below we have made empirical estimates of the maximum and scaled the TIC index using this to get it in the range $[0,1]$. This index should be more stable than MIC. 
   
-<!--
-finding an optimal grid to separate empty cells from cells containing observations. It is strictly a 2D measure, and the optimum corresponds to the maximum mutual information, $\bm{I} = \sum_{by_1}\sum_{by_2} p(by_1, by_2) log(p(by_1, by_2)/(p(by_1)p{by_2}))$, where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$ is the relative bin count in each cell, and $p(by_1), p(by_2)$ are the row and column relative counts.
 
-are based on the mutual information $I$ when considering the distribution induced by the data points $D \subset \mathbb{R}^2$ on an $x-$by$y$ grid $G$. With $I^{\ast} (D, x, y) = \max I (D|_G)$ the characteristic matrix $M$ is defined as
-\begin{equation}
-M(D)_{x,y} = \frac{I^{\ast} (D, x, y)}{\log \min{x,y}},
-\end{equation}
-where the denominator is chosen such that each entry of $M$ will take values between [0,1].
-We can now define the following metrics:
-    
-    \begin{equation}
-    MIC(D) = \max_{xy<B(n)}\{M(D)_{x,y}\},
-    \label{eq:MIC}
-    \end{equation}
-    where by default $B(n) = n^{0.6}$
-    see @JMLRv1715308:
-    \begin{equation}
-    TIC(D) = \sum_{xy<B(n)} M(D)_{x,y}
-    \end{equation}
--->
-  
-<!--
-  While $MIC$ is normalized to fall between $[0,1]$, the upper bound of $TIC$ depends on the sample size via the bounding function $B(n)$. $TIC$ was designed to be more stable test against null hypothesis of independence, using the full information of the characteristic matrix rather than just the maximum, and as such is expected to be better suited as a PPI.
-\textcolor{red}{What is upper bound of TIC as function of sample size? It seems from checking by putting in identical parameters as x, y that max(TIC) = 16 for 100 datapoints and max(TIC) = 148 for 1000 datapoints. Don't know how to derive this though, should depend also on c parameter and how the algorithm is approximating the true matrix?.}
--->
 
 ## Optimization
-Given a PPI we are confronted with the task of finding the maximum over all possible $d$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuations or a consequence of A noisy index function. \cite{posse95b} discusses the optimization, in particular that for most index functions and optimal results are too local, largely dependent on starting point. @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimization for the identification of the maximum. For exploring high-dimensional data, it can be interesting to observe local maxima as well as a global maximum, and thus a hybrid algorithm that still allows lingering but not being trapped by local maxima is ideal. In addition, being able to visually monitor the optimisation and see the optimal projection in the context of neighbouring projections is useful. This is provided by combining projection pursuit with the grand tour [@CBCH94]. The properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshooting and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible algorithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. The tourr package also provides the \texttt{search\_geodesic} function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
+Given a PPI we are confronted with the task of finding the maximum over all possible $d$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuations or a consequence of a noisy index function. @posse95b discusses the optimization, in particular that for most index functions and optimizers results are too local, largely dependent on starting point. @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimization for the identification of the maximum. For exploring high-dimensional data, it can be interesting to observe local maxima as well as a global maximum, and thus a hybrid algorithm that still allows lingering but not being trapped by local maxima is ideal. In addition, being able to visually monitor the optimisation and see the optimal projection in the context of neighbouring projections is useful. This is provided by combining projection pursuit with the grand tour [@CBCH94]. The properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshooting and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible algorithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. The tourr package also provides the \texttt{search\_geodesic} function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
 
 <!--
 \textcolor{red}{\cite{posse95b} discusses the optimization, in particular that for most index functions and optimists results are too local, largely dependent on starting point. Fiedmans suggestion of hybrid stepping search + steepest-ascent still remains fairly local. \cite{posse90} suggested random search instead, which seems to perform better, but did not find pdf of that article, so not so sure what he actually does.}
