@@ -650,11 +650,13 @@ if(!file.exists("cache/V1V2toV3V4.rda")){
 ```{r plotV1V2toV3V4, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between two nuisance projections. All projections would be nuisance so the PPI are ideally low and smooth, with little difference between sample sizes (solid lines: $n=1000$; dashed: $n=100$). The scagnostic PPIs are noisy. Some indexes have distinct differences in values between sample sizes."}
 fullResMelt <- fullRes %>%
   mutate(convex = 1-convex) %>%
+  rename("1-convex"=convex) %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
   gather(PPI, value, -t, -name, -size) %>%
   filter(PPI != "cmass") %>%
-  mutate(PPI = fct_relevel(PPI, "holes", "cmass", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+  mutate(PPI = fct_relevel(PPI, "holes", "cmass", "1-convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+
 fullResMelt %>% 
   ggplot(aes(x=t, y=value)) + 
   geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
@@ -695,12 +697,13 @@ if(!file.exists("cache/wIntermediate.rda")){
 ```{r wIntermediate, fig.width=6, fig.height=7, fig.cap="PPIs for projections along an interpolation between nuisance and structured projections, following $x_1$-$x_2$ to $x_1$-$x_5$ to $x_5$-$x_6$ (solid lines: $n=1000$; dashed: $n=100$). Peaks at the end of the sequence indicate the index sees the structure. The scagnostics, MIC and TIC see all three structures, so are more flexible for general pattern detection. Holes only responds to the pipe, and is a multimodal function for this data with a local maximum at $x_1$-$x_5$. "}
 intermediatePlane <- which(attributes(interpolate(t3))$new_basis)[2]
 fullResMeltPlanned <- fullResPlanned %>%
-  mutate(convex = 1-convex) %>% 
+  mutate(convex = 1-convex) %>%
+  rename("1-convex"=convex) %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
   gather(PPI, value, -t, -name, -size) %>%
   filter(PPI != "cmass") %>%
-  mutate(PPI = fct_relevel(PPI, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+  mutate(PPI = fct_relevel(PPI, "holes", "1-convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
 fullResMeltPlanned %>% 
   ggplot(aes(x=t, y=value)) + 
   geom_line(aes(group=size, linetype=factor(size, levels=c("1000", "100")))) + 
@@ -775,13 +778,14 @@ if(!file.exists("cache/pipeFirstRun.rda")){
   load("cache/pipeFirstRun.rda")
 }
 newBasisPipeTour <- pipeTourRes %>%
-  mutate(convex = 1-convex) %>% 
+  mutate(convex = 1-convex) %>%
+  rename("1-convex"=convex) %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
   select(-cmass) %>%
   gather(variable, value, -t, -name, -size) %>%
   filter(t %in% which(attributes(interpolate(pipeTour))$new_basis)) %>%
-  mutate(variable = fct_relevel(variable, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+  mutate(variable = fct_relevel(variable, "holes", "1-convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
 
 ggplot(newBasisPipeTour, aes(x=t, y=value)) +
   geom_point(mapping=aes(color=(variable=="TIC"))) + 
@@ -836,11 +840,13 @@ if(!file.exists("cache/findsine.rda")){
 anchorIdx <- as_tibble(which(attributes(interpolate(sineTour))$new_basis))
 sineTourResMelt <-sineTourRes %>%
   mutate(convex = 1-convex) %>%
+  rename("1-convex"=convex) %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
   select(-cmass) %>%
   gather(variable, value, -t, -name, -size) %>%
-  mutate(variable = fct_relevel(variable, "holes", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+  mutate(variable = fct_relevel(variable, "holes", "1-convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+
 ggplot(sineTourResMelt, aes(x=t, y=value)) +
   geom_line(mapping=aes(color=(variable=="splines2d"))) + 
   facet_wrap(~variable, ncol=1, scales = "free_y") +
@@ -998,6 +1004,7 @@ if(!file.exists("cache/rotationDep.rda")){
 
 scMelt <- sc %>% 
   mutate(convex = 1-convex) %>%
+  rename("1-convex"=convex) %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
   rowwise() %>%
@@ -1005,7 +1012,8 @@ scMelt <- sc %>%
   mutate(angle=alpha*360/(2*pi), TIC = TIC) %>%
   select(-alpha) %>%
   gather(PPI, value, -angle) %>%
-  mutate(PPI = fct_relevel(PPI, "holes", "cmass", "convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+  mutate(PPI = fct_relevel(PPI, "holes", "cmass", "1-convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+
 ggplot(scMelt, aes(x=angle, y=value)) +
   geom_line() + 
   ylim(c(-1, 1.1)) +
