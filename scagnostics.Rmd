@@ -1059,9 +1059,9 @@ MINE & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
 
 This section describes the application of these projection pursuit indices to find two-dimensional structure in two multidimensional gravitational waves problems. 
 
-The first example contains 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. There are six parameters of physical interest (6D) with some known relationships. Projection pursuit is used to find the known relationships. 
+The first example contains 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. There are six parameters of physical interest (6-D) with some known relationships. Projection pursuit is used to find the known relationships. 
 
-The second example contains data generated from a simulation study of a binary black hole (BBH) merger event according to @Smith:2016qas. (XXX More info needed.) There are 12 parameters (12-D), with multiple nuisance parameters. Projection pursuit uncovers several new relationships between parameters. 
+The second example contains data generated from a simulation study of a binary black hole (BBH) merger event, as described in @Smith:2016qas. There are 12 parameters (12-D), with multiple nuisance parameters. Projection pursuit uncovers new relationships between parameters. 
 
 ## Neutron star merger
 
@@ -1172,7 +1172,7 @@ grid.arrange(p1, p2, p3, ncol=3)
 
 This data contains posterior samples for simulation from a model describing a binary black hole (BBH) merger event. There are twelve model parameters. Flat priors are used for most model parameters. 
 
-Figure \ref{fig:bbhSimulation} in the Appendix shows a scatterplot matrix, of nine of the twelve parameters. (Parameter m2 is not shown because it is strongly linearly associated with m1, phi$\_$jl and psi are not shown because they uniform, and not associated with other parameters.) Among the nine plotted parameters, strong nonlinear relationships can be seen between the parameters ra, dec and time. The first two describe the position of the event in the sky, and time is the merging time (in GPS units). Because of the elliptical relationship between dec and time, the TIC index is used for PP, even though it is slow to compute. Between the other parameters, the main structure seen is multimodality and some skewness. These patterns are representative of the likelihood function, since most priors are flat, or built to capture growth with volume rather than distance. 
+Figure \ref{fig:bbhSimulation} in the Appendix shows a scatterplot matrix, of nine of the twelve parameters. (Parameter m2 is not shown because it is strongly linearly associated with m1, phi$\_$jl and psi are not shown because they are uniform, and not associated with other parameters.) Among the nine plotted parameters, strong nonlinear relationships can be seen between the parameters ra, dec and time. The first two describe the position of the event in the sky, and time is the merging time (in GPS units). Because of the elliptical relationship between dec and time, the TIC index is used for PP, even though it is slow to compute. Between the other parameters, the main structure seen is multimodality and some skewness. These patterns are representative of the likelihood function, since most priors are flat, or built to capture growth with volume rather than distance. 
 
 
 ### Data pre-processing
@@ -1183,10 +1183,10 @@ The analysis is conducted on 11 of the twelve parameters. One variable is remove
 
 #### Exploring 11D with all PP indexes
 
-All seven PP indexes are applied to the data. Figure \ref{fig:bbhGuided} showing the projections that maximize three of the indexes. TIC and splines2D indexes identify very similar projections, that are based on the three parameters, dec, time and ra. This is to be expected based on the pairwise scatterplots. On the other hand, the 1-convex index finds a very different view, but actually the problem is that the optimization doesn't adequately reach a maximum for this index. 
+All seven PP indexes are applied to the data. Figure \ref{fig:bbhGuided} showing the projections that maximize three of the indexes. TIC and splines2d indexes identify very similar projections, that are based on the three parameters, dec, time and ra. This is to be expected based on the pairwise scatterplots. On the other hand, the 1-convex index finds a very different view, but actually the problem is that the optimization doesn't adequately reach a maximum for this index. 
 
 
-```{r bbhGuided, results="hide", fig.cap="Projections corresponding to the maxima of three indices: TIC, splines2D and 1-convex. Projections a, b found by TIC and splines3D are very similar, and involve the same three parameters, ra, dec and time. The 1-convex index finds a very different view.", dev = "png", dpi=300}
+```{r bbhGuided, results="hide", fig.cap="Projections corresponding to the maxima of three indices: TIC, splines2D and 1-convex. Projections a, b found by TIC and splines2d are very similar, and involve the same three parameters, ra, dec and time. The 1-convex index finds a very different view.", dev = "png", dpi=300}
 bbhD <- read_csv("data/posterior_samples.csv")
 bbhM <- rescale(select(bbhD,-m2, -chi_eff))
 if(!file.exists("cache/bbhGuidedTIC.rda")){
@@ -1275,10 +1275,10 @@ knitr::kable(idxT,  caption = "Matrix of index values, for all three indices and
 
 #### Exploring reduced space
 
-The variables time, dec and ra are dropped from the data, and PP is applied to the remaining 8D space. Figure \ref{fig:bbhGuided2} shows the projections which maximize the TIC, splines2D and 1-convex indices. The results provide similar information as already learned from the scatterplot matrix (Figure \ref{bbhSimulation}). The parameters chi$\_$tot and chi$\_$p are linearly related (TIC maxima), and theta$\_$jn has a bimodal distribution yielding the figure 8 shape found by the splines2D index. The 1-convex index finds nothing interesting. 
+The variables time, dec and ra are dropped from the data, and PP is applied to the remaining 8D space. Figure \ref{fig:bbhGuided2} shows the projections which maximize the TIC, splines2D and 1-convex indices. The results provide similar information as already learned from the scatterplot matrix (Figure \ref{fig:bbhSimulation}). The parameters chi$\_$tot and chi$\_$p are linearly related (TIC maxima), and theta$\_$jn has a bimodal distribution yielding the figure 8 shape found by the splines2d index. The 1-convex index finds nothing interesting. 
 
 
-```{r bbhGuided2, results="hide", fig.cap="Projections of the reduced 8D space corresponding to the maxima of three indices: TIC, splines2D and 1-convex.", dev = "png", dpi=300}
+```{r bbhGuided2, results="hide", fig.cap="Projections of the reduced 8D space corresponding to the maxima of three indices: TIC, splines2d and 1-convex.", dev = "png", dpi=300}
 bbhM2 <- rescale(select(bbhD,-m2, -chi_eff, -time, -dec, -ra))
 if(!file.exists("cache/bbhGuidedTIC2.rda")){
   set.seed(2018)
@@ -1332,7 +1332,7 @@ p2 <- ggplot(dProj, aes(PP1,PP2)) + geom_point(alpha = 0.02) + theme(aspect.rati
   xlim(-0.25, 1) + ylim(-0.9, 0.3) +
   geom_segment(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x1, xend=x2, y=y1, yend=y2)) +
   geom_text(data=getAxes(fProj2, 0.75, 0, 0.25, 0.24), aes(x=x2, y=y2, label=label), size=2.5) +
-  ggtitle(paste0("b, splines2D: ", toString(format(iv, digits=2))))
+  ggtitle(paste0("b, splines2d: ", toString(format(iv, digits=2))))
 iLast <- length(bbhTourFull32)
 fProj3 <- bbhTourFull32[[iLast]]
 dProj <- as_tibble(bbhM2 %*% fProj3)
@@ -1352,11 +1352,11 @@ grid.arrange(p1, p2, p3, ncol=3)
 
 #### Effect of random starts, and subsets used
 
-The initial conditions for the optimization, and the subset of variables used, can have a large effect on the projections returned. We illustrate this using only the splines2D index, and find that there is one more association that can be learned that was masked earlier.
+The initial conditions for the optimization, and the subset of variables used, can have a large effect on the projections returned. We illustrate this using only the splines2d index, and find that there is one more association that can be learned that was masked earlier.
 
 Figure \ref{fig:bbhGuided3} shows six maxima obtained by different starts, for two types of parameters: first, spin related parameters (i.e. alpha, theta\_jn, chi\_tot and chi\_p), and second position related parameters (i.e. ra, dec and distance). Four of the six (a-d) are almost identical, but not interesting projections. Projection f has the highest PP index value but it is primarily the view seen in the bivariate plot of dec and ra.  \textcolor{red}{While none of these projections are particularly interesting on their own, moving between them can be revealing.}
 
-Choosing a different subset of variables reveals something new. The subspace of m1, ra, chi\_tot, alpha, distance, dec produces a more refined view of Figure \ref{fig:bbhGuided3} projection f. When alpha contributes in contrast to dec, the relationship between the points is almost perfectly on a curve. This is shown in Figure \ref{constructedExample}. Manually reconstructing this can be done by differencing the two parameters, in their original units. \textcolor{red}{This result is highlighting the importance of improved optimisation, that would allow to identify this relation given the full list of input parameters.}
+Choosing a different subset of variables reveals something new. The subspace of m1, ra, chi\_tot, alpha, distance, dec produces a more refined view of Figure \ref{fig:bbhGuided3} projection f. When alpha contributes in contrast to dec, the relationship between the points is almost perfectly on a curve. This is shown in Figure \ref{fig:constructedExample}. Manually reconstructing this can be done by differencing the two parameters, in their original units. \textcolor{red}{This result is highlighting the importance of improved optimisation, that would allow to identify this relation given the full list of input parameters.}
 
 ```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane."), dev = "png", dpi=300}
 bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
