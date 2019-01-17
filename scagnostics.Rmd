@@ -1505,17 +1505,6 @@ All of the indexes fall short against some aspect of the ideal properties of smo
 
 The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours. The tour is also lacking a portable, easy to use interface that would enable user interactions like stopping, re-starting, saving optimal projections, and development of a graphical user interface, similar to the tourrGui [@tourrGui] (now archived), would help users and projection pursuit researchers.
 
-<!--
-Physics examples motivate us to investigate projection pursuit indexes that detect complex patterns in two dimensional projections. In this context we have investigated the use of indexes developed for variable selection as projection pursuit indexes. The set of relevant criteria that define a good index function includes: smoothness, squintability, flexibility, rotation invariance and speed. To evaluate these criteria we used three different sets of simulated data, defined to have different underlying noise distributions (uniform or normal) and different structures (circle, sine and spiral which can be considered as large, medium and fine structure respectively). The properties were assessed by a list of procedures introduced in Section \ref{sec:propAss} and we have evaluated several index functions proposed in the literature for variable selection: scagnostics indexes, maximum information based indexes, distance correlation and a spline based index. While all index functions are found to fall short on at least some of the criteria, we have shown that combined with the optimisation available via the guided tour they can already be used to identify interesting views, in particular the built-in structures in the simulated data sets.
-
-Our primary interest is in multidimensional physics models, and we have shown two examples from gravitational wave detection. In the first example, studying a neutron star merger, we have sucessfully used the developped methods to re-discover the non-linear relation between three of the parameters. The second example, stemming from a black hole simulation, has a large parameter space. We used this dataset to explore the results obtained depending on parameter selection, index selection and starting conditions. Interestingly, when working with a small parameter space (six dimensions), projection pursuit uncovers a new relation that has not been anticipated.
-
-The results are encouraging, showing large potential for discovering unanticipated relations between multiple variables. On the other hand there is much room for improvement on several fronts, as identified in this work.
-
-Concretely we see three frontiers for future work building on our study. First, while we found the considered index functions useful to detect structures, several shortcomings have also been pointed out. While many definitions to identify clusters have been considered, there is much potential for the development of index functions that detect the types of structures considered here. Second, an implementation of interpolations from basis to basis, alleviating the need for rotation invariant indexes is envisioned. Finally, more generally, improved optimisation algorithms are required, e.g. for the identification of structures with small squint angle in high dimensions.
-
-As a final remark we point out that small changes to the implementation of the guided tour algorithm would already be helpful, and we plan on implementing the following: allowing for a stopping condition based on index value, and making the step size for the selection of the most promising direction an argument when calling the geodesic optimiser.
--->
 
 \appendix
 
@@ -1527,7 +1516,7 @@ Holes and cmass indexes are derived from $I_0^N$ of [@CBC93]. As noted in propos
 
 We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in [@CBC93]. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This appears consistent with the results we have, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
 
-Rescaling: first have cut-off at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, rescale remaining range to be between zero and one.
+We therefore rescale as follows: first have cut-off at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, and we rescale the remaining range to be between zero and one.
 
 # Extimating the squint angle of the spiral
 
@@ -1598,7 +1587,7 @@ ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
 # Computational performance {#app:speed}
 Computational time is important for using the PPIs with the guided tour, online. Figure \ref{fig:timer} summarizes performance for each PPI. For simplicity, data with sample sizes ranging from 100-10000 are drawn from a 6-d solid sphere, using the geozoo package [@geozoo].  The time to compute the PPIs over 100 interpolated grand tour projections is recorded. The scagnostics PPI are computed as a bundle, since this is the code base, and that major computational constraint is common to all the scagnostics. There are two versions of the MIC and TIC algorithm, labelled MINE and MINE E, the second being a newer algorithm which improves their computational performance. 
 
-The results are interesting. The scagnostic indexes and splines2D are very fast regardless of sample size. MIC, TIC (both versions) and dcor2D slow rapidly as sample size increases.
+The results are interesting. The scagnostic indexes and splines2d are very fast regardless of sample size. MIC, TIC (both versions) and dcor2d slow rapidly as sample size increases.
 
 
 ```{r getTimer}
@@ -1678,14 +1667,13 @@ Some parameters must be provided for some PPIs. This can be advantageous, allowi
 
 - Binning:
     - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
-    - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points, see Equation \ref{eq:MIC}. The default is chosen such as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
-- Spline knots: for the splines2D measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
+    - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points. The default is chosen as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
+- Spline knots: for the splines2d measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
 
 <!--### Effect of binning in scagnostics -->
 
-The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:sprialScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
+The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:spiralScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
 
-XXX from caption, remove?:  For too rough binning (bins=10) we observe random fluctuations from the binning, with structure detection being obscured. With bins=20 we see somewhat smoother behaviour for the stringy index, especially when moving into the maximum, while the skinny index shows a dip in the final view, and larger bins=50 is preferred. For the convex index we also find bins=50 to be the better choice.
 
 ```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example.", out.width=".7\\textwidth"}
 getScagComp <- function(df, tPath){
@@ -1730,7 +1718,7 @@ if(!file.exists("cache/spiralScagBinning.rda")){
 ggplot(scagMelt, aes(x=t, y=value)) +
   geom_line(aes(color=factor(nbin))) + 
   facet_wrap(~idx, ncol=1, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
-  scale_colour_discrete("Num bins") + xlab("Number of projections") + 
+  scale_colour_discrete("bins") + xlab("Number of projections") + 
   ylab("PPI value")
 
 ```
@@ -1774,7 +1762,7 @@ The biggest issues revealed by the investigation into the new PPIs are a lack of
 
 Two different methods are considered for smoothing the index values:
 
-* Jittering points: using the jitter function we move each points by a random amount drawn from a uniform distribution between $\pm \beta$.
+* Jittering points: using the jitter function we move each point by a random amount drawn from a uniform distribution between $\pm \beta$.
 * Jittering angles: using the tourr implementation we can draw a random plane and move some small amount $\epsilon$ in that direction.
 
 The mean value from a sample of projections is recorded as the PPI value. This could be robsitufied by dropping the most extreme values. 
@@ -1782,7 +1770,7 @@ The mean value from a sample of projections is recorded as the PPI value. This c
 This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using a the tour path between noise variables of the spiral1000 dataset using different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnistics are fast to compute, either of these methods is feasible. For this example we have smoothed over 10 randomly selected jittered views, computing time increases linearly with the number of randomly jittered views, as this is mostly determined by the time needed to evaluate the scagnostics indexes which is done separately for each view.
 
 
-```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indices skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). While the behaviour can be somewhat improved, sharp jumps can be observed in all settings considered. For comparison the red line in the background shows the trace without any smoothing applied."}
+```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indices skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). For comparison the red line in the background shows the trace without any smoothing applied."}
 
 jitterScagnostics <-function(proj, d, alpha){
   newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
@@ -1884,6 +1872,8 @@ grid.arrange(p1, p2, ncol=2)
 ```
 
 ## Dataset overview scatter plot matrices
+
+Figures \ref{fig:neutronStarSPLOM} and \ref{fig:bbhSimulation} show the scatter plot matrices of the gravitational wave datasets considered, see Section \ref{sec:phys} for details.
 
 ```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
 ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
