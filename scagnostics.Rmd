@@ -1194,7 +1194,7 @@ The analysis is conducted on 11 of the twelve parameters. One variable is remove
 All seven PP indexes are applied to the data. Figure \ref{fig:bbhGuided} showing the projections that maximize three of the indexes. TIC and splines2d indexes identify very similar projections, that are based on the three parameters, dec, time and ra. This is to be expected based on the pairwise scatterplots. On the other hand, the 1-convex index finds a very different view, but actually the problem is that the optimization doesn't adequately reach a maximum for this index. 
 
 
-```{r bbhGuided, results="hide", fig.cap="Projections corresponding to the maxima of three indices: TIC, splines2D and 1-convex. Projections a, b found by TIC and splines2d are very similar, and involve the same three parameters, ra, dec and time. The 1-convex index finds a very different view.", dev = "png", dpi=300}
+```{r bbhGuided, results="hide", fig.cap="Projections corresponding to the maxima of three indices: TIC, splines2D and 1-convex. Projections a, b found by TIC and splines2d are very similar, and involve the same three parameters, ra, dec and time. The 1-convex index finds a very different view.", fig.height = 3.2, dev = "png", dpi=300}
 bbhD <- read_csv("data/posterior_samples.csv")
 bbhM <- rescale(select(bbhD,-m2, -chi_eff))
 if(!file.exists("cache/bbhGuidedTIC.rda")){
@@ -1286,7 +1286,7 @@ knitr::kable(idxT,  caption = "Matrix of index values, for all three indices and
 The variables time, dec and ra are dropped from the data, and PP is applied to the remaining 8D space. Figure \ref{fig:bbhGuided2} shows the projections which maximize the TIC, splines2D and 1-convex indices. The results provide similar information as already learned from the scatterplot matrix (Figure \ref{fig:bbhSimulation}). The parameters chi$\_$tot and chi$\_$p are linearly related (TIC maxima), and theta$\_$jn has a bimodal distribution yielding the figure 8 shape found by the splines2d index. The 1-convex index finds nothing interesting. 
 
 
-```{r bbhGuided2, results="hide", fig.cap="Projections of the reduced 8D space corresponding to the maxima of three indices: TIC, splines2d and 1-convex.", dev = "png", dpi=300}
+```{r bbhGuided2, results="hide", fig.cap="Projections of the reduced 8D space corresponding to the maxima of three indices: TIC, splines2d and 1-convex.", fig.height = 3.2, dev = "png", dpi=300}
 bbhM2 <- rescale(select(bbhD,-m2, -chi_eff, -time, -dec, -ra))
 if(!file.exists("cache/bbhGuidedTIC2.rda")){
   set.seed(2018)
@@ -1362,9 +1362,9 @@ grid.arrange(p1, p2, p3, ncol=3)
 
 The initial conditions for the optimization, and the subset of variables used, can have a large effect on the projections returned. We illustrate this using only the splines2d index, and find that there is one more association that can be learned that was masked earlier.
 
-Figure \ref{fig:bbhGuided3} shows six maxima obtained by different starts, for two types of parameters: first, spin related parameters (i.e. alpha, theta\_jn, chi\_tot and chi\_p), and second position related parameters (i.e. ra, dec and distance). Four of the six (a-d) are almost identical, but not interesting projections. Projection f has the highest PP index value but it is primarily the view seen in the bivariate plot of dec and ra.  \textcolor{red}{While none of these projections are particularly interesting on their own, moving between them can be revealing.}
+Figure \ref{fig:bbhGuided3} shows six maxima obtained by different starts, for two types of parameters: first, spin related parameters (i.e. alpha, theta\_jn, chi\_tot and chi\_p), and second position related parameters (i.e. ra, dec and distance). Four of the six (a-d) are almost identical, but not interesting projections. Projection f has the highest PP index value but it is primarily the view seen in the bivariate plot of dec and ra.  While none of these projections are particularly interesting on their own, moving between them can be revealing.
 
-Choosing a different subset of variables reveals something new. The subspace of m1, ra, chi\_tot, alpha, distance, dec produces a more refined view of Figure \ref{fig:bbhGuided3} projection f. When alpha contributes in contrast to dec, the relationship between the points is almost perfectly on a curve. This is shown in Figure \ref{fig:constructedExample}. Manually reconstructing this can be done by differencing the two parameters, in their original units. \textcolor{red}{This result is highlighting the importance of improved optimisation, that would allow to identify this relation given the full list of input parameters.}
+Choosing a different subset of variables reveals something new. The subspace of m1, ra, chi\_tot, alpha, distance, dec produces a more refined view of Figure \ref{fig:bbhGuided3} projection f. When alpha contributes in contrast to dec, the relationship between the points is almost perfectly on a curve. This is shown in Figure \ref{fig:constructedExample}. Manually reconstructing the optimal projection (left plot) can be done by differencing the two parameters, in their original units. This highlights the importance of improved optimisation, that would use tiny final steps to polish the view to a finer optimal projection and possibly remove noise induced by small contributions of many variables.
 
 ```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane."), dev = "png", dpi=300}
 bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
@@ -1441,7 +1441,7 @@ animate_xy(dPoints, tP, pch=".")
 
 
 
-```{r constructedExample, results="hide", fig.cap="Selecting subset of 6 parameters, for which spline index can be used to improve constraint on parameter combination wrt ra vs dec.", dev = "png", dpi=300}
+```{r constructedExample, results="hide", fig.cap="Manual reconstruction of an optimal projection (left), constructed by differencing alpha from dec in the original units against ra (middle), compared with the two main variables (right).", fig.height = 3.2, dev = "png", dpi=300}
 bbhC <- rescale(select(bbhD, m1, ra, chi_tot, alpha, distance, dec))
 if(!file.exists("cache/constructedExample.rda")){
   set.seed(1999)
