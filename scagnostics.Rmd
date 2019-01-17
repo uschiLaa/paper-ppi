@@ -1561,6 +1561,19 @@ ggplot(fullResMelt, aes(x=t, y=value)) +
 
 # Discussion
 
+<!--
+Reminder what the paper is about
+summarise main findings
+Future plans
+-->
+
+The motivation for this work was to discover dependencies between estimated parameters in multiple model fits in physics problems. This paper shows how projection pursuit with the new indexes can help address this problem. The results are encouraging, showing large potential for discovering unanticipated relations between multiple variables.
+
+All of the indexes fall short against some aspect of the ideal properties of smoothness, squintability, flexibility, rotation invariance and speed. The paper describes how these properties can be assessed using tour methodology. Some potential fixes for the indexes are discussed but there is scope for further developing the new indexes.
+
+The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours. The tour is also lacking a portable, easy to use interface that would enable user interactions like stopping, re-starting, saving optimal projections, and development of a graphical user interface, similar to the tourrGui [@tourrGui] (now archived), would help users and projection pursuit researchers.
+
+<!--
 Physics examples motivate us to investigate projection pursuit indexes that detect complex patterns in two dimensional projections. In this context we have investigated the use of indexes developed for variable selection as projection pursuit indexes. The set of relevant criteria that define a good index function includes: smoothness, squintability, flexibility, rotation invariance and speed. To evaluate these criteria we used three different sets of simulated data, defined to have different underlying noise distributions (uniform or normal) and different structures (circle, sine and spiral which can be considered as large, medium and fine structure respectively). The properties were assessed by a list of procedures introduced in Section \ref{sec:propAss} and we have evaluated several index functions proposed in the literature for variable selection: scagnostics indexes, maximum information based indexes, distance correlation and a spline based index. While all index functions are found to fall short on at least some of the criteria, we have shown that combined with the optimisation available via the guided tour they can already be used to identify interesting views, in particular the built-in structures in the simulated data sets.
 
 Our primary interest is in multidimensional physics models, and we have shown two examples from gravitational wave detection. In the first example, studying a neutron star merger, we have sucessfully used the developped methods to re-discover the non-linear relation between three of the parameters. The second example, stemming from a black hole simulation, has a large parameter space. We used this dataset to explore the results obtained depending on parameter selection, index selection and starting conditions. Interestingly, when working with a small parameter space (six dimensions), projection pursuit uncovers a new relation that has not been anticipated.
@@ -1570,7 +1583,7 @@ The results are encouraging, showing large potential for discovering unanticipat
 Concretely we see three frontiers for future work building on our study. First, while we found the considered index functions useful to detect structures, several shortcomings have also been pointed out. While many definitions to identify clusters have been considered, there is much potential for the development of index functions that detect the types of structures considered here. Second, an implementation of interpolations from basis to basis, alleviating the need for rotation invariant indexes is envisioned. Finally, more generally, improved optimisation algorithms are required, e.g. for the identification of structures with small squint angle in high dimensions.
 
 As a final remark we point out that small changes to the implementation of the guided tour algorithm would already be helpful, and we plan on implementing the following: allowing for a stopping condition based on index value, and making the step size for the selection of the most promising direction an argument when calling the geodesic optimiser.
-
+-->
 
 \appendix
 
