@@ -521,11 +521,11 @@ The structured projection is in variables 5 and 6 ($x_5, x_6$). Two samples size
 The procedures for assessing the PPI properties of smoothness, squintability, flexibility, rotation invariance, and speed are examined for samples from the family of data sets are:
 
 
-1. Compute the PPI values on the tour path along an interpolation between pairs of nuisance variables, $x_1 - x_2$ view to $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
+1. Compute the PPI values on the tour path along an interpolation between pairs of nuisance variables, $x_1 - x_2$ to $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
 2. Change to a tour path between a pair of nuisance variables $x_1 - x_2$ and the structured pair of variables $x_5 - x_6$ via the intermediate projection onto $x_1 - x_5$, and compute the PPI along this. This examines the squintability, and smoothness. If the function is smooth and slowly increases towards the structured projection, then the structure is visible from a distance. 
 3. Use the guided tour to examine the ease of optimization. This depends on having a relatively smooth function, with structure visible from a distance. One index is optimized to show how effectively the maximum is attained, and the values for other PPIs is examined along the same path, to examine the similarity between PPIs. 
 4. Rotation invariance is checked by computing PPIs on rotations of the structured projection. 
-5. Computational speed for the selected indices is examined on a range of sample sizes.
+5. Computational speed for the selected indexes is examined on a range of sample sizes.
 
 
 
@@ -582,7 +582,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
 ## PPI traces over a tour sequence of interpolated nuisance projections
 \label{sec:smooth}
 
-Figure \ref{fig:plotV1V2toV3V4} shows the traces representing the index values calculated across a tour between a pair of nuisance projections. The range of each axis is set to be the limits of the index, as might be expected over many different data sets, 0 to 1. Each projection in the interpolation will also be noise. Two different sample sizes are show, $n=100$ as a dashed line, and $n=1000$ as a solid line. The ideal trace is a smooth function, with relatively low values, and no difference between the sample sizes. A major feature to notice is that the scagnostics produce noisy functions, which is problematic, because small changes in the projection result in big jumps in the value. This will make them difficult to optimize. TIC also is noisy. On the other hand holes, dcor2d, splines2d and MIC are relatively smooth functions. 
+Figure \ref{fig:plotV1V2toV3V4} shows the traces representing the index values calculated across a tour between a pair of nuisance projections. The range of each axis is set to be the limits of the index, as might be expected over many different data sets, 0 to 1. Each projection in the interpolation will also be noise. Two different sample sizes are show, $n=100$ as a dashed line, and $n=1000$ as a solid line. The ideal trace is a smooth function, with relatively low values, and no difference between the sample sizes. A major feature to notice is that the scagnostics produce noisy functions, which is problematic, because small changes in the projection result in big jumps in the value. This will make them difficult to optimize. On the other hand holes, dcor2d, splines2d, MIC and TIC are relatively smooth functions. 
 
 Several of the indexes are sensitive to sample size also, the same structured projection with differing numbers of points, produces different values. 
 
@@ -719,7 +719,7 @@ The guided tour combines optimization with interpolation between pairs of planes
 
 The stopping rule is that no better projections are found after a fixed number of tries, given a fixed tolerance value measuring difference. For method 1 and 2 two additional parameters control the optimization: the search window $\alpha$, giving the maximum distance from the current plane in which projections are sampled, and the cooling factor, giving the incremental decrease in search window size. Method 3 in principle also has two free parameters, which are however fixed in the current implementation. The first is the small step size used when evaluating the most promising direction, it is fixed to 0.01, and the second parameter being the window over which the line search is performed, fixed to $\pm \pi/4$ away from the current plane.
 
-For distributions and indexes with smooth behavior and good squintability, method 3 is the most effective method for optimization. If these two criteria are not met the method may still be useful, but only given an informed starting projection. In such cases we can follow a method similar to that proposed by Friedman [@f87]: we break the optimization in two distinct steps. A first step ("scouting") uses method 2 with large search window and no cooling as a way of stepping over fluctuations and local maxima and yielding an approximation of the global maximum. Note that this likely requires large number of tries, especially as dimension increases, since most randomly picked planes will not be interesting. The second step is uses method 3 starting from the approximate maximum, which will take small steps to refine the result to be closer to the global maximum.
+For distributions and indexes with smooth behavior and good squintability, method 3 is the most effective method for optimization. If these two criteria are not met the method may still be useful, but only given an informed starting projection. In such cases we can follow a method similar to that proposed by Friedman [@f87]: we break the optimization in two distinct steps. A first step ("scouting") uses method 2 with large search window and no cooling as a way of stepping over fluctuations and local maxima and yielding an approximation of the global maximum. Note that this likely requires large number of tries, especially as dimension increases, since most randomly picked planes will not be interesting. The second step uses method 3 starting from the approximate maximum, which will take small steps to refine the result to be closer to the global maximum.
 
 
 ### Looking down the pipe
@@ -816,10 +816,10 @@ if(!file.exists("cache/refinepipe.rda")){
 
 Given the patterns in Figure \ref{fig:wIntermediate} it would be expected that the sine could be found easily, using only optimization method 3 using the splines2d, dcor2d, MIC or TIC indexes. This is examined in Figure \ref{fig:findsine}. Optimization is conducted using the splines2d index, and the trace of the PPI over the optimisation is shown, along with the PPI values for the other indexes over that path. The vertical blue lines indicate anchor bases, where the optimizer stops, and does a new search. The distance between anchor planes is smaller as the maximum is neared.
 
-The only complications arise from a lack of rotation invariance of the splines2d index. It is not easily visible here, but it is possible that the best projection will have a lower PPI. The index changes depending on the basis used to define the plane, but the geodesic interpolation conducted by the tour uses any suitable basis to describe the plane, ignoring that which optimizes the PPI. This is discussed in section \ref{sec:rot}.
+The only complications arise from a lack of rotation invariance of the splines2d index. It is not easily visible here, but it is possible that the best projection will have a higher PPI. The index changes depending on the basis used to define the plane, but the geodesic interpolation conducted by the tour uses any suitable basis to describe the plane, ignoring that which optimizes the PPI. This is discussed in section \ref{sec:rot}.
 
 
-```{r findsine, fig.width=6, fig.height=7, out.width = "0.8\\textwidth", fig.cap="Guided tour optimising  the splines2d index, using method 3, for the sine data, with $n=1000$. Anchor planes are marked by the blue vertical lines, and are closer to each other approaching the maxima. The sine is found relatively easily, by splines2D, and it is indicated that MIC, TIC, dcor2D and convex would also likely find this structure.", results="hide"}
+```{r findsine, fig.width=6, fig.height=7, out.width = "0.8\\textwidth", fig.cap="Guided tour optimising  the splines2d index, using method 3, for the sine data, with $n=1000$. Anchor planes are marked by the blue vertical lines, and are closer to each other approaching the maxima. The sine is found relatively easily, by splines2d, and it is indicated that MIC, TIC, dcor2d and convex would also likely find this structure.", results="hide"}
 set.seed(2018)
 if(!file.exists("cache/findsine.rda")){
   sineResc <- as.matrix(sin1000)
@@ -854,7 +854,7 @@ ggplot(sineTourResMelt, aes(x=t, y=value)) +
 
 ### Spiral detection
 
-The spiral is the most challenging structure to detect because it has a small squint angle [@posse95a], especially as the ratio of noise to structure dimensions increases. This is explored using optimisation method 2 to scout the space for approximate maxima. The skinny scagnostic index is used because it was observed (Figure \ref{fig:wIntermediate}) to be sensitive to this structure, although the noisiness of the index might be problematic. The stringy appears to be more sensitive to the spiral, but it has a much small squint angle. 
+The spiral is the most challenging structure to detect because it has a small squint angle [@posse95a], especially as the ratio of noise to structure dimensions increases. This is explored using optimisation method 2 to scout the space for approximate maxima. The skinny scagnostic index is used because it was observed (Figure \ref{fig:wIntermediate}) to be sensitive to this structure, although the noisiness of the index might be problematic. The stringy appears to be more sensitive to the spiral, but it has a much smaller squint angle. 
 
 The search is conducted for $p=4,5,6$ which would correspond to 2, 3 and 4 noise dimensions respectively. In addition we examine the distance between planes, using a Frobenius norm, as defined by Equation 2 of @BCAH05, and available in the ```proj_dist``` function in the tourr package, to compare searches across dimensions. The distance between planes is related to squint angle, how far away from the ideal projection can the structure be glimpsed. We estimate the squint angle depending on the number of noise dimensions in the appendix. In order for the optimizer to find the spiral, the distance between planes would need to be smaller than the squint angle. Figure \ref{fig:findspiral} summarizes the results. When $p=4$ the scouting method effectively finds the spiral. Plot (a) shows the side-by-side boxplots of pairwise distances between planes examined during the optimization, for $p=4,5,6$. These are on average smaller for the lower dimension, and gradually increase as dimension increases. This is an indication of the extra computation needed to brute force find the spiral as noise dimensions increase. Plot (b) shows the distance of the plane in each iteration of the optimisation to the ideal plane, where it can be seen that only when $p=4$ does it converge to the ideal. Its likely that expanding the search space should result in uncovering the spiral in higher dimensions, which however requires tuning of the stopping conditions and long run times.
 
@@ -1017,10 +1017,10 @@ ggplot(scMelt, aes(x=angle, y=value)) +
 ```
 
 ## Speed
-Examining the computing time as a function of sample size we find that scagnostics and splines2D are fast even for large samples, while all other index functions slow rapidly with increasing sample size. Detailed results are shown in Appendix \ref{app:speed}.
+Examining the computing time as a function of sample size we find that scagnostics and splines2d are fast even for large samples, while all other index functions slow rapidly with increasing sample size. Detailed results are shown in Appendix \ref{app:speed}.
 
 ## Parameter choices
-Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. In Appendix \ref{app:param} we examine the dependence on the scagnostics indexes on the binning, showing that even with small number of bins the indexes are noisy, while they lose ability to see structure. Sensitivity to the number of bins in the MIC index is also examined, showing that tuning the parameter can improve the final result.
+Some PPIs have a choice of parameters, and the choice can have an effect on function smoothness, and sensitivity to structure. In Appendix \ref{app:param} we examine the dependence of the scagnostics indexes on the binning, showing that even with small number of bins the indexes are noisy, while they lose ability to see structure. Sensitivity to the number of bins in the MIC index is also examined, showing that tuning the parameter can improve the final result.
 
 ## Index enhancement
 We identified two potential improvements. First, the issue of noisy index functions may be addressed via smoothing, and we explore different smoothing options for the examples of the skinny and stringy index in Appendix \ref{app:enh}. In addition, rotation dependent indexes may be enhanced by redefining them in a rotation invariant way.
@@ -1028,11 +1028,11 @@ We identified two potential improvements. First, the issue of noisy index functi
 ## Summary
 
 Our results can be summarized by evaluating and comparing the advantages and disadvantages of each index function according to the criteria presented above. Such an overview is given in Table \ref{tab:summary}, listing if the criteria is fully met (\checkmark), there are some shortcomings ($\cdot$) or failure ($\times$).
-We find that none of the indexes considered meet all criteria, and in particular rotation invariance is often not fullfilled. In addition the limited flexibility of most indices highlights the importance of index selection in the projection pursuit setup. Table \ref{tab:summary} further suggests that there is much room for the improvement of index functions detecting unusual association between model parameters.
+We find that none of the indexes considered meet all criteria, and in particular rotation invariance is often not fullfilled. In addition the limited flexibility of most indexes highlights the importance of index selection in the projection pursuit setup. Table \ref{tab:summary} further suggests that there is much room for the improvement of index functions detecting unusual association between model parameters.
 
 \begin{table}
 \begin{center}
-\caption{Summary of findings, showing to what extend the considered index functions pass the criteria for a good PPI. "\checkmark" symbols good behavior, "$\cdot$" symbols some issues while "$\times$" symbols failure on the corresponding criteria. Each index has particular strengths and drawbacks and selection must be guided by the considered example, see text for details.}
+\caption{Summary of findings, showing to what extend the considered index functions pass the criteria for a good PPI. ``\checkmark" symbols good behavior, ``$\cdot$" symbols some issues while ``$\times$" symbols failure on the corresponding criteria. Each index has particular strengths and drawbacks and selection must be guided by the considered example, see text for details.}
 \label{tab:summary}
 \begin{tabular}{|l|c|c|c|c|c|c|}
 \hline
