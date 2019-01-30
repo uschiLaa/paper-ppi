@@ -1517,6 +1517,8 @@ All of the indexes fall short against some aspect of the ideal properties of smo
 
 The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours. The tour is also lacking a portable, easy to use interface that would enable user interactions like stopping, re-starting, saving optimal projections, and development of a graphical user interface, similar to the tourrGui [@tourrGui] (now archived), would help users and projection pursuit researchers.
 
+# Acknowledgments {-}
+We thank Rory Smith for help with the gravitational wave examples, and German Valencia for useful comments.
 
 \appendix
 
