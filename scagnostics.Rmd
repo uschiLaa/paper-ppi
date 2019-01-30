@@ -1071,7 +1071,7 @@ MINE & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
 
 This section describes the application of these projection pursuit indices to find two-dimensional structure in two multidimensional gravitational waves problems. 
 
-The first example contains 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. There are six parameters of physical interest (6-D) with some known relationships. Projection pursuit is used to find the known relationships. 
+The first example contains 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. We consider six parameters of physical interest (6-D) with some known relationships. Projection pursuit is used to find the known relationships. 
 
 The second example contains data generated from a simulation study of a binary black hole (BBH) merger event, as described in @Smith:2016qas. There are 12 parameters (12-D), with multiple nuisance parameters. Projection pursuit uncovers new relationships between parameters. 
 
