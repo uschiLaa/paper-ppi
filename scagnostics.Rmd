@@ -6,13 +6,12 @@ blinded: 0
 
 authors: 
 - name: Ursula Laa
-  thanks: The authors gratefully acknowledge the support of the Australian Research Council
-  affiliation: Department of Physics, Monash University
+  address: School of Physics and Astronomy, Monash University
   email: ursula.laa@monash.edu
-  
 - name: Dianne Cook
-  affiliation: Department of Econometrics and Business Statistics, Monash University
-  
+  address: Department of Econometrics and Business Statistics, Monash University
+  email: dicook@monash.edu
+
 keywords:
 - scagnostics
 - statistical graphics
