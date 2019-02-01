@@ -517,7 +517,7 @@ The structured projection is in variables 5 and 6 ($x_5, x_6$). Two samples size
 
 ### Property assessment {#sec:propAss}
 
-The procedures for assessing the PPI properties of smoothness, squintability, flexibility, rotation invariance, and speed are examined for samples from the family of data sets are:
+The procedures for assessing the PPI properties of smoothness, squintability, flexibility, rotation invariance, and speed examined for samples from the family of data sets are:
 
 
 1. Compute the PPI values on the tour path along an interpolation between pairs of nuisance variables, $x_1 - x_2$ to $x_3 - x_4$. The result is ideally a smooth change in low values. This checks the smoothness property. 
@@ -821,7 +821,7 @@ if(!file.exists("cache/refinepipe.rda")){
 
 ### Finding sine waves
 
-Given the patterns in Figure \ref{fig:wIntermediate} it would be expected that the sine could be found easily, using only optimization method 3 using the splines2d, dcor2d, MIC or TIC indexes. This is examined in Figure \ref{fig:findsine}. Optimization is conducted using the splines2d index, and the trace of the PPI over the optimisation is shown, along with the PPI values for the other indexes over that path. The vertical blue lines indicate anchor bases, where the optimizer stops, and does a new search. The distance between anchor planes is smaller as the maximum is neared.
+Given the patterns in Figure \ref{fig:wIntermediate} it would be expected that the sine could be found easily, using only optimization method 3 with the splines2d, dcor2d, MIC or TIC indexes. This is examined in Figure \ref{fig:findsine}. Optimization is conducted using the splines2d index, and the trace of the PPI over the optimisation is shown, along with the PPI values for the other indexes over that path. The vertical blue lines indicate anchor bases, where the optimizer stops, and does a new search. The distance between anchor planes is smaller as the maximum is neared.
 
 The only complications arise from a lack of rotation invariance of the splines2d index. It is not easily visible here, but it is possible that the best projection will have a higher PPI. The index changes depending on the basis used to define the plane, but the geodesic interpolation conducted by the tour uses any suitable basis to describe the plane, ignoring that which optimizes the PPI. This is discussed in section \ref{sec:rot}.
 
@@ -1076,9 +1076,9 @@ The second example contains data generated from a simulation study of a binary b
 
 ## Neutron star merger
 
-Figure \ref{fig:neutronStarSPLOM} in the Appendix shows the scatterplot matrix (with transparency) of the six parameters. (In astrophysics, scatterplot matrices are often called "corner plots" [@corner].) The diagonal shows a univariate density plot of each parameter, and the upper triangle of cells displays the correlation between variables. From this it can be seen that m1 and m2 are strongly, and slightly, nonlinearly associated. Between the other variables, some linear association (R1, R2), some nonlinear association (L1, L2, R1, R2),  heteroskedastic variance in most variables and some bimodality (R1, L1, L2, m1, m2). 
+Figure \ref{fig:neutronStarSPLOM} in the Appendix shows the scatterplot matrix (with transparency) of the six parameters. (In astrophysics, scatterplot matrices are often called "corner plots" [@corner].) The diagonal shows a univariate density plot of each parameter, and the upper triangle of cells displays the correlation between variables. From this it can be seen that m1 and m2 are strongly, and slightly, nonlinearly associated. Between the other variables we observe some linear association (R1, R2), some nonlinear association (L1, L2, R1, R2),  heteroskedastic variance in most variables and some bimodality (R1, L1, L2, m1, m2). 
 
-The model describes a neutron star merger and contains 6 free parameters, with each neutron star described by its mass $m$ (m1, m2) and radius $R$ (R1, R2), and a so-called tidal deform ability parameter $\Lambda$ (L1, L2) which is a function of the mass and radius, approximately proportional to $(m/R)^{-5}$. 
+The model describes a neutron star merger and contains 6 free parameters, with each neutron star described by its mass $m$ (m1, m2) and radius $R$ (R1, R2), and a so-called tidal deformability parameter $\Lambda$ (L1, L2) which is a function of the mass and radius, approximately proportional to $(m/R)^{-5}$. 
 
 ### Data pre-pocessing
 
@@ -1529,7 +1529,7 @@ This article was created with knitr [@knitr], R Markdown [@rmarkdown] and bookdo
 
 Holes and cmass indexes are derived from $I_0^N$ of [@CBC93]. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. @Cook:2007:IDG:1557227 then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximized for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
 
-We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in [@CBC93]. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This appears consistent with the results we have, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
+We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in [@CBC93]. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This is consistent with the results we found, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
 
 We therefore rescale as follows: first have cut-off at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, and we rescale the remaining range to be between zero and one.
 
@@ -1782,10 +1782,10 @@ Two different methods are considered for smoothing the index values:
 
 The mean value from a sample of projections is recorded as the PPI value. This could be robsitufied by dropping the most extreme values. 
 
-This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using a the tour path between noise variables of the spiral1000 dataset using different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnostics are fast to compute, either of these methods is feasible. For this example we have smoothed over 10 randomly selected jittered views, computing time increases linearly with the number of randomly jittered views, as this is mostly determined by the time needed to evaluate the scagnostics indexes which is done separately for each view.
+This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using the tour path between noise variables of the spiral1000 dataset and different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnostics are fast to compute, either of these methods is feasible. For this example we have smoothed over 10 randomly selected jittered views, computing time increases linearly with the number of randomly jittered views, as this is mostly determined by the time needed to evaluate the scagnostics indexes which is done separately for each view.
 
 
-```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indices skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). For comparison the red line in the background shows the trace without any smoothing applied."}
+```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indexes skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). For comparison the red line in the background shows the trace without any smoothing applied."}
 
 jitterScagnostics <-function(proj, d, alpha){
   newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
