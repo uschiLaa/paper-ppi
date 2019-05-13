@@ -1,0 +1,44 @@
+
+COMMENTS FOR THE AUTHOR:
+
+Associate Editor:
+
+The submission has been evaluated by two reviewers. The manuscript is well written and organized. I have some more philosophical issues in addition to those raised by the two reviewers.
+
+The authors need to convince readers (users) this kind of environment is good for daily EDA for the real world of big data/data science.
+
+Example(s) with very large number (at least hundreds) of dimensions should be included in the study.
+
+**Theoretically, it might work for really big data, but there are two components that would be required: (1) fast computational engine, (2) an efficient optimiser. Both of these would require major implementation work. We have explained this now in the discusion section.**
+
+**We have analysed an example that is high-dimensional but think that it would be too distracting for the reader of this paper. It is an analysis of physics modeled fits, using initial ideas developed in this paper. There the dimensionality was around 60, and it worked best to reduce the dimensionality using PCA as a pre-processing step, because this explained most of the variability. The tour was applied on the reduced dimensionality, and the work is published in EPJC (cite).**
+
+Who are the target users of this environment? Do you recommend naive users (users without much EDA experience) to get hand on the proposed system?
+
+How do you encourage users to try your system?
+
+**The methods are implemented in an R package, which makes them readily available to all. The code for this paper is all available on github, and we have now made this repo public. It depends on three other packages, mbgraphics, binostics, minerva, which are now updated and on CRAN. We have coded the diagnostic techniques into a new package, and will submit this to CRAN.**
+
+Reviewer #1: Review report for "Using tours to visually investigate properties of new projection pursuit indexes with application to problems in physics"
+
+This manuscript presented a simulation study to visually explore the properties of a set of projection pursuit indexes (PPIs) using a grand tour based on the five criterions. The selected PPIs were then applied to two real datasets in physics for revealing potential patterns. In general I found this article was well written and it fully addresses the problems to be solved. I have no major issue. Some specific comments are listed below:
+
+1) Authors conducted the simulation study to evaluate the selected PPIs based on the five criterions and the results were summarized into Table 3. On the other hand, authors may consider another table that summarizes the advantages/disadvantages/characteristics of these mathematical indexes from the previous literatures. This review is helpful for users to comprehend these indexes' properties. 
+
+2) According to the aims & scope of the journal, Computational Statistics, this article should keep the content and discussion relevant more focused on the computational aspects.
+
+3) Although the target of this article focuses on the dataset with two-dimensional structure (d=2), it is worth to discuss the possibility (or give some suggestions) of applying the proposed procedure to the situation where d > 2.
+
+4) The procedure for assessing the PPIs' properties was listed in Section 3.1.2. In addition, it would be helpful to list the procedure step-by-step (with the detailed R functions/packages) to guide the users how to apply the tour methodology with PPIs to explore the potential patterns of the real-world datasets. 
+
+5) Why use the 5th/95th percentiles in Table 2 instead of the average/sd?
+
+**The main reason is that it provides a range of typical values of the index, which is useful for scaling the index dynamically in the guided tour. While it is possible to use a mean, and maybe +/- 3sd's for a similar purpose, range is more useful.**
+
+6) There was some confusion regarding the number of PPIs used in the content. There are eight indexes in Table 2; nine indexes in Fig 7; six indexes in Table 3, and seven indices in Section 4.2.2. 
+
+7) I would suggest moving the appendix A (the description of "holes/cmass" index) to Section 2.2 for readability.
+
+8) Check the spelling of words for clarity and consistency, e.g, splines2D/splines2d; convex/1-convex, MIC/MICe, and so on.
+
+
