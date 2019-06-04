@@ -142,6 +142,7 @@ where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$i
     - *Maximum Information Coefficient (MIC)*: uses the maximum normalized $I$ across all bin resolutions. 
     - *Total Information Coefficient (TIC)*: sums the normalized $I$ for all bin resolutions computed. This creates a problem of scaling - there is no upper limit, although it is related to number of bins, and number of bin resolutions used. In the work below we have made empirical estimates of the maximum and scaled the TIC index using this to get it in the range $[0,1]$. This index should be more stable than MIC. 
   
+\textcolor{red}{Here add short summary of comparisons between these functions for variable selection, taking results from Katrins thesis.}
 
 
 ## Optimization
@@ -492,9 +493,10 @@ ress <- res %>% filter(size == 1000, data == "Spiral") %>%
   rename(lower=value5, upper=value95)
 res_all <- bind_cols(resp, resi, ress) %>%
   select(-index1, -type1, -index2, -type2) %>%
-  mutate(index = factor(index, c("holes", "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe"))) %>%
-  arrange(index) %>%
-  mutate(index = c("holes", "", "convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", ""))
+  mutate(indexF = factor(index, c("holes", "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe"))) %>%
+  arrange(indexF) %>%
+  select(-indexF, -index) %>%
+  add_column(index = c("holes", "", "convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", ""))
 # Good resource for doing tables
 # https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_pdf.pdf
 kable(res_all, format = "latex",  caption = "Comparison of index values between noise projections and structured projections for sample size 1000, using 5th and 95th percentiles from 100 simulated sets. Most indices have much larger values for the structured projections, except for convex.", 
@@ -512,6 +514,7 @@ kable(res_all, format = "latex",  caption = "Comparison of index values between 
   #row_spec(1:16, font_size = 10) %>%
   kable_styling(position = "center") #, font_size = 7) 
 ```
+
 
 The structured projection is in variables 5 and 6 ($x_5, x_6$). Two samples sizes are used: $n=(100, 1000)$. All variables are standardized to have mean 0 and standard deviation 1. Figure \ref{fig:data} shows samples from each of the families, of the nuisance and structured pairs of variables. Table \ref{tab:indexTable} compares the PPIs for structured projections against those for nuisance variables, based on 100 simulated data sets of each type, using sample size 1000. The lower and upper show the 5th and 95th percentile of values. The holes index is sensitive only to the pipe distribution. All other indexes, except convex show distinctly higher values for the structured projections. The convex index shows the inverse scale to other indices, thus (1-convex) will be used in the assessment of performance of PPIs. The scale for the holes index in its original implementation is smaller than the others ranging from about 0.7 through 1, so it is re-scaled in the performance assessment so that all indices can be plotted on a common scale of 0-1 (details in Appendix). Similarly, the TIC index is re-scaled depending on sample size. 
 
@@ -1515,6 +1518,8 @@ The motivation for this work was to discover dependencies between estimated para
 All of the indexes fall short against some aspect of the ideal properties of smoothness, squintability, flexibility, rotation invariance and speed. The paper describes how these properties can be assessed using tour methodology. Some potential fixes for the indexes are discussed but there is scope for further developing the new indexes.
 
 The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours. The tour is also lacking a portable, easy to use interface that would enable user interactions like stopping, re-starting, saving optimal projections, and development of a graphical user interface, similar to the tourrGui [@tourrGui] (now archived), would help users and projection pursuit researchers.
+
+\textcolor{red}{Mention spinebil and galahr packages, some statement about big data (addressing the AE question). Mention d>2 as subject of future work.}
 
 # Acknowledgments {-}
 The authors gratefully acknowledge the support of the Australian Research Council.

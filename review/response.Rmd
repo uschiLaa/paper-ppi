@@ -17,28 +17,44 @@ Who are the target users of this environment? Do you recommend naive users (user
 
 How do you encourage users to try your system?
 
+**The target audience consists of two groups. First we address people interested in developping new index functions, who will find the introduced methods useful to diagnose new indexes as presented in the paper. The methods to do so are now easily accessible via the spinebil package. The second group would be people interested in applying the considered indexes to their datasets. This can be done directly using the tourr package, but we also encourage users unfamiliar with the system to try this through the GUI available in the galahr package. Both packages are now referenced in the discussion (or should it be mentioned somewhere else?).**
+
 **The methods are implemented in an R package, which makes them readily available to all. The code for this paper is all available on github, and we have now made this repo public. It depends on three other packages, mbgraphics, binostics, minerva, which are now updated and on CRAN. We have coded the diagnostic techniques into a new package, and will submit this to CRAN.**
 
 Reviewer #1: Review report for "Using tours to visually investigate properties of new projection pursuit indexes with application to problems in physics"
 
 This manuscript presented a simulation study to visually explore the properties of a set of projection pursuit indexes (PPIs) using a grand tour based on the five criterions. The selected PPIs were then applied to two real datasets in physics for revealing potential patterns. In general I found this article was well written and it fully addresses the problems to be solved. I have no major issue. Some specific comments are listed below:
 
-1) Authors conducted the simulation study to evaluate the selected PPIs based on the five criterions and the results were summarized into Table 3. On the other hand, authors may consider another table that summarizes the advantages/disadvantages/characteristics of these mathematical indexes from the previous literatures. This review is helpful for users to comprehend these indexes' properties. 
+1) Authors conducted the simulation study to evaluate the selected PPIs based on the five criterions and the results were summarized into Table 3. On the other hand, authors may consider another table that summarizes the advantages/disadvantages/characteristics of these mathematical indexes from the previous literatures. This review is helpful for users to comprehend these indexes' properties.
+
+**This comparison was the subject of the thesis referenced in the introduction (Grimm (2016)). We have now added a brief summary of these findings at the end of section 2.2.**
 
 2) According to the aims & scope of the journal, Computational Statistics, this article should keep the content and discussion relevant more focused on the computational aspects.
 
+**maybe move more things to the appendix? not sure how to reply here...**
+
 3) Although the target of this article focuses on the dataset with two-dimensional structure (d=2), it is worth to discuss the possibility (or give some suggestions) of applying the proposed procedure to the situation where d > 2.
 
+**We thank the referee for the suggestion. Indeed much of the methods developped for diagnostics of the index function apply directly to scenarios where d > 2. While the considered index functions may in principle be generalised to higher dimensions as well, this is currently only implemented for the distance correlation function. A detailed assessment of the d > 2 situation will be the subject of future work. (as now stated in the discussion?)**
+
 4) The procedure for assessing the PPIs' properties was listed in Section 3.1.2. In addition, it would be helpful to list the procedure step-by-step (with the detailed R functions/packages) to guide the users how to apply the tour methodology with PPIs to explore the potential patterns of the real-world datasets. 
+
+**The functions used for the evaluation of these tests are now packaged in the spinebil R package. The package documentation contains examples to guide users and make it easy to reproduce the results for different test datasets or different index functions.**
 
 5) Why use the 5th/95th percentiles in Table 2 instead of the average/sd?
 
 **The main reason is that it provides a range of typical values of the index, which is useful for scaling the index dynamically in the guided tour. While it is possible to use a mean, and maybe +/- 3sd's for a similar purpose, range is more useful.**
 
-6) There was some confusion regarding the number of PPIs used in the content. There are eight indexes in Table 2; nine indexes in Fig 7; six indexes in Table 3, and seven indices in Section 4.2.2. 
+6) There was some confusion regarding the number of PPIs used in the content. There are eight indexes in Table 2; nine indexes in Fig 7; six indexes in Table 3, and seven indices in Section 4.2.2.
+
+**Need to decide treatment of holes/cmass index!**
 
 7) I would suggest moving the appendix A (the description of "holes/cmass" index) to Section 2.2 for readability.
 
+**Mention holes/cmass with reference in Sec. 2.2, but keep rescaling information in the appendix?**
+
 8) Check the spelling of words for clarity and consistency, e.g, splines2D/splines2d; convex/1-convex, MIC/MICe, and so on.
+
+**We have made the spelling consistent where referring to the same index, and provided explanations where the different spelling indicates differences in index calculation.**
 
 
