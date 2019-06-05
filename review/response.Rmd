@@ -1,15 +1,18 @@
+## Author's response to reviews
 
-COMMENTS FOR THE AUTHOR:
+The authors wish to thank the reviewers for the careful reading and comments on our first version. This is the detailed information on how we have addressed each comment from the reviewers.
 
-Associate Editor:
+### Associate Editor:
 
 The submission has been evaluated by two reviewers. The manuscript is well written and organized. I have some more philosophical issues in addition to those raised by the two reviewers.
 
 The authors need to convince readers (users) this kind of environment is good for daily EDA for the real world of big data/data science.
 
+**We have revised the introduction to improve the motivation to make this clear.** XXX CHECK THIS
+
 Example(s) with very large number (at least hundreds) of dimensions should be included in the study.
 
-**Theoretically, it might work for really big data, but there are two components that would be required: (1) fast computational engine, (2) an efficient optimiser. Both of these would require major implementation work. We have explained this now in the discusion section.**
+**Theoretically, it might work for really big data, but there are two components that would be required: (1) fast computational engine, (2) an efficient optimiser. Both of these would require major implementation work. We have explained this now in the discussion section.**
 
 **We have analysed an example that is high-dimensional but think that it would be too distracting for the reader of this paper. It is an analysis of physics modeled fits, using initial ideas developed in this paper. There the dimensionality was around 60, and it worked best to reduce the dimensionality using PCA as a pre-processing step, because this explained most of the variability. The tour was applied on the reduced dimensionality, and the work is published in EPJC (cite).**
 
@@ -17,11 +20,13 @@ Who are the target users of this environment? Do you recommend naive users (user
 
 How do you encourage users to try your system?
 
-**The target audience consists of two groups. First we address people interested in developping new index functions, who will find the introduced methods useful to diagnose new indexes as presented in the paper. The methods to do so are now easily accessible via the spinebil package. The second group would be people interested in applying the considered indexes to their datasets. This can be done directly using the tourr package, but we also encourage users unfamiliar with the system to try this through the GUI available in the galahr package. Both packages are now referenced in the discussion (or should it be mentioned somewhere else?).**
+**The target audience consists of two groups. First we address people interested in developing new index functions, who will find the introduced methods useful to diagnose new indexes as presented in the paper. The methods to do so are now easily accessible via the spinebil package. The second group would be people interested in applying the considered indexes to their datasets. This can be done directly using the tourr package, but we also encourage users unfamiliar with the system to try this through the GUI available in the galahr package. Both packages are now referenced in the discussion (or should it be mentioned somewhere else?).**
 
 **The methods are implemented in an R package, which makes them readily available to all. The code for this paper is all available on github, and we have now made this repo public. It depends on three other packages, mbgraphics, binostics, minerva, which are now updated and on CRAN. We have coded the diagnostic techniques into a new package, and will submit this to CRAN.**
 
-Reviewer #1: Review report for "Using tours to visually investigate properties of new projection pursuit indexes with application to problems in physics"
+### Reviewer #1: 
+
+Review report for "Using tours to visually investigate properties of new projection pursuit indexes with application to problems in physics"
 
 This manuscript presented a simulation study to visually explore the properties of a set of projection pursuit indexes (PPIs) using a grand tour based on the five criterions. The selected PPIs were then applied to two real datasets in physics for revealing potential patterns. In general I found this article was well written and it fully addresses the problems to be solved. I have no major issue. Some specific comments are listed below:
 
@@ -31,11 +36,11 @@ This manuscript presented a simulation study to visually explore the properties 
 
 2) According to the aims & scope of the journal, Computational Statistics, this article should keep the content and discussion relevant more focused on the computational aspects.
 
-**maybe move more things to the appendix? not sure how to reply here...**
+**We are really not sure what is being requested here. We have tried to focus the content in the paper on the compututational aspects of the work, and have kept it concise and to the point. The paper is at a reasonable length. The appendix has some details that broaden the discussion. If there are more parts that the reviewer suggests should be shifted to an appendix, we would be happy to do that.**
 
 3) Although the target of this article focuses on the dataset with two-dimensional structure (d=2), it is worth to discuss the possibility (or give some suggestions) of applying the proposed procedure to the situation where d > 2.
 
-**We thank the referee for the suggestion. Indeed much of the methods developped for diagnostics of the index function apply directly to scenarios where d > 2. While the considered index functions may in principle be generalised to higher dimensions as well, this is currently only implemented for the distance correlation function. A detailed assessment of the d > 2 situation will be the subject of future work. (as now stated in the discussion?)**
+**We thank the referee for the suggestion. There are many index functions available for d>2, and the ones in the tourr package work for arbitrary dimension. The work in this paper focuses on studying a selection of indexes designed for 2D. However, the diagnostics cold be applied generally to any dimension projection index. We have commented on this in the discussion.** XXX CHECK THIS.
 
 4) The procedure for assessing the PPIs' properties was listed in Section 3.1.2. In addition, it would be helpful to list the procedure step-by-step (with the detailed R functions/packages) to guide the users how to apply the tour methodology with PPIs to explore the potential patterns of the real-world datasets. 
 
@@ -57,7 +62,8 @@ This manuscript presented a simulation study to visually explore the properties 
 
 **We have made the spelling consistent where referring to the same index, and provided explanations where the different spelling indicates differences in index calculation.**
 
-Reviewer #2:
+### Reviewer #2:
+
 Summary of the contribution:
 The authors present a simulation study to evaluate various projection pursuit indexes for detecting specific bivariate patterns in the data. Moreover, two data sets from physics are examined using PPI.
 
