@@ -57,4 +57,42 @@ This manuscript presented a simulation study to visually explore the properties 
 
 **We have made the spelling consistent where referring to the same index, and provided explanations where the different spelling indicates differences in index calculation.**
 
+Reviewer #2:
+Summary of the contribution:
+The authors present a simulation study to evaluate various projection pursuit indexes for detecting specific bivariate patterns in the data. Moreover, two data sets from physics are examined using PPI.
 
+Major remarks
+The simulation study targets three particular structures the pipe, the sine, and the spiral. Some motivation and justification for selecting these structures should be added.
+
+ **We have added a statement in Section 3.1.1 outlining the motivation for the three structures considered in the simulation study.**
+
+Second, the simulation study uses six-dimensional data of which four dimensions con- tribute nuisance and the other two the intended structure. Implicitly, this is clear, but the description does not make this explicit and uses the general notion of p dimensions instead. Please make this more explicit and also provide some justification that this set-up is adequate for targeting the problem at hand.
+
+**We have added an explicit statement that we fix p=6. As mentioned in the statement p=6 results in two independent planes showing the nuisance distribution and one plane showing the structured distribution. This set-up is adequat for most of our study where we follow interpolated paths either between nuisance only projections or from nuisance views to structured projections.**
+
+Thirdly, the simulations refer to sequences of projections (the horizontal axis in plots in Figures 2, 3, and 4. As I understand these sequences are a consequence of optimising the corresponding projection pursuit index. How can you then actually control the two different scenarios referred to in section 3.2 and 3.3? Or, do you extract a specified sequence of projections? Moreover, how do you make sure that you have the same sequence length for each trial? Please clarify!
+
+**Figures 2 and 3 present the trace for a specified sequence of projections (since in the simulation study the nuisance and structured views are known). This is explained in Section 3.1.2, and we have added a sentence clarifying this in Section 3.2 and made the wording more explicit in Section 3.3. Figure 4 is different as in this case the path is indeed the result of optimising an index. However, we only optimise the TIC index highlighted in red, while the other index values are shown for comparison along the optimisation path.**
+
+**(In my opinion all of this was already very clear before. When discussing this before you suggested making the Figure caption more clear, but it seems they are already very clear and I would not want to make them longer.)**
+
+The optimisation methods are further discussed in section 3.4 and depend on the struc- ture present in the data. What is the value of these investigations for more realistic settings in which the structure is not known.
+
+**(I would list: demonstrate potential as PPI, understand shortcomings, and based on that develop strategies, e.g. the two-step optimisation. Add something like this in Section 3.4?)**
+
+Finally, the relationship between the simulation study and the examples using the astrophysics data remains unclear. How are the physics applications linked to the simulation study and vice versa? Currently, the two aspects seem to me rather independent and could actually be presented in separate manuscripts. Moreover, since some rather important aspects of the simulation study have been put into an appendix. For the COST audience certainly the details of the simulation study are more relevant than the astrophysics application.
+
+**(Point to initial motiviation, what else should we say here?)**
+
+Minor remarks
+When introducing the various PPIs some terms and notations are used which are not properly introduced, e.g. alpha hull, convex. Check which ones actually need to be properly defined as they are needed for further steps and for which ones you could just refer to the literature avoiding unnecessary details.
+
+**(Still need to do this)**
+
+In Figure 3, each plot shows a vertical blue line. Please explain what this line represents.
+
+**We have added such a sentence to the figure caption.**
+
+p. 14, l. 26: optimist should be optimise
+
+**We have fixed the typo.**
