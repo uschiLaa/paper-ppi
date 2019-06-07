@@ -8,13 +8,13 @@ The submission has been evaluated by two reviewers. The manuscript is well writt
 
 The authors need to convince readers (users) this kind of environment is good for daily EDA for the real world of big data/data science.
 
-**We have revised the introduction to improve the motivation to make this clear.** XXX CHECK THIS
+**We have revised the introduction to improve the motivation to make this clear.**
 
 Example(s) with very large number (at least hundreds) of dimensions should be included in the study.
 
-**Theoretically, it might work for really big data, but there are two components that would be required: (1) fast computational engine, (2) an efficient optimiser. Both of these would require major implementation work. We have explained this now in the discussion section.**
+**The simulation study and the applications reveal that the current methods are efficient only in smaller parameter spaces, there are two components that would be required to scale it to examples with hundreds of dimensions: (1) fast computational engine, (2) an efficient optimiser. Both of these would require major implementation work. We have explained this now in the discussion section.** XXX check, add to discussion
 
-**We have analysed an example that is high-dimensional but think that it would be too distracting for the reader of this paper. It is an analysis of physics modeled fits, using initial ideas developed in this paper. There the dimensionality was around 60, and it worked best to reduce the dimensionality using PCA as a pre-processing step, because this explained most of the variability. The tour was applied on the reduced dimensionality, and the work is published in EPJC (cite).**
+**As we now explain in the introduction, we have previously considered an example where the dimensionality was around 60, and it worked best to reduce the dimensionality using PCA as a pre-processing step, because this explained most of the variability (Cook, Laa, and Valencia 2018).**
 
 Who are the target users of this environment? Do you recommend naive users (users without much EDA experience) to get hand on the proposed system?
 
