@@ -27,7 +27,7 @@ This manuscript presented a simulation study to visually explore the properties 
 
 1) Authors conducted the simulation study to evaluate the selected PPIs based on the five criterions and the results were summarized into Table 3. On the other hand, authors may consider another table that summarizes the advantages/disadvantages/characteristics of these mathematical indexes from the previous literatures. This review is helpful for users to comprehend these indexes' properties.
 
-**This comparison was the subject of the thesis referenced in the introduction (Grimm (2016)). We have now added a brief summary of these findings at the end of section 2.2.**
+**This comparison was the subject of the thesis Grimm (2016). We have now added a brief summary of these findings at the end of section 2.2.**
 
 2) According to the aims & scope of the journal, Computational Statistics, this article should keep the content and discussion relevant more focused on the computational aspects.
 

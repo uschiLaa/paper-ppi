@@ -142,7 +142,7 @@ where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$i
     - *Maximum Information Coefficient (MIC)*: uses the maximum normalized $I$ across all bin resolutions. 
     - *Total Information Coefficient (TIC)*: sums the normalized $I$ for all bin resolutions computed. This creates a problem of scaling - there is no upper limit, although it is related to number of bins, and number of bin resolutions used. In the work below we have made empirical estimates of the maximum and scaled the TIC index using this to get it in the range $[0,1]$. This index should be more stable than MIC. 
   
-\textcolor{red}{Here add short summary of comparisons between these functions for variable selection, taking results from Katrins thesis.}
+\textcolor{red}{A comparison between these indexes for the purpose of variable selection was discussed in @Grimm2016, and can be summarised as follows. The scagnostics measures are flexible and calculating the full set of measures provides useful guidance in variable selection, however they are found to be highly sensitive to outlying points and sample size (as a consequence of the binning). Both splines2D and dcor2D are found to be robust in this respect, but splines2D is limited to functional dependence, while dcor2D is found to take large values only in scenarios with large linear correlation. Finally the mutual information based index functions are found to be flexible, but are sensitive to the sample size and often take relatively large values also when no association is present. A comparison of MIC and dcor2D was also presented in @2014arXiv1401.7645S.}
 
 
 ## Optimization
