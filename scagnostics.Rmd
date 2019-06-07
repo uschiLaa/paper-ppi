@@ -1525,8 +1525,13 @@ Future plans
 The motivation for this work was to discover dependencies between estimated parameters in multiple model fits in physics problems. This paper shows how projection pursuit with the new indexes can help address this problem. The results are encouraging, showing large potential for discovering unanticipated relations between multiple variables.
 
 All of the indexes fall short against some aspect of the ideal properties of smoothness, squintability, flexibility, rotation invariance and speed. The paper describes how these properties can be assessed using tour methodology. Some potential fixes for the indexes are discussed but there is scope for further developing the new indexes.
+\textcolor{red}{We recommend to use the spinebil [XXX REF] package when developing new indexes. It includes the functionalities needed to reproduce the assessements presented in this work. While the current focus is on two-dimensional index functions, the methodology introduced here directly applies to the assessment of index functions where $d>2$.}
 
-The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours. The tour is also lacking a portable, easy to use interface that would enable user interactions like stopping, re-starting, saving optimal projections, and development of a graphical user interface, similar to the tourrGui [@tourrGui] (now archived), would help users and projection pursuit researchers.
+The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours.
+
+\textcolors{red}{To use the existing index functions on real-world datasets we recommend to either use the tourr package directly, or if interaction is required to call the guided tour via the graphical interface available in the galahr [XXX Ref] package. Both packages contain examples to show how the guided tour can be used with different index functions.}
+
+#The tour is also lacking a portable, easy to use interface that would enable user interactions like stopping, re-starting, saving optimal projections, and development of a graphical user interface, similar to the tourrGui [@tourrGui] (now archived), would help users and projection pursuit researchers.
 
 \textcolor{red}{Mention spinebil and galahr packages, some statement about big data (addressing the AE question). Mention d>2 as subject of future work.}
 
