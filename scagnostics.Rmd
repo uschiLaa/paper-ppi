@@ -1533,7 +1533,6 @@ The work also reveals inadequacies in the tour optimization algorithm, that may 
 
 #The tour is also lacking a portable, easy to use interface that would enable user interactions like stopping, re-starting, saving optimal projections, and development of a graphical user interface, similar to the tourrGui [@tourrGui] (now archived), would help users and projection pursuit researchers.
 
-\textcolor{red}{Mention spinebil and galahr packages, some statement about big data (addressing the AE question). Mention d>2 as subject of future work.}
 
 # Acknowledgments {-}
 The authors gratefully acknowledge the support of the Australian Research Council.
