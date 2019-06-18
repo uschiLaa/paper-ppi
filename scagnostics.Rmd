@@ -1529,7 +1529,7 @@ All of the indexes fall short against some aspect of the ideal properties of smo
 
 The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours.
 
-\textcolors{red}{To use the existing index functions on real-world datasets we recommend to either use the tourr package directly, or if interaction is required to call the guided tour via the graphical interface available in the galahr [XXX Ref] package. Both packages contain examples to show how the guided tour can be used with different index functions.}
+\textcolor{red}{To use the existing index functions on real-world datasets we recommend to either use the tourr package directly, or if interaction is required to call the guided tour via the graphical interface available in the galahr [XXX Ref] package. Both packages contain examples to show how the guided tour can be used with different index functions.}
 
 #The tour is also lacking a portable, easy to use interface that would enable user interactions like stopping, re-starting, saving optimal projections, and development of a graphical user interface, similar to the tourrGui [@tourrGui] (now archived), would help users and projection pursuit researchers.
 
