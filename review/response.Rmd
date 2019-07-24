@@ -12,9 +12,9 @@ The authors need to convince readers (users) this kind of environment is good fo
 
 Example(s) with very large number (at least hundreds) of dimensions should be included in the study.
 
-**The simulation study and the applications reveal that the current methods are efficient only in smaller parameter spaces. There are two components that would be required to scale it to examples with hundreds of dimensions: (1) fast computational engine, (2) an efficient optimiser. Both of these would require major implementation work. We have explained this now in the discussion section.** XXX check, add to discussion
+**The simulation study and the applications reveal that the current methods are efficient only in smaller parameter spaces. There are two components that would be required to scale it to examples with hundreds of dimensions: (1) fast computational engine, (2) an efficient optimiser. Both of these would require major implementation work. We have explained this now in the discussion section.** XXX check
 
-**As we now explain in the introduction, we have previously considered an example where the dimensionality was around 60, and it worked best to reduce the dimensionality using PCA as a pre-processing step, because this explained most of the variability (Cook, Laa, and Valencia 2018).**
+**However, as we now explain in the introduction, we have previously considered an example where the dimensionality was around 60, and it worked best to reduce the dimensionality using PCA as a pre-processing step, because this explained most of the variability (Cook, Laa, and Valencia 2018).**
 
 Who are the target users of this environment? Do you recommend naive users (users without much EDA experience) to get hand on the proposed system?
 
@@ -40,7 +40,7 @@ This manuscript presented a simulation study to visually explore the properties 
 
 3) Although the target of this article focuses on the dataset with two-dimensional structure (d=2), it is worth to discuss the possibility (or give some suggestions) of applying the proposed procedure to the situation where d > 2.
 
-**We thank the referee for the suggestion. There are many index functions available for d>2, and the ones in the tourr package work for arbitrary dimension. The work in this paper focuses on studying a selection of indexes designed for 2D. However, the diagnostics could be applied generally to any dimension projection index. We have commented on this in the discussion.** XXX CHECK THIS.
+**We thank the referee for the suggestion. Many of the available index functions also work for d>2, for example the ones in the tourr package work for arbitrary dimension. The work in this paper focuses on studying a selection of indexes designed for 2D. However, the same diagnostics could be applied generally to any dimension projection index. We have commented on this in the discussion.** XXX CHECK THIS.
 
 4) The procedure for assessing the PPIs' properties was listed in Section 3.1.2. In addition, it would be helpful to list the procedure step-by-step (with the detailed R functions/packages) to guide the users how to apply the tour methodology with PPIs to explore the potential patterns of the real-world datasets. 
 
