@@ -80,20 +80,20 @@ Thirdly, the simulations refer to sequences of projections (the horizontal axis 
 
 **Figures 2 and 3 present the trace for a specified sequence of projections (since in the simulation study the nuisance and structured views are known). This is explained in Section 3.1.2, and we have added a sentence clarifying this in Section 3.2 and made the wording more explicit in Section 3.3. Figure 4 is different as in this case the path is indeed the result of optimising an index. However, we only optimise the TIC index highlighted in red, while the other index values are shown for comparison along the optimisation path.**
 
-**(In my opinion all of this was already very clear before. When discussing this before you suggested making the Figure caption more clear, but it seems they are already very clear and I would not want to make them longer.)**
+**(In my opinion all of this was already very clear before. When discussing this before you suggested making the Figure caption more clear, but it seems they are already very clear and I would not want to make them longer.)** XXX check and remove
 
 The optimisation methods are further discussed in section 3.4 and depend on the struc- ture present in the data. What is the value of these investigations for more realistic settings in which the structure is not known.
 
-**(I would list: demonstrate potential as PPI, understand shortcomings, and based on that develop strategies, e.g. the two-step optimisation. Add something like this in Section 3.4?)**
+**(I would list: demonstrate potential as PPI, understand shortcomings, and based on that develop strategies, e.g. the two-step optimisation. Add something like this in Section 3.4?)** XXX add?
 
 Finally, the relationship between the simulation study and the examples using the astrophysics data remains unclear. How are the physics applications linked to the simulation study and vice versa? Currently, the two aspects seem to me rather independent and could actually be presented in separate manuscripts. Moreover, since some rather important aspects of the simulation study have been put into an appendix. For the COST audience certainly the details of the simulation study are more relevant than the astrophysics application.
 
-**(Point to initial motiviation, what else should we say here?)**
+**(Point to initial motiviation, maybe say that physics application presents more realistic example with interesting structures in non-trivial projections)** XXX
 
 Minor remarks
 When introducing the various PPIs some terms and notations are used which are not properly introduced, e.g. alpha hull, convex. Check which ones actually need to be properly defined as they are needed for further steps and for which ones you could just refer to the literature avoiding unnecessary details.
 
-**(Still need to do this)**
+**Suggestion: explain alpha hull, convex hull, MST, and add reference for smoothing splines?** XXX decide and add
 
 In Figure 3, each plot shows a vertical blue line. Please explain what this line represents.
 
