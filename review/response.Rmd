@@ -52,11 +52,11 @@ This manuscript presented a simulation study to visually explore the properties 
 
 6) There was some confusion regarding the number of PPIs used in the content. There are eight indexes in Table 2; nine indexes in Fig 7; six indexes in Table 3, and seven indices in Section 4.2.2.
 
-**Need to decide treatment of holes/cmass index!**
+**We are considering seven new index functions. In Section 3 we also include the holes index for comparison, as is now explained in the end of Section 2.2. The holes index is missing in Table 3 which summarises our findings on the new index functions, in addition we have combined the MINE indexes (MIC, TIC) that have very similar behaviour in all assessments, resulting in a list of six indexes. This is now also explained in the text. Finally Section 4.2.2 only considers the new index functions.**
 
 7) I would suggest moving the appendix A (the description of "holes/cmass" index) to Section 2.2 for readability.
 
-**Mention holes/cmass with reference in Sec. 2.2, but keep rescaling information in the appendix?**
+**As mentioned above we now mention the holes index and point to the relevant references in Section 2.2. However, we believe the explanation of the rescaling should remain in the appendix.**
 
 8) Check the spelling of words for clarity and consistency, e.g, splines2D/splines2d; convex/1-convex, MIC/MICe, and so on.
 

@@ -147,6 +147,7 @@ where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$i
   
 \textcolor{red}{A comparison between these indexes for the purpose of variable selection was discussed in @Grimm2016, and can be summarised as follows. The scagnostics measures are flexible and calculating the full set of measures provides useful guidance in variable selection, however they are found to be highly sensitive to outlying points and sample size (as a consequence of the binning). Both splines2D and dcor2D are found to be robust in this respect, but splines2D is limited to functional dependence, while dcor2D is found to take large values only in scenarios with large linear correlation. Finally the mutual information based index functions are found to be flexible, but are sensitive to the sample size and often take relatively large values also when no association is present. A comparison of MIC and dcor2D was also presented in @2014arXiv1401.7645S.}
 
+\textcolor{red}{In addition to the seven indexes described above, we will also consider the holes index included in the `tourr` package, see [@CBC93,@Cook:2007:IDG:1557227]. This serves as a benchmark, demonstrating the desired behaviour. The index takes maximum values for a central hole distribution, and we rescale the values as described in the appendix such that values close to zero are found for normal distributions.}
 
 ## Optimization
 Given a PPI we are confronted with the task of finding the maximum over all possible $d$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuations or a consequence of a noisy index function. @posse95b discusses the optimization, in particular that for most index functions and optimizers results are too local, largely dependent on starting point. @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimization for the identification of the maximum. For exploring high-dimensional data, it can be interesting to observe local maxima as well as a global maximum, and thus a hybrid algorithm that still allows lingering but not being trapped by local maxima is ideal. In addition, being able to visually monitor the optimisation and see the optimal projection in the context of neighbouring projections is useful. This is provided by combining projection pursuit with the grand tour [@CBCH94]. The properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshooting and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible algorithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. The tourr package also provides the \texttt{search\_geodesic} function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimises the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
@@ -1022,12 +1023,13 @@ scMelt <- sc %>%
   rename("1-convex"=convex) %>%
   rowwise() %>%
   mutate(holes = rescaleHoles(holes)) %>%
-  rowwise() %>%
-  mutate(cmass = rescaleCmass(cmass)) %>%
+  #rowwise() %>%
+  #mutate(cmass = rescaleCmass(cmass)) %>%
+  select(-cmass) %>%
   mutate(angle=alpha*360/(2*pi), TIC = TIC) %>%
   select(-alpha) %>%
   gather(PPI, value, -angle) %>%
-  mutate(PPI = fct_relevel(PPI, "holes", "cmass", "1-convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
+  mutate(PPI = fct_relevel(PPI, "holes", "1-convex", "skinny", "stringy", "dcor2d", "splines2d", "MIC", "TIC"))
 
 ggplot(scMelt, aes(x=angle, y=value)) +
   geom_line() + 
@@ -1051,6 +1053,7 @@ We identified two potential improvements. First, the issue of noisy index functi
 ## Summary
 
 Our results can be summarized by evaluating and comparing the advantages and disadvantages of each index function according to the criteria presented above. Such an overview is given in Table \ref{tab:summary}, listing if the criteria is fully met (\checkmark), there are some shortcomings ($\cdot$) or failure ($\times$).
+\textcolor{red}{Notice that the established holes index does not appear in the summary, and the MINE indexes (MIC and TIC) are combined as they were found to have similar behaviour.}
 We find that none of the indexes considered meet all criteria, and in particular rotation invariance is often not fulfilled. In addition the limited flexibility of most indexes highlights the importance of index selection in the projection pursuit setup. Table \ref{tab:summary} further suggests that there is much room for the improvement of index functions detecting unusual association between model parameters.
 
 \begin{table}
