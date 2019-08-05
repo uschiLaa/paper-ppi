@@ -8,19 +8,19 @@ The submission has been evaluated by two reviewers. The manuscript is well writt
 
 The authors need to convince readers (users) this kind of environment is good for daily EDA for the real world of big data/data science.
 
-**We have revised the introduction to improve the motivation to make this clear.**
+**We have added a paragraph to the introduction to explain the approach for higher dimensional problems, as follows:** 
+
+**PP can also be used to explore data with many more variables, data that is commonly seen today. For example, [@Cook:2018mvr] explores a 56-dimensional parameter space, by first reducing the number of dimensions to the first six principal components, before applying projection pursuit. There is not a single solution for working with high-dimensional data. PCA was appropriate for this problem because reducing to principal component space removed the linear dependencies but preserved the nonlinear relationships that were interesting to discover. Some projection pursuit indexes incorporation penalty terms to naturally deal with noise dimensions. Having an efficient optimizer can also important with increasing dimensionality, because there are many more dimensions to search.**
 
 Example(s) with very large number (at least hundreds) of dimensions should be included in the study.
 
-**The simulation study and the applications reveal that the current methods are efficient only in smaller parameter spaces. There are two components that would be required to scale it to examples with hundreds of dimensions: (1) fast computational engine, (2) an efficient optimiser. Both of these would require major implementation work. We have explained this now in the discussion section.** XXX check
-
-**However, as we now explain in the introduction, we have previously considered an example where the dimensionality was around 60, and it worked best to reduce the dimensionality using PCA as a pre-processing step, because this explained most of the variability (Cook, Laa, and Valencia 2018).**
+**The simulation study and the applications reveal that the current methods are efficient only in smaller parameter spaces. There are several components that would be required to scale it to examples with hundreds of dimensions: (1) fast computational engine, (2) an efficient optimiser, (3) new PP indexes that effectively use penalty terms to automatically elliminate nuisance dimensions. The first two would require major implementation work. The methods explained in this paper would be useful for assessing and evaluating new PP indexes. The recommended approach to high-dimensions is to first reduce the dimensionality using PCA, before applying PP. We have explained a sentence to this effect in the discussion section.** 
 
 Who are the target users of this environment? Do you recommend naive users (users without much EDA experience) to get hand on the proposed system?
 
 How do you encourage users to try your system?
 
-**The target audience consists of two groups. First we address people interested in developing new index functions, who will find the introduced methods useful to diagnose new indexes as presented in the paper. The methods to do so are now easily accessible via the spinebil package. The second group would be people interested in applying the considered indexes to their datasets. This can be done directly using the tourr package, but we also encourage users unfamiliar with the system to try this through the GUI available in the galahr package. Both packages are now referenced in the discussion.** XXX add references (need to put on CRAN first?)
+**The target audience consists of two groups. First we hope that researchers developing new index functions, who will find our methods useful to diagnose their new indexes. We have implemented out methods in the R package, spinebil, to make this an attractive prospect to other researchers. The second group would be people interested in applying the indexes to explore nonlinear structure in their data. This can be done directly using the guided tour, in the tourr package, using code similarly to that distributed with this paper. We also encourage novice R users to try this through the tour GUI available in the galahr package. Both packages are now referenced in the discussion.** 
 
 **The considered index functions are all available in R packages, which makes them readily available to all. The packages are mbgraphics, binostics and minerva, which are now updated and on CRAN.**
 
@@ -40,11 +40,11 @@ This manuscript presented a simulation study to visually explore the properties 
 
 3) Although the target of this article focuses on the dataset with two-dimensional structure (d=2), it is worth to discuss the possibility (or give some suggestions) of applying the proposed procedure to the situation where d > 2.
 
-**We thank the referee for the suggestion. Many of the available index functions also work for d>2, for example the ones in the tourr package work for arbitrary dimension. The work in this paper focuses on studying a selection of indexes designed for 2D. However, the same diagnostics could be applied generally to any dimension projection index. We have commented on this in the discussion.** XXX CHECK THIS.
+**We thank the referee for the suggestion. Many of the available index functions also work for d>2, for example the ones in the tourr package work for arbitrary dimension. The work in this paper focuses on studying a selection of indexes designed for 2D. However, the same diagnostics could be applied generally to any dimension projection index. We have commented on this in the discussion.**
 
 4) The procedure for assessing the PPIs' properties was listed in Section 3.1.2. In addition, it would be helpful to list the procedure step-by-step (with the detailed R functions/packages) to guide the users how to apply the tour methodology with PPIs to explore the potential patterns of the real-world datasets. 
 
-**As we now mention in the discussion, the easiest way for new users is to access these through the graphical interface available in the galahr package. The package documentation includes a step-by-step example using the guided tour.** XXX check!
+**As we now mention in the discussion, the easiest way for new users is to access these through the graphical interface available in the galahr package. The package documentation includes a step-by-step example using the guided tour.** XXX check! UP TO HERE!
 
 5) Why use the 5th/95th percentiles in Table 2 instead of the average/sd?
 
