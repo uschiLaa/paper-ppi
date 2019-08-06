@@ -44,19 +44,19 @@ This manuscript presented a simulation study to visually explore the properties 
 
 4) The procedure for assessing the PPIs' properties was listed in Section 3.1.2. In addition, it would be helpful to list the procedure step-by-step (with the detailed R functions/packages) to guide the users how to apply the tour methodology with PPIs to explore the potential patterns of the real-world datasets. 
 
-**As we now mention in the discussion, the easiest way for new users is to access these through the graphical interface available in the galahr package. The package documentation includes a step-by-step example using the guided tour.** XXX check! UP TO HERE!
+**As we now mention in the discussion, the easiest way for new users is to access these through the graphical interface available in the galahr package. The package documentation includes a step-by-step example using the guided tour.** XXX check! 
 
 5) Why use the 5th/95th percentiles in Table 2 instead of the average/sd?
 
-**The main reason is that it provides a range of typical values of the index, which is useful for scaling the index dynamically in the guided tour. While it is possible to use a mean, and maybe +/- 3sd's for a similar purpose, range is more useful.**
+**The main reason is that it provides a range of typical values of the index, which is useful for scaling the index dynamically in the guided tour. While it is possible to use a mean, and maybe +/- 3sd's, its possible that extreme values could occur making it less useful to scale the index for comparison  to other indexes.**
 
 6) There was some confusion regarding the number of PPIs used in the content. There are eight indexes in Table 2; nine indexes in Fig 7; six indexes in Table 3, and seven indices in Section 4.2.2.
 
-**We are considering seven new index functions. In Section 3 we also include the holes index for comparison, as is now explained in the end of Section 2.2. The holes index is missing in Table 3 which summarises our findings on the new index functions, in addition we have combined the MINE indexes (MIC, TIC) that have very similar behaviour in all assessments, resulting in a list of six indexes. This is now also explained in the text. Finally Section 4.2.2 only considers the new index functions.**
+**We are considering seven new index functions. In Section 3, we also include the holes index for comparison, because it is an established index with generally good, focused performance. This is now explained in the end of Section 2.2. The holes index is not included in Table 3 because the focus is on summarising our findings on the new index functions. Because the MINE indexes (MIC, TIC) that have very similar behaviour in all assessments,  we combined for this summary. We have now added another line for TIC, because it doesn't use much extra space, and saves confusion about the differing number of indexes. Finally Section 4.2.2 applies a selection of the new index functions to physics problems.**
 
 7) I would suggest moving the appendix A (the description of "holes/cmass" index) to Section 2.2 for readability.
 
-**As mentioned above we now mention the holes index and point to the relevant references in Section 2.2. However, we believe the explanation of the rescaling should remain in the appendix.**
+**We now briefly describe the holes index and relevant references in Section 2.2. However, the explanation of the rescaling should remain in the appendix, because it distracts from the main message of Section 2.2.**
 
 8) Check the spelling of words for clarity and consistency, e.g, splines2D/splines2d; convex/1-convex, MIC/MICe, and so on.
 
@@ -70,17 +70,17 @@ The authors present a simulation study to evaluate various projection pursuit in
 Major remarks
 The simulation study targets three particular structures the pipe, the sine, and the spiral. Some motivation and justification for selecting these structures should be added.
 
- **We have added a statement in Section 3.1.1 outlining the motivation for the three structures considered in the simulation study.**
+ **We have added more explanation in Section 3.1.1 outlining the motivation for why these three structures are interesting for the simulation study.**
 
-Second, the simulation study uses six-dimensional data of which four dimensions con- tribute nuisance and the other two the intended structure. Implicitly, this is clear, but the description does not make this explicit and uses the general notion of p dimensions instead. Please make this more explicit and also provide some justification that this set-up is adequate for targeting the problem at hand.
+Second, the simulation study uses six-dimensional data of which four dimensions contribute nuisance and the other two the intended structure. Implicitly, this is clear, but the description does not make this explicit and uses the general notion of p dimensions instead. Please make this more explicit and also provide some justification that this set-up is adequate for targeting the problem at hand.
 
-**We have added an explicit statement that we fix p=6. As mentioned in the statement p=6 results in two independent planes showing the nuisance distribution and one plane showing the structured distribution. This set-up is adequat for most of our study where we follow interpolated paths either between nuisance only projections or from nuisance views to structured projections.**
+**We have added an explicit statement that we fix p=6. As mentioned in the statement p=6 results in two independent planes showing the nuisance distribution and one plane showing the structured distribution. This set-up is adequate for most of our study where we follow interpolated paths either between nuisance only projections or from nuisance views to structured projections.**
 
 Thirdly, the simulations refer to sequences of projections (the horizontal axis in plots in Figures 2, 3, and 4. As I understand these sequences are a consequence of optimising the corresponding projection pursuit index. How can you then actually control the two different scenarios referred to in section 3.2 and 3.3? Or, do you extract a specified sequence of projections? Moreover, how do you make sure that you have the same sequence length for each trial? Please clarify!
 
 **Figures 2 and 3 present the trace for a specified sequence of projections (since in the simulation study the nuisance and structured views are known). This is explained in Section 3.1.2, and we have added a sentence clarifying this in Section 3.2 and made the wording more explicit in Section 3.3. Figure 4 is different as in this case the path is indeed the result of optimising an index. However, we only optimise the TIC index highlighted in red, while the other index values are shown for comparison along the optimisation path.**
 
-**(In my opinion all of this was already very clear before. When discussing this before you suggested making the Figure caption more clear, but it seems they are already very clear and I would not want to make them longer.)** XXX check and remove
+**(In my opinion all of this was already very clear before. When discussing this before you suggested making the Figure caption more clear, but it seems they are already very clear and I would not want to make them longer.)** XXX check and remove UP TO HERE!
 
 The optimisation methods are further discussed in section 3.4 and depend on the struc- ture present in the data. What is the value of these investigations for more realistic settings in which the structure is not known.
 
