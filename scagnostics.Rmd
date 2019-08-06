@@ -1052,25 +1052,26 @@ We identified two potential improvements. First, the issue of noisy index functi
 ## Summary
 
 Our results can be summarized by evaluating and comparing the advantages and disadvantages of each index function according to the criteria presented above. Such an overview is given in Table \ref{tab:summary}, listing if the criteria is fully met (\checkmark), there are some shortcomings ($\cdot$) or failure ($\times$).
-\textcolor{red}{Notice that the established holes index does not appear in the summary, and the MINE indexes (MIC and TIC) are combined as they were found to have similar behaviour.}
+\textcolor{red}{Notice that the established holes index does not appear in the summary.}
 We find that none of the indexes considered meet all criteria, and in particular rotation invariance is often not fulfilled. In addition the limited flexibility of most indexes highlights the importance of index selection in the projection pursuit setup. Table \ref{tab:summary} further suggests that there is much room for the improvement of index functions detecting unusual association between model parameters.
 
 \begin{table}
 \begin{center}
-\caption{Summary of findings, showing to what extend the considered index functions pass the criteria for a good PPI. ``\checkmark" symbols good behavior, ``$\cdot$" symbols some issues while ``$\times$" symbols failure on the corresponding criteria. Each index has particular strengths and drawbacks and selection must be guided by the considered example, see text for details.}
+\caption{Summary of findings, showing to what extend the considered new index functions pass the criteria for a good PPI. ``\checkmark" symbols good behavior, ``$\cdot$" symbols some issues while ``$\times$" symbols failure on the corresponding criteria. Each index has particular strengths and drawbacks and selection must be guided by the considered example, see text for details.}
 \label{tab:summary}
 \begin{tabular}{|l|c|c|c|c|c|c|}
 \hline
 Index & smooth & squintability & flexible & rotation invariant & speed \\
 \hline
-Convex & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark & \checkmark \\
-Skinny & $\cdot$ & $\cdot$ & $\cdot$ & $\times$ & \checkmark \\
-Stringy & $\times$ & $\times$ & $\cdot$ & $\cdot$ & \checkmark \\
+convex & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark & \checkmark \\
+skinny & $\cdot$ & $\cdot$ & $\cdot$ & $\times$ & \checkmark \\
+stringy & $\times$ & $\times$ & $\cdot$ & $\cdot$ & \checkmark \\
 \hline
 splines2D & \checkmark & \checkmark & $\cdot$ & $\times$ & \checkmark \\
 dcor2D & \checkmark & \checkmark & $\cdot$ & $\times$ & $\cdot$ \\
 \hline
-MINE & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
+MIC & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
+TIC & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
 \hline
 \end{tabular}
 \end{center}
