@@ -1565,9 +1565,9 @@ The work also reveals inadequacies in the tour optimization algorithm, that may 
 
 # Supplementary material
 
-This article was created with R Markdown [@rmarkdown], the code for the paper is available at [XXX].
-The functions for testing new index functions as presented in this work are implemented in the R package spinebil [XXX].
-The R package galahr [XXX] provides a graphical interface to the tourr package allowing for interactive exploration using the guided tour.
+This article was created with R Markdown [@rmarkdown], the code for the paper is available at [@paperSRC].
+The functions for testing new index functions as presented in this work are implemented in the R package spinebil [@spinebil].
+The R package galahr [@galahr] provides a graphical interface to the tourr package allowing for interactive exploration using the guided tour.
 Additional information in the appendix is XXX
 
 # Acknowledgments {-}
