@@ -92,7 +92,7 @@ Finally, the relationship between the simulation study and the examples using th
 Minor remarks
 When introducing the various PPIs some terms and notations are used which are not properly introduced, e.g. alpha hull, convex. Check which ones actually need to be properly defined as they are needed for further steps and for which ones you could just refer to the literature avoiding unnecessary details.
 
-**Suggestion: explain alpha hull, convex hull, MST, and add reference for smoothing splines?** XXX decide and add
+**We have added the missing references, additional definitions are not required.** XXX check
 
 In Figure 3, each plot shows a vertical blue line. Please explain what this line represents.
 

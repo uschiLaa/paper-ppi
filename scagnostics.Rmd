@@ -124,14 +124,14 @@ $A$ & Alpha hull \\\hline
 Table \ref{notation} summarises the notation used for this section. Here we give an overview of the functions that are converted into projection pursuit indexes. Full details of the functions can be found in the original sources. 
 
 
-* **scagnostics**: The first step to computing the scagnostics is that the bivariate data is binned, and scaled between [0,1] for calculations. The convex and alpha hulls, and the minimal spanning tree (MST), are computed. 
+* **scagnostics**: The first step to computing the scagnostics is that the bivariate data is binned, and scaled between [0,1] for calculations. The convex [@Eddy:1977] and alpha hulls [@1056714], and the minimal spanning tree (MST) [@2033241], are computed. 
     + *convex*: The ratio of the area of alpha to convex hull, $I_{\bm{F}, convex}= \frac{area(A(Y))}{area(H(Y))}$. This is the only measure where interesting projections will take low values, with a maximum of 1 if both areas are the same. Thus $1-c_{convex}$ is used.
     + *skinny*: The ratio of the perimeter to the area of the alpha hull, $I_{\bm{F}, skinny} = 1 -  \frac{\sqrt{4\pi area(A)}}{perimeter(A)}$, where the normalization is chosen such that $I_{\bm{F}, skinny} = 0$ for a full circle. Values close to 1 indicate a skinny polygon.
     + *stringy*: Based on the MST, $I_{\bm{F}, stringy} = \frac{diameter(MST)}{length(MST)}$ where the diameter is the longest connected path, and the length is the total length (sum of all edges). If the MST contains no branches $I_{\bm{F}, skinny} = 1$.
 
 * **association**: The index functions are available in @mbgraphic, and are defined to range in [0,1]. Both functions in the mbgraphic package can bin the data before computing the index, for computational performance.
     + *dcor2D*: This function is based on distance correlation [@szekely2007], which is designed to find both linear and nonlinear dependencies between variables. It involves computing the distances between pairs of observations, conducting an analysis of variance type breakdown of the distances relative to each variable, and the result is then passed to the usual covariance and hence correlation formula. The function wdcor, in the R package, extracat [@extracat], computes the statistic, and the mbgraphic package utilises this function. 
-    + *splines2D*: Measures nonlinear dependence by fitting a spline model of $\bm{Y}_2$ on $\bm{Y}_1$ and also $\bm{Y}_1$ on $\bm{Y}_2$, using the \texttt{gam} function in the R package, mgcv [@w16]. The index compares the variance of the residuals:
+    + *splines2D*: Measures nonlinear dependence by fitting a spline model [@wahba1990spline] of $\bm{Y}_2$ on $\bm{Y}_1$ and also $\bm{Y}_1$ on $\bm{Y}_2$, using the \texttt{gam} function in the R package, mgcv [@w16]. The index compares the variance of the residuals:
     \begin{equation}
     I_{\bm{F}, splines2d} = max(1- \frac{Var(res_{\bm{Y}_1\sim \bm{Y}_2})}{Var(\bm{Y}_1)}, 1-\frac{Var(res_{\bm{Y}_2\sim {\bm{Y}_1}})}{Var(\bm{Y}_2)}),
     \end{equation}
