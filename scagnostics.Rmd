@@ -1083,16 +1083,9 @@ TIC & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
 # Application to physics examples
 \label{sec:phys}
 
-Applying projection pursuit to new datasets can be done using the guided tour available in the `tourr` package. The necessary steps are:
-
-- Scaling and standardization of the data
-- Index function selection and if necessary formatting according to the guided tour requirements, i.e. a function taking matrix input and returning the index value
-- Calling the guided tour, for exploration this can be done via the `tourr::animate` function, for recording the results `tourr::save_history` should be used, examples are given in the documentation of the `tourr::guided_tour` function
-- Things to explore: different indexes, different starting planes, different optimisation options, different ways of reducing dimensionality prior to the guided tour run
 
 
 This section describes the application of these projection pursuit indices to find two-dimensional structure in two multidimensional gravitational waves problems.
-\textcolor{red}{These illustrate different ways of exploring real data using projection pursuit, showcasing the dependence of the results on index function, starting plane and variable selection.}
 
 The first example contains 2538 posterior samples obtained by fitting source parameters to the observed gravitational wave signal GW170817 from a neutron star merger [@PhysRevLett119161101]. Data has been downloaded from @ligoData. The fitting procedures are described in detail in @Abbott2018exr. We consider six parameters of physical interest (6-D) with some known relationships. Projection pursuit is used to find the known relationships. 
 
@@ -1493,6 +1486,17 @@ p2 <- ggplot(as_tibble(bbhD),aes(dec-alpha, ra)) + geom_point(alpha = 0.02) + th
 p3 <- ggplot(as_tibble(bbhD),aes(dec, ra)) + geom_point(alpha = 0.02) + theme(aspect.ratio=1)
 grid.arrange(p1, p2, p3, ncol=3)
 ```
+
+## Application guide
+
+Applying projection pursuit to new datasets can be done using the guided tour available in the `tourr` package. The necessary steps are:
+
+1. Scaling and standardization of the data
+2. Index function selection and if necessary formatting according to the guided tour requirements, i.e. a function taking matrix input and returning the index value
+3. Calling the guided tour with the data and index function via:
+    + for exploration this can be done via the `tourr::animate` function
+    + for recording the results `tourr::save_history` should be used
+4. Exploring how the results depend on choices made (index function, starting planes, optimisation method, reducing dimensionality)
 
 <!--
 
