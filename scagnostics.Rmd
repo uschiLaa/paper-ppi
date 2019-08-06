@@ -732,7 +732,7 @@ fullResMeltPlanned %>%
 ## Optimization check with the guided tour
 \label{sec:guided}
 
-
+\textcolor{red}{Before applying the new index functions with the guided tour on real examples, we test them on the simulated dataset to understand the performance of the optimization.}
 The guided tour combines optimization with interpolation between pairs of planes. Target planes of the path are chosen to maximize the PPI. There are three derivative-free optimization methods available in the guided tour: \verb# search_better_random# (1), \verb# search_better# (2), and \verb# search_geodesic# (3). Method 1 casts a wide net randomly generating projection planes, computing the PPIs and keeping the best projection, and method 2 conducts a localized maximum search. Method 3 is quite different: a local search is conducted to determine a promising direction, and then this direction is followed until the maximum in that direction is found. For all methods the optimization is iterative, the best projections form target planes in the tour, the tour path is the interpolation to this target, and then a new search for a better projection is made, followed by the interpolation. For each projection during the interpolation steps, the PPI is recorded. 
 
 The stopping rule is that no better projections are found after a fixed number of tries, given a fixed tolerance value measuring difference. For method 1 and 2 two additional parameters control the optimization: the search window $\alpha$, giving the maximum distance from the current plane in which projections are sampled, and the cooling factor, giving the incremental decrease in search window size. Method 3 in principle also has two free parameters, which are however fixed in the current implementation. The first is the small step size used when evaluating the most promising direction, it is fixed to 0.01, and the second parameter being the window over which the line search is performed, fixed to $\pm \pi/4$ away from the current plane.
@@ -1083,16 +1083,6 @@ TIC & $\cdot$ & \checkmark  & \checkmark & $\cdot$ & $\cdot$ \\
 # Application to physics examples
 \label{sec:phys}
 
-<<<<<<< HEAD
-=======
-Applying projection pursuit to new datasets can be done using the guided tour available in the `tourr` package. The necessary steps are:
-
-- Scaling and standardization of the data
-- Index function selection and if necessary formatting according to the guided tour requirements, i.e. a function taking matrix input and returning the index value
-- Calling the guided tour, for exploration this can be done via the `tourr::animate` function, for recording the results `tourr::save_history` should be used, examples are given in the documentation of the `tourr::guided_tour` function
-- Things to explore: different indexes, different starting planes, different optimization options, different ways of reducing dimensionality prior to the guided tour run
->>>>>>> 5c251db4cf93772b639669877d21fc39424045bb
-
 
 This section describes the application of these projection pursuit indices to find two-dimensional structure in two multidimensional gravitational waves problems.
 
@@ -1122,10 +1112,14 @@ Figure \ref{fig:nsePlotOrig} shows the optimal projection found by splines2d, a 
 
 
 ```{r neutronStarEq,  results="hide"}
+## Step 1: read data, rescale
 nsD <- read_csv("data/samples.csv") 
 nsM <- nsD %>%
   select(-m2) %>% # remove m2 to avoid finding well known correlation
   rescale() # rescaling, this returns a matrix
+## Step 2: select index function (splines2d),
+##         formatting for guided tour is done in the function splineIndex
+## Step 3: recording guided tour via the save_history function
 if(!file.exists("cache/neutronStarEq.rda")){
   set.seed(2018)
   nseTour <- save_history(nsM, guided_tour(splineIndex()))
@@ -1176,6 +1170,8 @@ grid.arrange(p1, p2, p3, ncol=3)
 To further investigate relationships between parameters, $L1$ is removed and PP with the splines2D is applied to the remaining four parameters. The dependence of $L2$ on the mass and radius of the lighter neutron star, is revealed (Figure \ref{fig:nseRemL1} left plot). A manual reconstruction shows this is a relationship between L2, R1, R2 and m1 (middle plot), but it is effectively the known relationship between L2, R2 and m2 (right plot) -- m2 is latently in the relationship though m1. 
 
 ```{r nseRemL1, fig.cap="Removing L1 and optimize again of the remaining parameters, where m2 remains removed from the set. Because of parameter correlations we can recover clear description of L2 as a function of the other parameters, despite m2 missing."}
+## Step 4: we explore reducing dimensionality, here dropping L1
+## then repeat steps 2+3 as before
 nsM2 <- nsD %>%
   select(-m2, -L1) %>% # remove m2 to avoid finding well known correlation
   rescale()
@@ -1224,8 +1220,11 @@ All seven PP indexes are applied to the data. Figure \ref{fig:bbhGuided} showing
 
 
 ```{r bbhGuided, results="hide", fig.cap="Projections corresponding to the maxima of three indices: TIC, splines2D and 1-convex. Projections a, b found by TIC and splines2d are very similar, and involve the same three parameters, ra, dec and time. The 1-convex index finds a very different view.", fig.height = 3.2, dev = "png", dpi=300}
+# Step 1: data cleaning and rescaling
 bbhD <- read_csv("data/posterior_samples.csv")
 bbhM <- rescale(select(bbhD,-m2, -chi_eff))
+# Step 2: select index function (TIC) formatted in mineIndex
+# Step 3: record guided tour with save_history
 if(!file.exists("cache/bbhGuidedTIC.rda")){
   set.seed(2018)
   bbhTour1 <- save_history(bbhM, guided_tour(mineIndex("TIC")))
@@ -1234,6 +1233,7 @@ if(!file.exists("cache/bbhGuidedTIC.rda")){
 } else {
   load("cache/bbhGuidedTIC.rda")
 }
+# Step 4: repeating steps 2+3 for different index functions (splines2d, 1-convex)
 if(!file.exists("cache/bbhGuidedSpline.rda")){
   set.seed(2018)
   bbhTour2 <- save_history(bbhM, guided_tour(splineIndex()))
@@ -1316,6 +1316,7 @@ The variables time, dec and ra are dropped from the data, and PP is applied to t
 
 
 ```{r bbhGuided2, results="hide", fig.cap="Projections of the reduced 8D space corresponding to the maxima of three indices: TIC, splines2d and 1-convex.", fig.height = 3.2, dev = "png", dpi=300}
+## Step 4: exploring reduced parameter space (here simply dropping several variables)
 bbhM2 <- rescale(select(bbhD,-m2, -chi_eff, -time, -dec, -ra))
 if(!file.exists("cache/bbhGuidedTIC2.rda")){
   set.seed(2018)
@@ -1396,6 +1397,7 @@ Figure \ref{fig:bbhGuided3} shows six maxima obtained by different starts, for t
 Choosing a different subset of variables reveals something new. The subspace of m1, ra, chi\_tot, alpha, distance, dec produces a more refined view of Figure \ref{fig:bbhGuided3} projection f. When alpha contributes in contrast to dec, the relationship between the points is almost perfectly on a curve. This is shown in Figure \ref{fig:constructedExample}. Manually reconstructing the optimal projection (left plot) can be done by differencing the two parameters, in their original units. This highlights the importance of improved optimization, that would use tiny final steps to polish the view to a finer optimal projection and possibly remove noise induced by small contributions of many variables.
 
 ```{r bbhGuided3, results="hide", fig.cap=paste("Final views identified in the dataset considering the seven dimensional parameter space (alpha, theta\\_jn, chi\\_tot, chi\\_p, ra, dec, distance), differing only by randomly selected starting plane."), dev = "png", dpi=300}
+## Step 4: exploring dependence on randomly selected starting planes
 bbhM3 <- rescale(select(bbhD, alpha, theta_jn, chi_tot, chi_p, ra, dec, distance))
 getResWithSeed <- function(s){
   set.seed(s)
@@ -1502,10 +1504,14 @@ Applying projection pursuit to new datasets can be done using the guided tour av
 
 1. Scaling and standardization of the data
 2. Index function selection and if necessary formatting according to the guided tour requirements, i.e. a function taking matrix input and returning the index value
-3. Calling the guided tour with the data and index function via:
+3. Calling the guided tour with the data and index function:
     + for exploration this can be done via the `tourr::animate` function
     + for recording the results `tourr::save_history` should be used
 4. Exploring how the results depend on choices made (index function, starting planes, optimisation method, reducing dimensionality)
+
+These four steps are followed in the applications presented here and are documented in the comments of the source code [XXX github src]. For simple usage examples see documentation of the `tourr::guided_tour` function.
+
+
 
 <!--
 

@@ -44,7 +44,7 @@ This manuscript presented a simulation study to visually explore the properties 
 
 4) The procedure for assessing the PPIs' properties was listed in Section 3.1.2. In addition, it would be helpful to list the procedure step-by-step (with the detailed R functions/packages) to guide the users how to apply the tour methodology with PPIs to explore the potential patterns of the real-world datasets. 
 
-**As we now mention in the discussion, the easiest way for new users is to access these through the graphical interface available in the galahr package. The package documentation includes a step-by-step example using the guided tour.** XXX check! 
+**As we now mention in the discussion, the easiest way for new users is to access these through the graphical interface available in the galahr package. The package documentation includes a step-by-step example using the guided tour. We have also added a short guide to applications (Section 4.3).** XXX check! 
 
 5) Why use the 5th/95th percentiles in Table 2 instead of the average/sd?
 
@@ -83,7 +83,7 @@ Thirdly, the simulations refer to sequences of projections (the horizontal axis 
 
 The optimisation methods are further discussed in section 3.4 and depend on the structure present in the data. What is the value of these investigations for more realistic settings in which the structure is not known.
 
-**(I would list: demonstrate potential as PPI, understand shortcomings, and based on that develop strategies, e.g. the two-step optimisation. Add something like this in Section 3.4?)** XXX add
+**It is important to understand the performance of the optimisation before applying the method on new examples and we use the known examples for this. This is now explained in the first sentence in Section 3.4.** XXX check
 
 Finally, the relationship between the simulation study and the examples using the astrophysics data remains unclear. How are the physics applications linked to the simulation study and vice versa? Currently, the two aspects seem to me rather independent and could actually be presented in separate manuscripts. Moreover, since some rather important aspects of the simulation study have been put into an appendix. For the COST audience certainly the details of the simulation study are more relevant than the astrophysics application.
 
