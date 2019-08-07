@@ -1511,7 +1511,7 @@ Applying projection pursuit to new datasets can be done using the guided tour av
     + for recording the results `tourr::save_history` should be used
 4. Exploring how the results depend on choices made (index function, starting planes, optimisation method, reducing dimensionality)
 
-These four steps are followed in the applications presented here and are documented in the comments of the source code [XXX github src]. For simple usage examples see documentation of the `tourr::guided_tour` function.
+These four steps are followed in the applications presented here and are documented in the comments of the source code [@paperSRC]. For simple usage examples see documentation of the `tourr::guided_tour` function.
 
 
 
@@ -1558,19 +1558,19 @@ Future plans
 The motivation for this work was to discover dependencies between estimated parameters in multiple model fits in physics problems. This paper shows how projection pursuit with the new indexes can help address this problem. The results are encouraging, showing large potential for discovering unanticipated relations between multiple variables.
 
 All of the indexes fall short against some aspect of the ideal properties of smoothness, squintability, flexibility, rotation invariance and speed. The paper describes how these properties can be assessed using tour methodology. Some potential fixes for the indexes are discussed but there is scope for further developing the new indexes.
-\textcolor{red}{We recommend to use the spinebil [XXX REF] package when developing new indexes. It includes the functionalities needed to reproduce the assessments presented in this paper. While the current focus is on two-dimensional index functions, indexes in the tourr package apply to arbitrary projection dimension, and the methodology introduced here could be applied to the assessment of index functions where $d>2$.}
+\textcolor{red}{We recommend to use the spinebil [@spinebil] package when developing new indexes. It includes the functionalities needed to reproduce the assessments presented in this paper. While the current focus is on two-dimensional index functions, indexes in the tourr package apply to arbitrary projection dimension, and the methodology introduced here could be applied to the assessment of index functions where $d>2$.}
 
 The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours.
 \textcolor{red}{As new optimization techniques become available, adapting these to the guided tour would extend the technique to a broader range of problems. The current recommended approach is to first reduce the dimensionality, for example by using PCA, taking care to preserve nonlinear structure, prior to applying PP.}
 
-\textcolor{red}{To use the existing index functions on real-world datasets we recommend to either use the tourr package directly, or if interaction is required to call the guided tour via the graphical interface available in the galahr [XXX Ref] package, superseding the now archived tourrGui [@tourrGui]. Both packages contain examples to show how the guided tour can be used with different index functions.}
+\textcolor{red}{To use the existing index functions on real-world datasets we recommend to either use the tourr package directly, or if interaction is required to call the guided tour via the graphical interface available in the galahr [@galahr] package, superseding the now archived tourrGui [@tourrGui]. Both packages contain examples to show how the guided tour can be used with different index functions.}
 
 # Supplementary material
 
 This article was created with R Markdown [@rmarkdown], the code for the paper is available at [@paperSRC].
-The functions for testing new index functions as presented in this work are implemented in the R package spinebil [@spinebil].
+Methods for testing new index functions as presented in this work are implemented in the R package spinebil [@spinebil].
 The R package galahr [@galahr] provides a graphical interface to the tourr package allowing for interactive exploration using the guided tour.
-Additional information in the appendix is XXX
+Additional information is available in the appendix, covering details of how the holes index was rescaled, estimations of the squint angle, a comparison of the computational performence of the index functions, testing the effect of index parameters on the results and suggestions how the index functions may be refined. Finally additional figures are also presented in the appendix.
 
 # Acknowledgments {-}
 The authors gratefully acknowledge the support of the Australian Research Council.
