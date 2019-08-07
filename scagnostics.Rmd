@@ -501,7 +501,8 @@ res_all <- bind_cols(resp, resi, ress) %>%
   mutate(indexF = factor(index, c("holes", "convex", "skinny", "stringy", "dcor2D", "splines2D", "MICe", "TICe"))) %>%
   arrange(indexF) %>%
   select(-indexF, -index) %>%
-  add_column(index = c("holes", "", "convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", ""))
+  add_column(index = c("holes", "", "convex", "", "skinny", "", "stringy", "", "dcor2D", "", "splines2D", "", "MICe", "", "TICe", "")) %>%
+  select(index, everything())
 # Good resource for doing tables
 # https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_pdf.pdf
 kable(res_all, format = "latex",  caption = "Comparison of index values between noise projections and structured projections for sample size 1000, using 5th and 95th percentiles from 100 simulated sets. Most indices have much larger values for the structured projections, except for convex.", 
