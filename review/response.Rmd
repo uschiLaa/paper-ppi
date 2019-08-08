@@ -44,7 +44,7 @@ This manuscript presented a simulation study to visually explore the properties 
 
 4) The procedure for assessing the PPIs' properties was listed in Section 3.1.2. In addition, it would be helpful to list the procedure step-by-step (with the detailed R functions/packages) to guide the users how to apply the tour methodology with PPIs to explore the potential patterns of the real-world datasets. 
 
-**As we now mention in the discussion, the easiest way for new users is to access these through the graphical interface available in the galahr package. The package documentation includes a step-by-step example using the guided tour. We have also added a short guide to applications (Section 4.3).** XXX check! 
+**We have made a shiny app available in the package galahr, that will make it easier for new users to use a guided tour. The package documentation includes a step-by-step example. We have also added a step-by-step guide for the two applications in Section 4.3.** 
 
 5) Why use the 5th/95th percentiles in Table 2 instead of the average/sd?
 
@@ -83,16 +83,16 @@ Thirdly, the simulations refer to sequences of projections (the horizontal axis 
 
 The optimisation methods are further discussed in section 3.4 and depend on the structure present in the data. What is the value of these investigations for more realistic settings in which the structure is not known.
 
-**It is important to understand the performance of the optimisation before applying the method on new examples and we use the known examples for this. This is now explained in the first sentence in Section 3.4.** XXX check
+**It is important to understand the performance of the optimisation before applying the method on new examples and we use the known examples for this. This is now explained in the first sentence in Section 3.4.** 
 
 Finally, the relationship between the simulation study and the examples using the astrophysics data remains unclear. How are the physics applications linked to the simulation study and vice versa? Currently, the two aspects seem to me rather independent and could actually be presented in separate manuscripts. Moreover, since some rather important aspects of the simulation study have been put into an appendix. For the COST audience certainly the details of the simulation study are more relevant than the astrophysics application.
 
-**As we now outline in the section overview, this paper first investigates the behaviour of the new indexes to understand the potential and challenges in using them in projection pursuit settings, before applying them to examples of the physics problems we are interested in addressing. While we agree that the simulation study is central to the work, we believe that showing applications of the method to unknown distributions is also relevant for the COST audience. Note that the application section now also contains guidelines on how to apply projection pursuit to new datasets, which are referenced in comments in the source code producing the examples, making them more useful to the reader** XXX check
+**The connection between two main sections is now explained in the introduction. We've added step wise instructions for applying projection pursuit to these two examples that can be used by researchers wishing to apply the techniques to their data.** 
 
 Minor remarks
 When introducing the various PPIs some terms and notations are used which are not properly introduced, e.g. alpha hull, convex. Check which ones actually need to be properly defined as they are needed for further steps and for which ones you could just refer to the literature avoiding unnecessary details.
 
-**We have added the missing references, additional definitions are not required.** XXX check
+**We have added more explanation, and appropriate references.** 
 
 In Figure 3, each plot shows a vertical blue line. Please explain what this line represents.
 
