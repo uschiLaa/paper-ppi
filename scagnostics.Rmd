@@ -71,14 +71,14 @@ A large number of projection pursuit indexes have been developed, primarily base
 
 The driving application is from physics, to aid the interpretation of model fits on experimental results. A physical model can be considered to be a set of $p$ free parameters, that cannot be measured directly and are determined by fitting a set of $q~ (p<q)$ experimental observations, for which predictions can be made once the $p$ parameters are estimated. (Note here, that while we may have analytic expressions for the predictions, this is not always the case and we often have to rely on numerical computation.) Different sets of model parameters ($n$) found to be  compatible with the experimental results within a selected level of confidence yield the data to be examined using projection pursuit. A single prediction can be a complicated function of all of the free parameters, and typically $q \in [100,1000]$ and $p \sim 10$. Current practice is to examine pairs of parameters, or combinations produced by intuition or prior knowledge. This begs the question, whether important nonlinear associations are missed because because they are hidden in linear combinations of more than two variables.
 
-\textcolor{red}{PP can be combined with other dimension reduction methods when $p$ is very high. For example, it can be beneficial to first do principal component analysis prior to PP, especially to remove linear dependencies before searching for other types of association. This is the approach used in @Cook:2018mvr, which explores a 56-dimensional parameter space, by first reducing the number of dimensions to the first six principal components, before applying projection pursuit. PCA was appropriate for this problem because reducing to principal component space removed the linear dependencies while preserving the nonlinear relationships that were interesting to discover. Some projection pursuit indexes do incorporate penalty terms to automate removing noise dimensions. It can also be important to have an efficient PP optimizer, particularly when working with high dimensions, because the search space increases exponentially with dimension.}
+PP can be combined with other dimension reduction methods when $p$ is very high. For example, it can be beneficial to first do principal component analysis prior to PP, especially to remove linear dependencies before searching for other types of association. This is the approach used in @Cook:2018mvr, which explores a 56-dimensional parameter space, by first reducing the number of dimensions to the first six principal components, before applying projection pursuit. PCA was appropriate for this problem because reducing to principal component space removed the linear dependencies while preserving the nonlinear relationships that were interesting to discover. Some projection pursuit indexes do incorporate penalty terms to automate removing noise dimensions. It can also be important to have an efficient PP optimizer, particularly when working with high dimensions, because the search space increases exponentially with dimension.
 
 To find appropriate projections pursuit indexes for detecting nonlinear dependencies, the literature on variable selection was a starting point. With high-dimensional data, even plotting all pairs of variables can lead to too many plots, which is what "scagnostics" (@scag, @WW08) were developed to address by providing metrics from which to select the most interesting variable pairs. There are eight scagnostics, of which three ("convex", "skinny" and "stringy") are used here. The question is whether these can be adapted into projection pursuit indexes, to search for unusual features in two-dimensional projections of high-dimensional data. Recent PhD research by @Grimm2016 explored the behavior of scagnostics for selecting variables, and proposed two more that have nicer properties, based on smoothing splines and distance correlation. In addition, two more indexes for measuring dependence have been proposed in the machine learning literature, based on information criteria, maximal and total information coefficient (MIC and TIC) [@Reshef1518], with computationally more efficient versions (MIC_e, TIC_e) [@JMLRv1715308]. These are related to original 1D projection pursuit indexes based on entropy (e.g. @huber85, @JS87). This provides seven current indexes for measuring dependence between two variables, and each is available in an R [@rref] package: scagnostics [@HWscagR], mbgraphic [@mbgraphic] and minerva [@minerva]. 
 
 PP index behavior can be understood and investigated more substantially when combined with a tour. A tour (@As85, @BCAH05) displays a smooth sequence of low dimensional projections from high dimensions to explore multivariate data for structure such as clusters, outliers, and nonlinear relationships. @CBCH94 provided an approach combining the tour algorithm with PP, to interactively both search for interesting projections, and examine the behavior of the indexes. The projection pursuit guided tour is available in the R package, tourr [@tourr], and provides optimization routines, and visualization.
 
 
-\textcolor{red}{This paper is structured as follows.} Section \ref{sec:construct} discusses index construction, and how they can be used in the guided tour. Section \ref{sec:investigate} investigates the behavior of the indexes, explored primarily using tour methods. The new guided tour with these indexes is applied to two examples from gravitational wave astronomy (Section \ref{sec:phys}). \textcolor{red}{The latter two parts are connected in that the application of the new indexes to these problems is the main motivation for the paper, and the simulation study, in the first part, was conducted to better understand the behavior of the indexes in general. The techniques in Section \ref{sec:investigate} define procedures that will be generally useful for researchers developing new projection pursuit indexes to visually assess their behavior. Visual methods to diagnose the index behavior is important because PP is primarily used for visualistion.  The paper finishes with a discussion about the limitations of this work, and the potential future directions.} 
+This paper is structured as follows. Section \ref{sec:construct} discusses index construction, and how they can be used in the guided tour. Section \ref{sec:investigate} investigates the behavior of the indexes, explored primarily using tour methods. The new guided tour with these indexes is applied to two examples from gravitational wave astronomy (Section \ref{sec:phys}). The latter two parts are connected in that the application of the new indexes to these problems is the main motivation for the paper, and the simulation study, in the first part, was conducted to better understand the behavior of the indexes in general. The techniques in Section \ref{sec:investigate} define procedures that will be generally useful for researchers developing new projection pursuit indexes to visually assess their behavior. Visual methods to diagnose the index behavior is important because PP is primarily used for visualistion.  The paper finishes with a discussion about the limitations of this work, and the potential future directions.
 
 # Projection pursuit index construction and optimization
 \label{sec:construct}
@@ -146,9 +146,9 @@ where $by_1, by_2$ are binned values of the projected data, and $p(by_1, by_2)$i
     - *Maximum Information Coefficient (MIC)*: uses the maximum normalized $I$ across all bin resolutions. 
     - *Total Information Coefficient (TIC)*: sums the normalized $I$ for all bin resolutions computed. This creates a problem of scaling - there is no upper limit, although it is related to number of bins, and number of bin resolutions used. In the work below we have made empirical estimates of the maximum and scaled the TIC index using this to get it in the range $[0,1]$. This index should be more stable than MIC. 
   
-\textcolor{red}{A comparison between these indexes for the **purpose of variable selection**, but not projection pursuit, was discussed in @Grimm2016. It is only available in German, we we summarise the main findings here. The scagnostics measures are flexible, and calculating the full set of measures provides useful guidance in variable selection. However, they are found to be highly sensitive to outlying points and sample size (as a consequence of the binning). Both splines2D and dcor2D are found to be robust in this respect, but splines2D is limited to functional dependence, while dcor2D is found to take large values only in scenarios with large linear correlation. The mutual information based index functions (MIC< TIC) are found to be flexible, but are sensitive to the sample size and often take relatively large values even when no association is present. A brief comparison of MIC and dcor2D was also provided in @2014arXiv1401.7645S.}
+A comparison between these indexes for the **purpose of variable selection**, but not projection pursuit, was discussed in @Grimm2016. It is only available in German, we we summarise the main findings here. The scagnostics measures are flexible, and calculating the full set of measures provides useful guidance in variable selection. However, they are found to be highly sensitive to outlying points and sample size (as a consequence of the binning). Both splines2D and dcor2D are found to be robust in this respect, but splines2D is limited to functional dependence, while dcor2D is found to take large values only in scenarios with large linear correlation. The mutual information based index functions (MIC< TIC) are found to be flexible, but are sensitive to the sample size and often take relatively large values even when no association is present. A brief comparison of MIC and dcor2D was also provided in @2014arXiv1401.7645S.
 
-\textcolor{red}{In addition to the seven indexes described above, we will also include the holes index available in the `tourr` package, see [@CBC93,@Cook:2007:IDG:1557227]. This serves as a benchmark, demonstrating some desired behavior. The index takes maximum values for a central hole in the distribution of the projected data.}
+In addition to the seven indexes described above, we will also include the holes index available in the `tourr` package, see [@CBC93,@Cook:2007:IDG:1557227]. This serves as a benchmark, demonstrating some desired behavior. The index takes maximum values for a central hole in the distribution of the projected data.
 
 ## Optimization
 Given a PPI we are confronted with the task of finding the maximum over all possible $d$ dimensional projections. One challenge is to avoid getting trapped in local maxima that are only a result of sampling fluctuations or a consequence of a noisy index function. @posse95b discusses the optimization, in particular that for most index functions and optimizers results are too local, largely dependent on starting point. @f87 suggested a two-step procedure: the first step is using a large step size to find the approximate global maximum while stepping over pseudomaxima. A second step is then starting from the projection corresponding to the approximate maximum and employing a gradient directed optimization for the identification of the maximum. For exploring high-dimensional data, it can be interesting to observe local maxima as well as a global maximum, and thus a hybrid algorithm that still allows lingering but not being trapped by local maxima is ideal. In addition, being able to visually monitor the optimization and see the optimal projection in the context of neighboring projections is useful. This is provided by combining projection pursuit with the grand tour [@CBCH94]. The properties of a suitable optimization algorithm include monotonicity of the index value, a variable step-size to avoid overshooting and to increase the chance of reaching the nearest maximum, and a stopping criterion allowing to move out of a local maximum and into a new search region [@tourr]. A possible algorithm is inspired by simulated annealing and has been described in @lckl2005, this has been implemented in the \texttt{search\_better} and \texttt{search\_better\_random} search functions in the tourr package. The tourr package also provides the \texttt{search\_geodesic} function, which first selects a promising direction by comparing index values between a selected number of small random steps, and then optimizes the function over the line along the geodesic in that direction considering projections up to $\pi/4$ away from the current view.
@@ -190,7 +190,7 @@ A useful projection pursuit index needs to have several properties. This has bee
 \label{sec:dataOv}
 
 Three families of data simulations are used for examining the behavior of the index functions. Each generates  structure in two variables, with the remaining variables containing various types of noise. This is a very simple construction, because there is no need for projection pursuit to find the structure, one could simply use the PPIs on pairs of variables. However, it serves the purpose to also evaluate the PPIs. The three data families are explained below. In each set, $n$ is used for the number of points, $p$ is the number of dimensions, and $d=2$ is the projection dimension. 
-\textcolor{red}{The three structures were selected to cover both functional and non-functional dependence, different types of nuisance distributions and different structure size and squintability properties.}
+The three structures were selected to cover both functional and non-functional dependence, different types of nuisance distributions and different structure size and squintability properties.
 
 - **pipe**: nuisance directions are generated by sampling independently from a uniform distribution between $[-1,1]$, and the circle is generated by sampling randomly on a 2D circle, and adding a small radial noise. The circle should be easy to see by some indices because it is large structure, but the nonlinearity creates a complication. 
 - **sine**:  nuisance directions are generated by sampling independently from a standard normal distribution, and the sine curve is generated by $x_p = \sin(x_{p-1}) + \mathrm{jittering}$. The sine is a medium nonlinear structure, which should be visible to multiple indices.
@@ -523,7 +523,7 @@ kable(res_all, format = "latex",  caption = "Comparison of index values between 
 ```
 
 
-\textcolor{red}{For simplicity, in the investigations of the index behavior, we fix $p=6$, which corresponds two independent 2D planes containing nuisance distributions, and one 2D plane containing the structured distribution. }
+For simplicity, in the investigations of the index behavior, we fix $p=6$, which corresponds to two independent 2D planes containing nuisance distributions, and one 2D plane containing the structured distribution.
 The structured projection is in variables 5 and 6 ($x_5, x_6$). Two samples sizes are used: $n=(100, 1000)$. All variables are standardized to have mean 0 and standard deviation 1. Figure \ref{fig:data} shows samples from each of the families, of the nuisance and structured pairs of variables. Table \ref{tab:indexTable} compares the PPIs for structured projections against those for nuisance variables, based on 100 simulated data sets of each type, using sample size 1000. The lower and upper show the 5th and 95th percentile of values. The holes index is sensitive only to the pipe distribution. All other indexes, except convex show distinctly higher values for the structured projections. The convex index shows the inverse scale to other indices, thus (1-convex) will be used in the assessment of performance of PPIs. The scale for the holes index in its original implementation is smaller than the others ranging from about 0.7 through 1, so it is re-scaled in the performance assessment so that all indices can be plotted on a common scale of 0-1 (details in Appendix). Similarly, the TIC index is re-scaled depending on sample size. 
 
 ### Property assessment {#sec:propAss}
@@ -593,7 +593,7 @@ grid.arrange(pL[[1]], pL[[2]], pL[[3]], pL[[4]], pL[[5]], pL[[6]],
 \label{sec:smooth}
 
 Figure \ref{fig:plotV1V2toV3V4} shows the traces representing the index values calculated across a tour between a pair of nuisance projections.
-\textcolor{red}{The tour path is generated by interpolating between the two independent nuisance planes, i.e. from the projection onto $x_1$-$x_2$ to one onto $x_3$-$x_4$.}
+The tour path is generated by interpolating between the two independent nuisance planes, i.e. from the projection onto $x_1$-$x_2$ to one onto $x_3$-$x_4$.
 The range of each axis is set to be the limits of the index, as might be expected over many different data sets, 0 to 1. Each projection in the interpolation will also be noise. Two different sample sizes are show, $n=100$ as a dashed line, and $n=1000$ as a solid line. The ideal trace is a smooth function, with relatively low values, and no difference between the sample sizes. A major feature to notice is that the scagnostics produce noisy functions, which is problematic, because small changes in the projection result in big jumps in the value. This will make them difficult to optimize. On the other hand holes, dcor2d, splines2d, MIC and TIC are relatively smooth functions. 
 
 Several of the indexes are sensitive to sample size also, the same structured projection with differing numbers of points, produces different values. 
@@ -684,7 +684,7 @@ fullResMelt %>%
 \label{sec:squintability}
 
 Figure \ref{fig:wIntermediate} shows the PPIs for a tour sequence between a nuisance and structured projection. A long sequence is generated where the path 
-\textcolor{red}{interpolates between projections onto}
+interpolates between projections onto
 $x_1$-$x_2$, $x_1$-$x_5$, $x_5$-$x_6$, in order to see some of the intricacies of holes index. Sample size is indicated by line type: dashed being $n=100$ and solid is $n=1000$. The beginning of the sequence is the nuisance projection and the end is the structured projection. The index values for most PPIs increases substantially nearing the structured projection, indicating that they "see" the structure. Some indexes see all three structures: scagnostics, MIC and TIC,  which means that they are flexible indexes capable of detecting a range of structure. [@Grimm2016]'s indexes, dcor2d and splines2d, are excellent for detecting the sine, and they can see it from far away, indicated by the long slow increase in index value. The holes index easily detects the pipe, and can see it from a distance, but also has local maxima along the tour path. The scagnostic index, stringy, can see the structure but is myopic, only when it is very close. Interestingly the scagnostic, skinny, sees the spiral from a distance.
 
 
@@ -735,7 +735,7 @@ fullResMeltPlanned %>%
 ## Optimization check with the guided tour
 \label{sec:guided}
 
-\textcolor{red}{Before applying the new index functions, with the guided tour on real examples, we test them on the simulated dataset to understand the performance of the optimization.}
+Before applying the new index functions, with the guided tour on real examples, we test them on the simulated dataset to understand the performance of the optimization.
 The guided tour combines optimization with interpolation between pairs of planes. Target planes of the path are chosen to maximize the PPI. There are three derivative-free optimization methods available in the guided tour: \verb# search_better_random# (1), \verb# search_better# (2), and \verb# search_geodesic# (3). Method 1 casts a wide net randomly generating projection planes, computing the PPIs and keeping the best projection, and method 2 conducts a localized maximum search. Method 3 is quite different: a local search is conducted to determine a promising direction, and then this direction is followed until the maximum in that direction is found. For all methods the optimization is iterative, the best projections form target planes in the tour, the tour path is the interpolation to this target, and then a new search for a better projection is made, followed by the interpolation. For each projection during the interpolation steps, the PPI is recorded. 
 
 The stopping rule is that no better projections are found after a fixed number of tries, given a fixed tolerance value measuring difference. For method 1 and 2 two additional parameters control the optimization: the search window $\alpha$, giving the maximum distance from the current plane in which projections are sampled, and the cooling factor, giving the incremental decrease in search window size. Method 3 in principle also has two free parameters, which are however fixed in the current implementation. The first is the small step size used when evaluating the most promising direction, it is fixed to 0.01, and the second parameter being the window over which the line search is performed, fixed to $\pm \pi/4$ away from the current plane.
@@ -1055,7 +1055,7 @@ We identified two potential improvements. First, the issue of noisy index functi
 ## Summary
 
 Our results can be summarized by evaluating and comparing the advantages and disadvantages of each index function according to the criteria presented above. Such an overview is given in Table \ref{tab:summary}, listing if the criteria is fully met (\checkmark), there are some shortcomings ($\cdot$) or failure ($\times$).
-\textcolor{red}{(The holes index does not appear in the summary because its performance understood, and is not being examined here.)}
+(The holes index does not appear in the summary because its performance understood, and is not being examined here.)
 We find that none of the indexes considered meet all criteria, and in particular rotation invariance is often not fulfilled. In addition the limited flexibility of most indexes highlights the importance of index selection in the projection pursuit setup. Table \ref{tab:summary} further suggests that there is much room for the improvement of index functions detecting unusual association between model parameters.
 
 \begin{table}
@@ -1559,12 +1559,12 @@ Future plans
 The motivation for this work was to discover dependencies between estimated parameters in multiple model fits in physics problems. This paper shows how projection pursuit with the new indexes can help address this problem. The results are encouraging, showing large potential for discovering unanticipated relations between multiple variables.
 
 All of the indexes fall short against some aspect of the ideal properties of smoothness, squintability, flexibility, rotation invariance and speed. The paper describes how these properties can be assessed using tour methodology. Some potential fixes for the indexes are discussed but there is scope for further developing the new indexes.
-\textcolor{red}{We recommend to use the spinebil [@spinebil] package when developing new indexes. It includes the functionalities needed to reproduce the assessments presented in this paper. While the current focus is on two-dimensional index functions, indexes in the tourr package apply to arbitrary projection dimension, and the methodology introduced here could be applied to the assessment of index functions where $d>2$.}
+We recommend to use the spinebil [@spinebil] package when developing new indexes. It includes the functionalities needed to reproduce the assessments presented in this paper. While the current focus is on two-dimensional index functions, indexes in the tourr package apply to arbitrary projection dimension, and the methodology introduced here could be applied to the assessment of index functions where $d>2$.
 
 The work also reveals inadequacies in the tour optimization algorithm, that may benefit from newly developed techniques and software tools. Exploring this area would help improve the guided tours.
-\textcolor{red}{As new optimization techniques become available, adapting these to the guided tour would extend the technique to a broader range of problems. The current recommended approach is to first reduce the dimensionality, for example by using PCA, taking care to preserve nonlinear structure, prior to applying PP.}
+As new optimization techniques become available, adapting these to the guided tour would extend the technique to a broader range of problems. The current recommended approach is to first reduce the dimensionality, for example by using PCA, taking care to preserve nonlinear structure, prior to applying PP.
 
-\textcolor{red}{To apply the existing index functions in practice, we recommend to either use the tourr package directly, or if interaction is required to call the guided tour via the graphical interface available in the galahr [@galahr] package. This package supersedes the now archived tourrGui [@tourrGui]. Both packages contain examples to show how the guided tour can be used with different index functions.}
+To apply the existing index functions in practice, we recommend to either use the tourr package directly, or if interaction is required to call the guided tour via the graphical interface available in the galahr [@galahr] package. This package supersedes the now archived tourrGui [@tourrGui]. Both packages contain examples to show how the guided tour can be used with different index functions.
 
 # Supplementary material
 
@@ -1583,382 +1583,5 @@ The authors gratefully acknowledge the support of the Australian Research Counci
 We thank Rory Smith for help with the gravitational wave examples, and German Valencia for useful comments.
 This article was created with knitr [@knitr], R Markdown [@rmarkdown] and bookdown [@bookdown] with embedded code.
 
-\appendix
-
-# Appendix {-} 
-
-# Re-scaling of holes index
-
-Holes and cmass indexes are derived from $I_0^N$ of [@CBC93]. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. @Cook:2007:IDG:1557227 then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximized for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
-
-We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in [@CBC93]. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This is consistent with the results we found, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
-
-We therefore rescale as follows: first have cut-off at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, and we rescale the remaining range to be between zero and one.
-
-# Estimating the squint angle of the spiral
-
-We estimate the squint angle of the spiral (for p = 4, 5, 6) as follows. First pick a random starting plane and generate a tour path from the starting plane to the ideal plane containing the spiral. Using skinny as the reference index we fix a lower index value that is attributed to indicate squintability at $0.6$, and we move along the tour path towards the ideal plane until this value is reached. The distance between the thus identified plane and the ideal plane is used as an estimate of the squint angle in this direction. Since this will strongly depend on the random starting plane, i.e. the considered direction, we repeat the estimation 100 times and present the results in the form of a box plot in Figure \ref{fig:squintAngle}. The result shows a large drop in squint angle when going from p = 4 to higher dimensions, and generally a large spread of squint angles depending on the direction.
-
-```{r squintAngle, out.width="0.5\\textwidth", fig.cap="Estimated squint angles for the Spiral dataset with 1000 datapoints, with p = 4, 5, 6, containing estimates evaluated for 100 randomly selected directions each.", results="hide"}
-
-squintAngleEstimat <- function(data, indexF, cutoff, structurePlane, n = 100, stepSize = 0.01){
-  # data = numerical input with p > 2 dimensions
-  # indexF = the index function used to estimate the squint angle
-  # cutoff = lower bound on the index value to be considered structured (i.e. all lower index values are outside the squint angle)
-  # structuredPlane = projection matrix onto plane containing the 2-d structure
-  # n = number of random starting directions over which the squint angle estimate is averaged
-  # stepSize = accuracy, step size determines where the index is evaluated to find the first plane above cutoff
-  data <- as.matrix(data) # make sure data is in matrix format
-  angles <- numeric(length = n) # collecting all individual estimates
-  i <- 1
-  p <- ncol(data)
-  while(i <= n){
-    # first generate random direction, make sure it is not too close to structure plane
-    dist <- 0.
-    while(dist < 0.1){
-      rBasis <- tourr::basis_random(p)
-      dist <- tourr::proj_dist(rBasis, structurePlane)
-    }
-    # now interpolate from rBasis to structure plane with selected step size
-    # since planned tour ignores first two entries, generate some random planes to be ignored
-    notUsed1 <- tourr::basis_random(p)
-    notUsed2 <- tourr::basis_random(p)
-    tourHist <- save_history(data,tour_path=planned_tour(list(notUsed1, notUsed2, rBasis, structurePlane)))
-    allBases <- as.list(interpolate(tourHist, angle = stepSize))
-    cIndex <- 0.
-    j <- 1
-    while(cIndex < cutoff){
-      cProj <- data %*% allBases[[j]]
-      cIndex <- indexF(cProj)
-      j <- j+1
-    }
-    cDist <- tourr::proj_dist(allBases[[j]], structurePlane)
-    angles[i] <- cDist
-    i <- i+1
-  }
-  return(angles)
-}
-
-if(!file.exists("cache/squintAngle.rda")){
-  allAngles <- tibble(d=numeric(), angle=numeric())
-  for(d in c(4,5,6)){
-    set.seed(58958)
-    specialPlane <- matrix(c(rep(0,d-2),1,0,rep(0,d-1),1),ncol=2)
-    spiralD <- spiral1000 %>%
-      purrr::when(d<6 ~ select(., -V4), ~ .) %>%
-      purrr::when(d<5 ~ select(., -V3), ~ .)
-    cAngles <- squintAngleEstimat(spiralD, scagIndex("Skinny"), 0.6, specialPlane)
-    allAngles <- bind_rows(allAngles, tibble(d=d, angle=cAngles))
-  }
-  save(allAngles, file = "cache/squintAngle.rda")
-} else {
-  load("cache/squintAngle.rda")
-}
-
-allAngles <- rename(allAngles, p=d)
-
-ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
-```
-
-
-# Computational performance {#app:speed}
-Computational time is important for using the PPIs with the guided tour, online. Figure \ref{fig:timer} summarizes performance for each PPI. For simplicity, data with sample sizes ranging from 100-10000 are drawn from a 6-d solid sphere, using the geozoo package [@geozoo].  The time to compute the PPIs over 100 interpolated grand tour projections is recorded. The scagnostics PPI are computed as a bundle, since this is the code base, and that major computational constraint is common to all the scagnostics. There are two versions of the MIC and TIC algorithm, labelled MINE and MINE E, the second being a newer algorithm which improves their computational performance. 
-
-The results are interesting. The scagnostic indexes and splines2d are very fast regardless of sample size. MIC, TIC (both versions) and dcor2d slow rapidly as sample size increases.
-
-
-```{r getTimer}
-
-mineE <- function(x,y){
-  return(mine(x=x, y=y, est = "mic_e"))
-}
-
-
-timeThis <- function(d, t, idx, pmax, n, idxName){ #d=data matrix, t=interpolated tour path, idx=index function, pmax=max number of projections, n=sample size, idxName=str name of idx funciton
-    i <- 1
-    dfTimer = data.frame( t= numeric(), i=numeric(), n = numeric(), name=character())
-    for(pMatrix in t){
-      if(i>pmax) break
-      tic.clearlog()
-      tic() #start timer
-      dProj <- d %*% pMatrix
-      sgnst <- idx(dProj[,1],dProj[,2])
-      toc(log=TRUE,quiet=TRUE)
-      scTd <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
-      dfTimer <- add_row(dfTimer, t=scTd, i=i, n= n, name=idxName)
-      i = i+1
-    }
-    return(dfTimer)
-}
-
-```
-
-
-```{r timer, fig.cap="Computational perfoamce for PPIs, using sample sizes 100-10000. Colour indicates the PPI. Because the scagnostics calculation is bundled together, the values are the same for all these indexes, and they are really fast to compute. MINE includes the MIC and TIC indexes, and MINE E are computationally more efficient algorithms for these. These, along with dcor2D, are slower with larger sample sizes.", out.width=".6\\textwidth"}
-if(!file.exists("cache/timer.rda")){
-  set.seed(2018)
-  grandTour100 <- save_history(sphereData(6,100), grand_tour(2), max=4) %>%
-    interpolate() %>%
-    as.list()
-
-  sizeL <- c(10, 100, 500, 1000, 5000, 10000)
-  t <- 1
-  dfTimer <- NULL
-  for(sampleSize in sizeL){
-    set.seed(sampleSize + 11) # new seed for each sample size
-    if(sampleSize == 0) sampleSize = 10 # smallest considered sample has 10 points
-    thisMatrix <-  sphereData(6, sampleSize) %>% rescale()
-    scagT <- timeThis(thisMatrix, grandTour100, scagnostics.default, 100, sampleSize, "scagnostics")
-    dcorT <- timeThis(thisMatrix, grandTour100, dcor2d, 100, sampleSize, "dcor2D")
-    splineT <- timeThis(thisMatrix, grandTour100, splines2d, 100, sampleSize, "splines2D")
-    mineT <- timeThis(thisMatrix, grandTour100, mine, 100, sampleSize, "MINE")
-    mineeT <- timeThis(thisMatrix, grandTour100, mineE, 100, sampleSize, "MINE E")
-    dfTimerC <- list(scagT, dcorT, splineT, mineT,mineeT) %>%
-      reduce(rbind)
-    dfTimer <- rbind(dfTimer, dfTimerC)
-    t <-  t+1
-  }
-  save(dfTimer, file = "cache/timer.rda")
-} else {
-  load("cache/timer.rda")
-}
-
-timerMeans <- dfTimer %>%
-  group_by(name, n) %>%
-  summarise(t=mean(t))
-
-ggplot(dfTimer, aes(x = n, y = t)) + 
-  geom_point(alpha=0.1, aes(color=name, shape=name)) +
-  geom_point(data=timerMeans, aes(color=name, shape=name)) +
-  geom_line(data=timerMeans, aes(linetype=name, color=name)) +
-  scale_x_log10(limits=c(90,10100)) +
-#  scale_y_log10(limits=c(0.00001,1)) + 
-  labs(x = "Sample Size", y = "Time [s]", color = "Index family", 
-       linetype = "Index family", shape = "Index family") + 
-  scale_colour_brewer(palette="Dark2")
-```
-
-
-# Effect of parameter choice in index value {#app:param}
-Some parameters must be provided for some PPIs. This can be advantageous, allowing the index to more flexibly work for different types of structure, controlling trade-offs between noise and fine structure detection, and affecting computing time and precision.
-
-- Binning:
-    - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
-    - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points. The default is chosen as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
-- Spline knots: for the splines2d measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
-
-<!--### Effect of binning in scagnostics -->
-
-The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:spiralScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
-
-
-```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example.", out.width=".7\\textwidth"}
-getScagComp <- function(df, tPath){
-  sc <- tibble(
-    convex10=numeric(),
-    skinny10=numeric(),
-    stringy10=numeric(),
-    convex20=numeric(),
-    skinny20=numeric(),
-    stringy20=numeric(),
-    convex50=numeric(),
-    skinny50=numeric(),
-    stringy50=numeric(),
-    t=numeric())
-  n <- length(tPath)
-  for (i in 1:n) {
-    dprj <- as.matrix(df) %*% tPath[[i]]
-    scagRes10 <- scagnostics.default(dprj[,1], dprj[,2], bins=10)$s
-    scagRes20 <- scagnostics.default(dprj[,1], dprj[,2], bins=20)$s
-    scagRes50 <- scagnostics.default(dprj[,1], dprj[,2], bins=50)$s
-    sc <- add_row(sc,
-                  convex10=scagRes10["Convex"], skinny10=scagRes10["Skinny"],
-                  stringy10=scagRes10["Stringy"],
-                  convex20=scagRes20["Convex"], skinny20=scagRes20["Skinny"],
-                  stringy20=scagRes20["Stringy"],
-                  convex50=scagRes50["Convex"], skinny50=scagRes50["Skinny"],
-                  stringy50=scagRes50["Stringy"],
-                  t=i)
-  }
-  
-  return(sc)
-}
-if(!file.exists("cache/spiralScagBinning.rda")){
-  scagBinningDf <- getScagComp(spiral1000, t2full)
-  scagMelt <- gather(scagBinningDf, variable, value, -t) %>%
-    mutate(nbin = as.numeric(str_sub(variable, start = -2))) %>%
-    mutate(idx = str_sub(variable, end = -3))
-  save(scagBinningDf, scagMelt, file = "cache/spiralScagBinning.rda")
-} else {
-  load("cache/spiralScagBinning.rda")
-}
-ggplot(scagMelt, aes(x=t, y=value)) +
-  geom_line(aes(color=factor(nbin))) + 
-  facet_wrap(~idx, ncol=1, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
-  scale_colour_discrete("bins") + xlab("Number of projections") + 
-  ylab("PPI value")
-
-```
-
-## Binning sensitivity of MIC index
-To examine the sensitivity of binning in the MIC PPI, the classic RANDU data [@Marsaglia68], available in R, is used. Binning is defined by $\delta$, where $B(n) = n^{\delta}$. Figure \ref{fig:randuEx} shows the best projection, index value and computing time obtained when optimizing the MIC index with values $\delta = 0.6, 0.7, 0.8$. With small $\delta$, less bins, the structure isn't visible, and with larger $\delta$ the structure is confounded with noise. It does appear that this parameter affects the performance of the MIC index.
-
-
-```{r randuEx, results="hide", fig.cap="Best projection obtained by optimizing the MIC index on the RANDU data, using different number of bins, defined by $\\delta$. The smaller the value the fewer bins.  Above each plot is written the value of $\\delta$, time required to optimize (seconds) and the MIC index value. The best $\\delta = 0.7$, and the result indicates that this parameter does affect MIC performance."}
-if(!file.exists("cache/randuEx.rda")){
-  pL <- list()
-  i <- 1
-  for (alpha in c( 0.6, 0.7, 0.8)){
-    set.seed(556677)
-    tic.clearlog()
-    tic() #start timer
-    tP <- save_history(randu, guided_tour(mineIndexAlpha("MIC", alpha)),max_bases = 100000)
-    toc(log=TRUE,quiet=TRUE)
-    optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
-    imax <- length(as.list(tP))
-    fV <- as_tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
-    colnames(fV) <- c("PP1", "PP2")
-    idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
-    pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
-      ggtitle(paste(alpha, toString(format(optT, digits=2)), toString(format(idxV, digits=2)), sep = ", "))
-    i <- i+1
-  }
-  save(pL, file = "cache/randuEx.rda")
-} else {
-  load("cache/randuEx.rda")
-}
-grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
-```
-
-
-
-# Ways to refine the PPIs {#app:enh}
-
-The biggest issues revealed by the investigation into the new PPIs are a lack of smoothness, particularly for the scagnostics indexes, and the rotation invariance of Grimm's indexes. To fix the smoothness of an index function, it is possible to calculate the PPI for a small neighborhood of projections and average the value, or alternatively average the PPI for several jittered projections. This is investigated in Fig. \ref{fig:spiralScagSmoothing}. Rotation invariance is more difficult to fix, but an alternative tour interpolation method could be useful. The geodesic interpolation transitions between planes, and it ignores the basis defining the plane, creating a problem with rotation invariant indices. Alternative interpolations based on Givens or Householder rotations could be implemented to transition between bases, which should alleviate the need for rotationally invariant indices. 
-
-
-Two different methods are considered for smoothing the index values:
-
-* Jittering points: using the jitter function we move each point by a random amount drawn from a uniform distribution between $\pm \beta$.
-* Jittering angles: using the tourr implementation we can draw a random plane and move some small amount $\epsilon$ in that direction.
-
-The mean value from a sample of projections is recorded as the PPI value. This could be robsitufied by dropping the most extreme values. 
-
-This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using the tour path between noise variables of the spiral1000 dataset and different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnostics are fast to compute, either of these methods is feasible. For this example we have smoothed over 10 randomly selected jittered views, computing time increases linearly with the number of randomly jittered views, as this is mostly determined by the time needed to evaluate the scagnostics indexes which is done separately for each view.
-
-
-```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indexes skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). For comparison the red line in the background shows the trace without any smoothing applied."}
-
-jitterScagnostics <-function(proj, d, alpha){
-  newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
-  newD <- d %*% newProj
-  return(as.vector(scagnostics.default(newD[,1],newD[,2])$s))
-}
-
-jitterPointsScagnostics <-function(projData, alpha){
-  newD <- jitter(projData, amount=alpha)
-  return(as.vector(scagnostics.default(newD[,1],newD[,2])$s))
-}
-
-
-getSgnMean <- function(proj, d, alpha, method){
-  dProj <- d %*% proj
-  orig <- as.vector(scagnostics.default(dProj[,1],dProj[,2])$s)
-  if(method == "jitterAngle"){
-    sgnVec <- replicate(10, jitterScagnostics(proj, d, alpha))
-  } else if (method=="jitterPoints"){
-    sgnVec <- replicate(10, jitterPointsScagnostics(dProj, alpha))
-  }
-  return(rowMeans(cbind(orig, sgnVec)))
-}
-
-getScagSmooth <- function(df, tPath){
-  sc <- tibble(
-    convex=numeric(),
-    skinny=numeric(),
-    stringy=numeric(),
-    t=numeric(),
-    method=character(),
-    alpha=numeric())
-  n <- length(tPath)
-  for (method in c("jitterAngle", "jitterPoints")){
-    for (alpha in c(0.01, 0.05, 0.1)){
-      for (i in 1:n) {
-        scagMean <- getSgnMean(tPath[[i]], as.matrix(df), alpha, method)
-        convex <- scagMean[6]
-        skinny <- scagMean[7]
-        stringy <- scagMean[8]
-        sc <- sc %>% add_row(convex=convex, skinny=skinny, stringy=stringy,
-                             t=i, method=method, alpha=alpha)
-      }
-    }
-  }
-  
-  return(sc)
-}
-
-if(!file.exists("cache/spiralScagSmoothing.rda")){
-  scagSmooth <- getScagSmooth(spiral1000, as.list(t1full))
-  scagSmoothMelt <- gather(scagSmooth, variable, value, -t, -method, -alpha)
-  save(scagSmooth, scagSmoothMelt, file = "cache/spiralScagSmoothing.rda")
-} else {
-  load("cache/spiralScagSmoothing.rda")
-}
-
-#getting non-smoothed result
-load("cache/V1V2toV3V4.rda")
-noSmoothing <- fullRes %>%
-  filter(size==1000) %>%
-  filter(name=="spiral") %>%
-  select(skinny, stringy, t) %>%
-  gather(variable, value, -t)
-
-scagSmoothMelt <- scagSmoothMelt %>%
-  filter(variable != "convex") %>%
-  mutate(method = factor(method, levels = c("jitterAngle", "jitterPoints")))
-ggplot(scagSmoothMelt, aes(x=t, y=value)) +
-  geom_line(data=noSmoothing, color="red", alpha=0.5) +
-  geom_line(aes(linetype=factor(method))) + 
-  theme(legend.position="none") +
-  ylim(0,1) +
-  facet_grid(alpha~variable) +
-  xlab("Sequence of projections (t)") +
-  ylab("PPI value")
-
-```
-
-
-
-# Additional Figures
-
-## Final projection of pipe guided tour
-Figure \ref{fig:testpipe} shows the projection returned during the scouting phase (left) and the refinement phase (right). It was important to start the method 3 optimizer at the best projection returned during the scouting phase, to smoothly converge more closely to the ideal projection.
-
-```{r testpipe,  fig.height=4, fig.width=8, out.width = "0.8\\textwidth",  fig.cap="Projections returned by TIC optimization: by the scouting phase (left) and refined by  optimization method 3 (right), starting from the scouting phase projection."}
-iLast <- length(pipeTourFull)
-fProj <- pipeTourFull[[iLast]]
-dProj <- as_tibble(pipeResc %*% fProj)
-p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
-  xlab("PP1") + ylab("PP2")
-iLast <- length(pipeTourFull2)
-fProj <- pipeTourFull2[[iLast]]
-dProj <- as_tibble(pipeResc %*% fProj)
-p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
-  xlab("PP1") + ylab("PP2")
-grid.arrange(p1, p2, ncol=2)
-```
-
-## Dataset overview scatter plot matrices
-
-Figures \ref{fig:neutronStarSPLOM} and \ref{fig:bbhSimulation} show the scatter plot matrices of the gravitational wave datasets considered, see Section \ref{sec:phys} for details.
-
-```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
-ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
-```
-
-```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300, fig.cap="Scatter plot matrix showing most of the variables included in the BBH dataset. Strong correlation between the parameters time, dec and ra can be observed."}
-bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
-ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
-```
 
 # References {-}

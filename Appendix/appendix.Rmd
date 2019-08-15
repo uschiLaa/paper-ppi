@@ -1,0 +1,588 @@
+---
+title: Using tours to visually investigate properties of new projection pursuit indexes with application to problems in physics -- Appendix
+
+# to produce blinded version set to 1
+blinded: 0
+
+authors: 
+- name: Ursula Laa
+  address: School of Physics and Astronomy, Monash University
+  email: ursula.laa@monash.edu
+- name: Dianne Cook
+  address: Department of Econometrics and Business Statistics, Monash University
+  email: dicook@monash.edu
+
+abstract: |
+  Appendix material for the paper "Using tours to visually investigate properties of new projection pursuit indexes with application to problems in physics".
+
+bibliography: ../bibliography.bib
+output: rticles::springer_article
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
+  - \usepackage{xcolor}
+  - \usepackage{bm}
+---
+
+```{r initial, echo = FALSE, include = FALSE}
+library(knitr)
+opts_chunk$set(
+  warning = FALSE, message = FALSE, echo = FALSE, 
+  fig.path = 'figure/', cache.path = 'cache/', fig.align = 'center', 
+  fig.show = 'hold', cache = FALSE, external = TRUE, dev = "pdf",
+  fig.height = 5, fig.width = 8, out.width = "\\textwidth"
+)
+opts_knit$set(eval.after = "fig.cap") #so I can use chunck output in the caption
+```
+
+```{r load}
+library(tourr)
+library(tidyverse)
+library(binostics)
+library(gridExtra)
+library(tictoc) #timer
+library(mbgraphic) #Katrins package
+library(GGally)
+library(geozoo)
+library(minerva) #MINE indices
+library(kableExtra)
+library(forcats)
+```
+
+```{r util}
+#defining index functions to be used with the tour
+scagIndex <- function(scagType){
+  function(mat){
+    sR <- scagnostics.default(mat[,1],mat[,2])$s
+    return(sR[scagType])
+  }
+}
+
+scagIndexNbin <- function(scagType, n){
+  function(mat){
+    sR <- scagnostics.default(mat[,1], mat[,2], bins = n)$s
+    return(sR[scagType])
+  }
+}
+
+invConvexIndex <- function(){
+  function(mat){
+    sR <- scagnostics.default(mat[,1],mat[,2])$s
+    return(1 - sR["Convex"])
+  }
+}
+
+splineIndex <- function(){
+  function(mat){
+    return(splines2d(mat[,1], mat[,2]))
+  }
+}
+
+dcorIndex <- function(){
+  function(mat){
+    return(dcor2d(mat[,1], mat[,2]))
+  }
+}
+
+mineIndex <- function(mineIndex){
+  function(mat){
+    return(mine(mat[,1], mat[,2])[[mineIndex]])
+  }
+}
+
+mineIndexE <- function(mineIndex){
+  function(mat){
+    return(mine(mat[,1], mat[,2], est = "mic_e")[[mineIndex]])
+  }
+}
+
+mineIndexAlpha <- function(mineIndex, alpha){
+  function(mat){
+    return(mine(mat[,1], mat[,2], alpha=alpha)[[mineIndex]])
+  }
+}
+
+##rescaled holes, cmass
+holesR <- function(){
+  function(mat){
+    ret <- tourr::holes(mat)
+    if(ret<0.8) ret <- 0.
+    else ret <- (ret-0.8) * 5
+    return(ret)
+  }
+}
+
+cmassR <- function(){
+  function(mat){
+    ret <- tourr::cmass(mat)
+    if(ret<0.2) ret <- 0.
+    else ret <- (ret-0.2) * 1.25
+    return(ret)
+  }
+}
+
+rescaleHoles <- function(x){
+  if(x<0.8) x <- 0.
+  else x <- (x-0.8) * 5
+  return(x)
+}
+
+rescaleCmass <- function(x){
+  if(x<0.2) x <- 0.
+  else x <- (x-0.2) * 1.25
+  return(x)
+}
+
+
+```
+
+```{r datasetFunctions}
+sphereData <- function(n, p){
+  dRet <- geozoo::sphere.solid.random(n,p)
+  return(as_tibble(dRet$points))
+}
+
+pipeData <- function(n, p){
+  i <- 1
+  dRet <- NULL
+  while(i <= p){
+    v <- runif(n, -1, 1)
+    if(abs(v[n-1]*v[n-1] + v[n]*v[n] - 1) < 0.1){
+      dRet <- rbind(dRet, v)
+      i <- i+1
+    }
+  }
+  return(as_tibble(dRet))
+}
+
+sinData <- function(n, p){
+  vName <- paste0("V",n)
+  vNameM1 <- paste0("V",n-1)
+  expr <- paste0(vName,"=sin(",vNameM1,")") # need string expression if I want to use tibble here
+  dRet <- as_tibble(matrix(rnorm((n-1)*p), ncol=(n-1))) #generate normal distributed n-1 dim data
+  dRet <- mutate_(dRet, expr) #string evaluation calculates var(n) as tan(var(n-1))
+  colnames(dRet)[n] <- vName #correct name of new variable
+  dRet[vName] <- jitter(dRet[[vName]]) #adding noise
+  return(dRet)
+}
+
+spiralData <- function(n, p){
+  i <- 1
+  a <- 0.1
+  b <- 0.1
+  dRet <- NULL
+  while(i <= p){
+    v <- rnorm(n-2)
+    theta <- abs(rnorm(1,0,2*pi))
+    r <- a + b * theta
+    x <- r * cos(theta)
+    y <- r * sin(theta)
+    v <- c(v, x, y)
+    dRet <- rbind(dRet, v)
+    i <- i+1
+  }
+  return(dRet)
+}
+
+```
+
+```{r datasets}
+# sample(1000:9999, 1)
+set.seed(3705)
+spiral100 <- spiralData(6, 100) %>% scale() %>% as_tibble()
+spiral1000 <- spiralData(6, 1000) %>% scale() %>% as_tibble()
+#sphere100 <- sphereData(6, 100) %>% scale() %>% as_tibble()
+#sphere1000 <- sphereData(6, 1000) %>% scale() %>% as_tibble()
+
+pipe100 <- pipeData(6, 100) %>% scale() %>% as_tibble()
+pipe1000 <- pipeData(6,1000) %>% scale() %>% as_tibble()
+
+sin100 <- sinData(6, 100) %>% scale() %>% as_tibble()
+sin1000 <- sinData(6, 1000) %>% scale() %>% as_tibble()
+```
+
+\appendix
+
+# Appendix {-} 
+
+# Re-scaling of holes index
+
+Holes and cmass indexes are derived from $I_0^N$ of [@CBC93]. As noted in proposition 1 of that paper the index takes local maxima for the minimum and maximum of $a_0$ which are achieved by central hole and central mass distributions respectively. @Cook:2007:IDG:1557227 then gives explicit index functions defined for sphered data (zero mean, identity variance-covariance matrix). They are defined such that each one is maximized for central holes or central mass type distributions, with maximum=1, and cmass=1-holes. It follows that for either index both large and small values signal deviation from the normal distribution, and given a normal distribution we expect to find "average" index values rather than values close to zero.
+
+We can estimate the values found for normal distribution by comparing values of $a_{00}$ of Sec 7.1 in [@CBC93]. The maximum value is $1/(2\pi)$ found for cmass type distributions, the minimum is $1/(2\pi e)$ found for hole type distributions. Evaluating for normal distributions gives $1/(4\pi)$, rescaling such that the index values range from 0 to 1 then puts the value for normal distributions at approximately $0.2$. This is consistent with the results we found, i.e. for normal distributions the cmass index is about $0.2$, and the holes index (=1-cmass) is about $0.8$.
+
+We therefore rescale as follows: first have cut-off at the respective value for the normal distribution, i.e. any value below 0.2 (0.8) is set to zero for cmass (holes) index, and we rescale the remaining range to be between zero and one.
+
+# Estimating the squint angle of the spiral
+
+We estimate the squint angle of the spiral (for p = 4, 5, 6) as follows. First pick a random starting plane and generate a tour path from the starting plane to the ideal plane containing the spiral. Using skinny as the reference index we fix a lower index value that is attributed to indicate squintability at $0.6$, and we move along the tour path towards the ideal plane until this value is reached. The distance between the thus identified plane and the ideal plane is used as an estimate of the squint angle in this direction. Since this will strongly depend on the random starting plane, i.e. the considered direction, we repeat the estimation 100 times and present the results in the form of a box plot in Figure \ref{fig:squintAngle}. The result shows a large drop in squint angle when going from p = 4 to higher dimensions, and generally a large spread of squint angles depending on the direction.
+
+
+
+```{r squintAngle, out.width="0.5\\textwidth", fig.cap="Estimated squint angles for the Spiral dataset with 1000 datapoints, with p = 4, 5, 6, containing estimates evaluated for 100 randomly selected directions each.", results="hide"}
+
+squintAngleEstimat <- function(data, indexF, cutoff, structurePlane, n = 100, stepSize = 0.01){
+  # data = numerical input with p > 2 dimensions
+  # indexF = the index function used to estimate the squint angle
+  # cutoff = lower bound on the index value to be considered structured (i.e. all lower index values are outside the squint angle)
+  # structuredPlane = projection matrix onto plane containing the 2-d structure
+  # n = number of random starting directions over which the squint angle estimate is averaged
+  # stepSize = accuracy, step size determines where the index is evaluated to find the first plane above cutoff
+  data <- as.matrix(data) # make sure data is in matrix format
+  angles <- numeric(length = n) # collecting all individual estimates
+  i <- 1
+  p <- ncol(data)
+  while(i <= n){
+    # first generate random direction, make sure it is not too close to structure plane
+    dist <- 0.
+    while(dist < 0.1){
+      rBasis <- tourr::basis_random(p)
+      dist <- tourr::proj_dist(rBasis, structurePlane)
+    }
+    # now interpolate from rBasis to structure plane with selected step size
+    # since planned tour ignores first two entries, generate some random planes to be ignored
+    notUsed1 <- tourr::basis_random(p)
+    notUsed2 <- tourr::basis_random(p)
+    tourHist <- save_history(data,tour_path=planned_tour(list(notUsed1, notUsed2, rBasis, structurePlane)))
+    allBases <- as.list(interpolate(tourHist, angle = stepSize))
+    cIndex <- 0.
+    j <- 1
+    while(cIndex < cutoff){
+      cProj <- data %*% allBases[[j]]
+      cIndex <- indexF(cProj)
+      j <- j+1
+    }
+    cDist <- tourr::proj_dist(allBases[[j]], structurePlane)
+    angles[i] <- cDist
+    i <- i+1
+  }
+  return(angles)
+}
+
+if(!file.exists("../cache/squintAngle.rda")){
+  allAngles <- tibble(d=numeric(), angle=numeric())
+  for(d in c(4,5,6)){
+    set.seed(58958)
+    specialPlane <- matrix(c(rep(0,d-2),1,0,rep(0,d-1),1),ncol=2)
+    spiralD <- spiral1000 %>%
+      purrr::when(d<6 ~ select(., -V4), ~ .) %>%
+      purrr::when(d<5 ~ select(., -V3), ~ .)
+    cAngles <- squintAngleEstimat(spiralD, scagIndex("Skinny"), 0.6, specialPlane)
+    allAngles <- bind_rows(allAngles, tibble(d=d, angle=cAngles))
+  }
+  save(allAngles, file = "../cache/squintAngle.rda")
+} else {
+  load("../cache/squintAngle.rda")
+}
+
+allAngles <- rename(allAngles, p=d)
+
+ggplot(allAngles, aes(p, angle, group=p)) + geom_boxplot()
+```
+
+
+# Computational performance {#app:speed}
+Computational time is important for using the PPIs with the guided tour, online. Figure \ref{fig:timer} summarizes performance for each PPI. For simplicity, data with sample sizes ranging from 100-10000 are drawn from a 6-d solid sphere, using the geozoo package [@geozoo].  The time to compute the PPIs over 100 interpolated grand tour projections is recorded. The scagnostics PPI are computed as a bundle, since this is the code base, and that major computational constraint is common to all the scagnostics. There are two versions of the MIC and TIC algorithm, labelled MINE and MINE E, the second being a newer algorithm which improves their computational performance. 
+
+The results are interesting. The scagnostic indexes and splines2d are very fast regardless of sample size. MIC, TIC (both versions) and dcor2d slow rapidly as sample size increases.
+
+
+```{r getTimer}
+
+mineE <- function(x,y){
+  return(mine(x=x, y=y, est = "mic_e"))
+}
+
+
+timeThis <- function(d, t, idx, pmax, n, idxName){ #d=data matrix, t=interpolated tour path, idx=index function, pmax=max number of projections, n=sample size, idxName=str name of idx funciton
+    i <- 1
+    dfTimer = data.frame( t= numeric(), i=numeric(), n = numeric(), name=character())
+    for(pMatrix in t){
+      if(i>pmax) break
+      tic.clearlog()
+      tic() #start timer
+      dProj <- d %*% pMatrix
+      sgnst <- idx(dProj[,1],dProj[,2])
+      toc(log=TRUE,quiet=TRUE)
+      scTd <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+      dfTimer <- add_row(dfTimer, t=scTd, i=i, n= n, name=idxName)
+      i = i+1
+    }
+    return(dfTimer)
+}
+
+```
+
+
+```{r timer, fig.cap="Computational perfoamce for PPIs, using sample sizes 100-10000. Colour indicates the PPI. Because the scagnostics calculation is bundled together, the values are the same for all these indexes, and they are really fast to compute. MINE includes the MIC and TIC indexes, and MINE E are computationally more efficient algorithms for these. These, along with dcor2D, are slower with larger sample sizes.", out.width=".6\\textwidth"}
+if(!file.exists("../cache/timer.rda")){
+  set.seed(2018)
+  grandTour100 <- save_history(sphereData(6,100), grand_tour(2), max=4) %>%
+    interpolate() %>%
+    as.list()
+
+  sizeL <- c(10, 100, 500, 1000, 5000, 10000)
+  t <- 1
+  dfTimer <- NULL
+  for(sampleSize in sizeL){
+    set.seed(sampleSize + 11) # new seed for each sample size
+    if(sampleSize == 0) sampleSize = 10 # smallest considered sample has 10 points
+    thisMatrix <-  sphereData(6, sampleSize) %>% rescale()
+    scagT <- timeThis(thisMatrix, grandTour100, scagnostics.default, 100, sampleSize, "scagnostics")
+    dcorT <- timeThis(thisMatrix, grandTour100, dcor2d, 100, sampleSize, "dcor2D")
+    splineT <- timeThis(thisMatrix, grandTour100, splines2d, 100, sampleSize, "splines2D")
+    mineT <- timeThis(thisMatrix, grandTour100, mine, 100, sampleSize, "MINE")
+    mineeT <- timeThis(thisMatrix, grandTour100, mineE, 100, sampleSize, "MINE E")
+    dfTimerC <- list(scagT, dcorT, splineT, mineT,mineeT) %>%
+      reduce(rbind)
+    dfTimer <- rbind(dfTimer, dfTimerC)
+    t <-  t+1
+  }
+  save(dfTimer, file = "../cache/timer.rda")
+} else {
+  load("../cache/timer.rda")
+}
+
+timerMeans <- dfTimer %>%
+  group_by(name, n) %>%
+  summarise(t=mean(t))
+
+ggplot(dfTimer, aes(x = n, y = t)) + 
+  geom_point(alpha=0.1, aes(color=name, shape=name)) +
+  geom_point(data=timerMeans, aes(color=name, shape=name)) +
+  geom_line(data=timerMeans, aes(linetype=name, color=name)) +
+  scale_x_log10(limits=c(90,10100)) +
+#  scale_y_log10(limits=c(0.00001,1)) + 
+  labs(x = "Sample Size", y = "Time [s]", color = "Index family", 
+       linetype = "Index family", shape = "Index family") + 
+  scale_colour_brewer(palette="Dark2")
+```
+
+
+# Effect of parameter choice in index value {#app:param}
+Some parameters must be provided for some PPIs. This can be advantageous, allowing the index to more flexibly work for different types of structure, controlling trade-offs between noise and fine structure detection, and affecting computing time and precision.
+
+- Binning:
+    - Scagnostics: the number of bins can be controlled by the user, note however that internally the implementation will reduce the number of bins if too many non-empty bins are found (more than 250).
+    - MINE: the maximum number of bins considered is fixed by the user as a function of the number of data points. The default is chosen as a trade-off between resolution and noise dependence, but it may be tuned based on requirements dictated by specific datasets. Apart from sensitivity to noise computing time may also be a consideration here.
+- Spline knots: for the splines2d measure we need to fix the number of knots. By default it is fixed to be 10 (or lower if appropriate based on the data values). In our examples we find the number to be appropriate to identify functional dependence while rejecting noise, but some distributions may require tuning of this parameter.
+
+<!--### Effect of binning in scagnostics -->
+
+The bins argument for the scagnostics might be reasonably expected to affect the smoothness of the index: a small number of bins should provide a smooth index function, but may affect its ability to detect fine structure. Figure \ref{fig:spiralScagBinning} examines this. Scagnostics PPIs are computed for the spiral1000 data on a tour path between $x_1$-$x_2$ to $x_5$-$x_6$, for number of bins equal to 10, 20, 50. The interesting observation to make is that even with small bin size the functions are all relatively noisy. The problem with the small bin size is that the spiral becomes invisible to the PPI. 
+
+
+```{r spiralScagBinning, fig.cap="Comparing the traces of the three scagnostics indices when changing the binning via the bins parameter set to 10, 20 and 50 in this example.", out.width=".7\\textwidth"}
+getScagComp <- function(df, tPath){
+  sc <- tibble(
+    convex10=numeric(),
+    skinny10=numeric(),
+    stringy10=numeric(),
+    convex20=numeric(),
+    skinny20=numeric(),
+    stringy20=numeric(),
+    convex50=numeric(),
+    skinny50=numeric(),
+    stringy50=numeric(),
+    t=numeric())
+  n <- length(tPath)
+  for (i in 1:n) {
+    dprj <- as.matrix(df) %*% tPath[[i]]
+    scagRes10 <- scagnostics.default(dprj[,1], dprj[,2], bins=10)$s
+    scagRes20 <- scagnostics.default(dprj[,1], dprj[,2], bins=20)$s
+    scagRes50 <- scagnostics.default(dprj[,1], dprj[,2], bins=50)$s
+    sc <- add_row(sc,
+                  convex10=scagRes10["Convex"], skinny10=scagRes10["Skinny"],
+                  stringy10=scagRes10["Stringy"],
+                  convex20=scagRes20["Convex"], skinny20=scagRes20["Skinny"],
+                  stringy20=scagRes20["Stringy"],
+                  convex50=scagRes50["Convex"], skinny50=scagRes50["Skinny"],
+                  stringy50=scagRes50["Stringy"],
+                  t=i)
+  }
+  
+  return(sc)
+}
+if(!file.exists("../cache/spiralScagBinning.rda")){
+  scagBinningDf <- getScagComp(spiral1000, t2full)
+  scagMelt <- gather(scagBinningDf, variable, value, -t) %>%
+    mutate(nbin = as.numeric(str_sub(variable, start = -2))) %>%
+    mutate(idx = str_sub(variable, end = -3))
+  save(scagBinningDf, scagMelt, file = "../cache/spiralScagBinning.rda")
+} else {
+  load("../cache/spiralScagBinning.rda")
+}
+ggplot(scagMelt, aes(x=t, y=value)) +
+  geom_line(aes(color=factor(nbin))) + 
+  facet_wrap(~idx, ncol=1, scales = "free_y", labeller = label_wrap_gen(multi_line=FALSE)) +
+  scale_colour_discrete("bins") + xlab("Number of projections") + 
+  ylab("PPI value")
+
+```
+
+## Binning sensitivity of MIC index
+To examine the sensitivity of binning in the MIC PPI, the classic RANDU data [@Marsaglia68], available in R, is used. Binning is defined by $\delta$, where $B(n) = n^{\delta}$. Figure \ref{fig:randuEx} shows the best projection, index value and computing time obtained when optimizing the MIC index with values $\delta = 0.6, 0.7, 0.8$. With small $\delta$, less bins, the structure isn't visible, and with larger $\delta$ the structure is confounded with noise. It does appear that this parameter affects the performance of the MIC index.
+
+
+```{r randuEx, results="hide", fig.cap="Best projection obtained by optimizing the MIC index on the RANDU data, using different number of bins, defined by $\\delta$. The smaller the value the fewer bins.  Above each plot is written the value of $\\delta$, time required to optimize (seconds) and the MIC index value. The best $\\delta = 0.7$, and the result indicates that this parameter does affect MIC performance."}
+if(!file.exists("../cache/randuEx.rda")){
+  pL <- list()
+  i <- 1
+  for (alpha in c( 0.6, 0.7, 0.8)){
+    set.seed(556677)
+    tic.clearlog()
+    tic() #start timer
+    tP <- save_history(randu, guided_tour(mineIndexAlpha("MIC", alpha)),max_bases = 100000)
+    toc(log=TRUE,quiet=TRUE)
+    optT <- unlist(tic.log(format=FALSE))["toc.elapsed"]-unlist(tic.log(format=FALSE))["tic.elapsed"]
+    imax <- length(as.list(tP))
+    fV <- as_tibble(as.matrix(randu) %*% as.list(tP)[[imax]])
+    colnames(fV) <- c("PP1", "PP2")
+    idxV <- mine(fV$PP1, fV$PP2, alpha = alpha)[["MIC"]]
+    pL[[i]] <- ggplot(fV, aes(PP1,PP2)) + geom_point() + theme(aspect.ratio=1) + 
+      ggtitle(paste(alpha, toString(format(optT, digits=2)), toString(format(idxV, digits=2)), sep = ", "))
+    i <- i+1
+  }
+  save(pL, file = "../cache/randuEx.rda")
+} else {
+  load("../cache/randuEx.rda")
+}
+grid.arrange(pL[[1]], pL[[2]], pL[[3]], ncol=3)
+```
+
+
+# Ways to refine the PPIs {#app:enh}
+
+The biggest issues revealed by the investigation into the new PPIs are a lack of smoothness, particularly for the scagnostics indexes, and the rotation invariance of Grimm's indexes. To fix the smoothness of an index function, it is possible to calculate the PPI for a small neighborhood of projections and average the value, or alternatively average the PPI for several jittered projections. This is investigated in Fig. \ref{fig:spiralScagSmoothing}. Rotation invariance is more difficult to fix, but an alternative tour interpolation method could be useful. The geodesic interpolation transitions between planes, and it ignores the basis defining the plane, creating a problem with rotation invariant indices. Alternative interpolations based on Givens or Householder rotations could be implemented to transition between bases, which should alleviate the need for rotationally invariant indices. 
+
+
+Two different methods are considered for smoothing the index values:
+
+* Jittering points: using the jitter function we move each point by a random amount drawn from a uniform distribution between $\pm \beta$.
+* Jittering angles: using the tourr implementation we can draw a random plane and move some small amount $\epsilon$ in that direction.
+
+The mean value from a sample of projections is recorded as the PPI value. This could be robsitufied by dropping the most extreme values. 
+
+This is particularly interesting for the scagnostics indexes skinny and stringy which we found to be most noisy among the indexes considered. Figure \ref{fig:spiralScagSmoothing} studies the potential of these two smoothing approaches, using the tour path between noise variables of the spiral1000 dataset and different $\epsilon$ and $\beta$ values. Both methods appear to be promising in smoothing the function. Because the scagnostics are fast to compute, either of these methods is feasible. For this example we have smoothed over 10 randomly selected jittered views, computing time increases linearly with the number of randomly jittered views, as this is mostly determined by the time needed to evaluate the scagnostics indexes which is done separately for each view.
+
+
+```{r spiralScagSmoothing, fig.cap="Comparing the traces of the scagnostics indexes skinny and stringy when smoothing the index values, either by averaging over the index value after jittering the projection by some angle $\\epsilon$ (full line) or after jittering the projected datapoints with some amount $\\beta$ (dashed line). For comparison the red line in the background shows the trace without any smoothing applied."}
+
+jitterScagnostics <-function(proj, d, alpha){
+  newProj <- tourr:::basis_nearby(proj, alpha = alpha, method = "geodesic")
+  newD <- d %*% newProj
+  return(as.vector(scagnostics.default(newD[,1],newD[,2])$s))
+}
+
+jitterPointsScagnostics <-function(projData, alpha){
+  newD <- jitter(projData, amount=alpha)
+  return(as.vector(scagnostics.default(newD[,1],newD[,2])$s))
+}
+
+
+getSgnMean <- function(proj, d, alpha, method){
+  dProj <- d %*% proj
+  orig <- as.vector(scagnostics.default(dProj[,1],dProj[,2])$s)
+  if(method == "jitterAngle"){
+    sgnVec <- replicate(10, jitterScagnostics(proj, d, alpha))
+  } else if (method=="jitterPoints"){
+    sgnVec <- replicate(10, jitterPointsScagnostics(dProj, alpha))
+  }
+  return(rowMeans(cbind(orig, sgnVec)))
+}
+
+getScagSmooth <- function(df, tPath){
+  sc <- tibble(
+    convex=numeric(),
+    skinny=numeric(),
+    stringy=numeric(),
+    t=numeric(),
+    method=character(),
+    alpha=numeric())
+  n <- length(tPath)
+  for (method in c("jitterAngle", "jitterPoints")){
+    for (alpha in c(0.01, 0.05, 0.1)){
+      for (i in 1:n) {
+        scagMean <- getSgnMean(tPath[[i]], as.matrix(df), alpha, method)
+        convex <- scagMean[6]
+        skinny <- scagMean[7]
+        stringy <- scagMean[8]
+        sc <- sc %>% add_row(convex=convex, skinny=skinny, stringy=stringy,
+                             t=i, method=method, alpha=alpha)
+      }
+    }
+  }
+  
+  return(sc)
+}
+
+if(!file.exists("../cache/spiralScagSmoothing.rda")){
+  scagSmooth <- getScagSmooth(spiral1000, as.list(t1full))
+  scagSmoothMelt <- gather(scagSmooth, variable, value, -t, -method, -alpha)
+  save(scagSmooth, scagSmoothMelt, file = "../cache/spiralScagSmoothing.rda")
+} else {
+  load("../cache/spiralScagSmoothing.rda")
+}
+
+#getting non-smoothed result
+load("../cache/V1V2toV3V4.rda")
+noSmoothing <- fullRes %>%
+  filter(size==1000) %>%
+  filter(name=="spiral") %>%
+  select(skinny, stringy, t) %>%
+  gather(variable, value, -t)
+
+scagSmoothMelt <- scagSmoothMelt %>%
+  filter(variable != "convex") %>%
+  mutate(method = factor(method, levels = c("jitterAngle", "jitterPoints")))
+ggplot(scagSmoothMelt, aes(x=t, y=value)) +
+  geom_line(data=noSmoothing, color="red", alpha=0.5) +
+  geom_line(aes(linetype=factor(method))) + 
+  theme(legend.position="none") +
+  ylim(0,1) +
+  facet_grid(alpha~variable) +
+  xlab("Sequence of projections (t)") +
+  ylab("PPI value")
+
+```
+
+
+
+# Additional Figures
+
+## Final projection of pipe guided tour
+Figure \ref{fig:testpipe} shows the projection returned during the scouting phase (left) and the refinement phase (right). It was important to start the method 3 optimizer at the best projection returned during the scouting phase, to smoothly converge more closely to the ideal projection.
+
+```{r testpipe,  fig.height=4, fig.width=8, out.width = "0.8\\textwidth",  fig.cap="Projections returned by TIC optimization: by the scouting phase (left) and refined by  optimization method 3 (right), starting from the scouting phase projection."}
+load("../cache/findpipe.rda")
+iLast <- length(pipeTourFull)
+fProj <- pipeTourFull[[iLast]]
+dProj <- as_tibble(pipeResc %*% fProj)
+p1 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
+  xlab("PP1") + ylab("PP2")
+iLast <- length(pipeTourFull2)
+fProj <- pipeTourFull2[[iLast]]
+dProj <- as_tibble(pipeResc %*% fProj)
+p2 <- ggplot(dProj, aes(V1,V2)) + geom_point() + theme(aspect.ratio=1) +
+  xlab("PP1") + ylab("PP2")
+grid.arrange(p1, p2, ncol=2)
+```
+
+## Dataset overview scatter plot matrices
+
+Figures \ref{fig:neutronStarSPLOM} and \ref{fig:bbhSimulation} show the scatter plot matrices of the gravitational wave datasets considered, see Section \ref{sec:phys} for details.
+
+```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
+nsD <- read_csv("../data/samples.csv") 
+ggpairs(nsD, lower=list(continuous = wrap("points", alpha = 0.05)))
+```
+
+```{r bbhSimulation, fig.height=8, fig.width=8, dev = "png", dpi=300, fig.cap="Scatter plot matrix showing most of the variables included in the BBH dataset. Strong correlation between the parameters time, dec and ra can be observed."}
+bbhD <- read_csv("../data/posterior_samples.csv")
+bbhDsmall <- select(bbhD, -phi_jl, -m2, -psi, -chi_eff)
+ggpairs(bbhDsmall, lower=list(continuous = wrap("points", alpha = 0.02)))
+```
+
+# References {-}
