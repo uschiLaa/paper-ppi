@@ -316,7 +316,7 @@ timeThis <- function(d, t, idx, pmax, n, idxName){ #d=data matrix, t=interpolate
 ```
 
 
-```{r timer, fig.cap="Computational perfoamce for PPIs, using sample sizes 100-10000. Colour indicates the PPI. Because the scagnostics calculation is bundled together, the values are the same for all these indexes, and they are really fast to compute. MINE includes the MIC and TIC indexes, and MINE E are computationally more efficient algorithms for these. These, along with dcor2D, are slower with larger sample sizes.", out.width=".6\\textwidth"}
+```{r timer, fig.cap="Computational performance for PPIs, using sample sizes 100-10000. Colour indicates the PPI. Because the scagnostics calculation is bundled together, the values are the same for all these indexes, and they are really fast to compute. MINE includes the MIC and TIC indexes, and MINE E are computationally more efficient algorithms for these. These, along with dcor2D, are slower with larger sample sizes.", out.width=".6\\textwidth"}
 if(!file.exists("../cache/timer.rda")){
   set.seed(2018)
   grandTour100 <- save_history(sphereData(6,100), grand_tour(2), max=4) %>%
@@ -572,7 +572,7 @@ grid.arrange(p1, p2, ncol=2)
 
 ## Dataset overview scatter plot matrices
 
-Figures \ref{fig:neutronStarSPLOM} and \ref{fig:bbhSimulation} show the scatter plot matrices of the gravitational wave datasets considered, see Section \ref{sec:phys} for details.
+Figures \ref{fig:neutronStarSPLOM} and \ref{fig:bbhSimulation} show the scatter plot matrices of the gravitational wave datasets considered.
 
 ```{r neutronStarSPLOM, fig.height=8, fig.width=8, fig.cap="Scatter plot matrix of the neutron star dataset, darker regions represent higher marginalised posterior densities."}
 nsD <- read_csv("../data/samples.csv") 

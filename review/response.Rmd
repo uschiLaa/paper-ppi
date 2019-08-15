@@ -10,7 +10,7 @@ The authors need to convince readers (users) this kind of environment is good fo
 
 **We have added a paragraph to the introduction to explain the approach for higher dimensional problems, as follows:** 
 
-**PP can also be used to explore data with many more variables, data that is commonly seen today. For example, [@Cook:2018mvr] explores a 56-dimensional parameter space, by first reducing the number of dimensions to the first six principal components, before applying projection pursuit. There is not a single solution for working with high-dimensional data. PCA was appropriate for this problem because reducing to principal component space removed the linear dependencies but preserved the nonlinear relationships that were interesting to discover. Some projection pursuit indexes incorporation penalty terms to naturally deal with noise dimensions. Having an efficient optimizer can also important with increasing dimensionality, because there are many more dimensions to search.**
+**PP can be combined with other dimension reduction methods when p is very high. For example, it can be beneficial to first do principal component analysis prior to PP, especially to remove linear dependencies before searching for other types of association. This is the approach used in Cook, Laa, and Valencia (2018), which explores a 56-dimensional parameter space, by first reducing the number of dimensions to the first six principal components, before applying projection pursuit. PCA was appropriate for this problem because reducing to principal component space removed the linear dependencies while preserving the nonlinear relationships that were interesting to discover. Some projection pursuit indexes do incorporate penalty terms to automate removing noise dimensions. It can also be important to have an efficient PP optimizer, particularly when working with high dimensions, because the search space increases exponentially with dimension.**
 
 Example(s) with very large number (at least hundreds) of dimensions should be included in the study.
 
@@ -52,7 +52,7 @@ This manuscript presented a simulation study to visually explore the properties 
 
 6) There was some confusion regarding the number of PPIs used in the content. There are eight indexes in Table 2; nine indexes in Fig 7; six indexes in Table 3, and seven indices in Section 4.2.2.
 
-**We are considering seven new index functions. In Section 3, we also include the holes index for comparison, because it is an established index with generally good, focused performance. This is now explained in the end of Section 2.2. The holes index is not included in Table 3 because the focus is on summarising our findings on the new index functions. Because the MINE indexes (MIC, TIC) that have very similar behaviour in all assessments,  we combined for this summary. We have now added another line for TIC, because it doesn't use much extra space, and saves confusion about the differing number of indexes. Finally Section 4.2.2 applies a selection of the new index functions to physics problems.**
+**We are considering seven new index functions. In Section 3, we also include the holes index for comparison, because it is an established index with generally good, focused performance. This is now explained in the end of Section 2.2. The holes index is not included in Table 3 because the focus is on summarising our findings on the new index functions. Because the MINE indexes (MIC, TIC) have very similar behaviour in all assessments, we had combined them for this summary. We have now added another line for TIC, because it doesn't use much extra space, and saves confusion about the differing number of indexes. Finally Section 4.2.2 applies a selection of the new index functions to physics problems.**
 
 7) I would suggest moving the appendix A (the description of "holes/cmass" index) to Section 2.2 for readability.
 
@@ -76,12 +76,12 @@ Second, the simulation study uses six-dimensional data of which four dimensions 
 
 **We have added an explicit statement that we fix p=6. As mentioned in the statement p=6 results in two independent planes showing the nuisance distribution and one plane showing the structured distribution. This set-up is adequate for most of our study where we follow interpolated paths either between nuisance only projections or from nuisance views to structured projections.**
 
-Thirdly, the simulations refer to sequences of projections (the horizontal axis in plots in Figures 2, 3, and 4. As I understand these sequences are a consequence of optimising the corresponding projection pursuit index. How can you then actually control the two different scenarios referred to in section 3.2 and 3.3? Or, do you extract a specified sequence of projections? Moreover, how do you make sure that you have the same sequence length for each trial? Please clarify!
+Thirdly, the simulations refer to sequences of projections (the horizontal axis in plots in Figures 2, 3, and 4. As I understand these sequences are a consequence of optimizing the corresponding projection pursuit index. How can you then actually control the two different scenarios referred to in section 3.2 and 3.3? Or, do you extract a specified sequence of projections? Moreover, how do you make sure that you have the same sequence length for each trial? Please clarify!
 
 **Captions and the text in Sections 3.2-3 have been changed to make it clearer that Figures 2 and 3 present the trace for a specified sequence of projections (since in the simulation study the nuisance and structured views are known), and Figure 4 is different as in this case the path is indeed the result of optimising an index.**
 
 
-The optimisation methods are further discussed in section 3.4 and depend on the structure present in the data. What is the value of these investigations for more realistic settings in which the structure is not known.
+The optimization methods are further discussed in section 3.4 and depend on the structure present in the data. What is the value of these investigations for more realistic settings in which the structure is not known.
 
 **It is important to understand the performance of the optimisation before applying the method on new examples and we use the known examples for this. This is now explained in the first sentence in Section 3.4.** 
 
