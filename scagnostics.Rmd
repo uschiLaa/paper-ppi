@@ -23,7 +23,7 @@ keywords:
 abstract: |
   Projection pursuit is used to find interesting low-dimensional projections of high-dimensional data by optimizing an index over all possible projections. Most indexes have been developed to detect departure from known distributions, such as normality, or to find separations between known groups. Here, we are interested in finding projections revealing potentially complex bivariate patterns, using new indexes constructed from scagnostics and a maximum information coefficient, with a purpose to detect unusual relationships between model parameters describing physics phenomena. The performance of these indexes is examined with respect to ideal behaviour, using simulated data, and then applied to problems from gravitational wave astronomy. The implementation builds upon the projection pursuit tools available in the R package, tourr, with indexes constructed from code in the R packages, binostics, minerva and mbgraphic.
 
-bibliography: bibliography.bib
+bibliography: [bibliography.bib]
 output: rticles::springer_article
 header-includes:
   - \usepackage{booktabs}
@@ -1567,6 +1567,7 @@ To apply the existing index functions in practice, we recommend to either use th
 The authors gratefully acknowledge the support of the Australian Research Council.
 We thank Rory Smith for help with the gravitational wave examples, and German Valencia for useful comments.
 This article was created with knitr [@knitr], R Markdown [@rmarkdown] and bookdown [@bookdown] with embedded code.
+
 
 
 # References {-}
